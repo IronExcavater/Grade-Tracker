@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="bPaneRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="iron.gradetracker.controller.AppController" stylesheets="@../styles.css">
+    <top>
+        <TabPane fx:id="tPaneMenu" minWidth="100" minHeight="30">
+            <Tab text="Home"/>
+            <Tab text="Data"/>
+            <Tab text="Settings"/>
+        </TabPane>
+    </top>
+</BorderPane>
