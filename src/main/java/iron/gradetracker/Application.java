@@ -1,5 +1,6 @@
 package iron.gradetracker;
 
+import iron.gradetracker.model.App;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -11,7 +12,7 @@ public class Application extends javafx.application.Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view/app-view.fxml"), null, null,
-                _ -> new AppController(stage));
+                _ -> new AppController(stage, new App()));
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         stage.setTitle("Grade Tracker");
         stage.setScene(scene);

@@ -1,6 +1,7 @@
 module niclasrogulski.gradetracker {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.google.gson;
 
 
     opens iron.gradetracker to javafx.fxml;

@@ -6,12 +6,12 @@
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="iron.gradetracker.controller.DataController" stylesheets="@../styles.css">
     <top>
-        <GridPane vgap="10" style="-fx-padding: 10">
+        <GridPane vgap="5" style="-fx-padding: 10">
             <HBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10" alignment="CENTER_LEFT">
                 <Button onAction="#handleAdd" text="Add"/>
                 <Button onAction="#handleDelete" text="Delete"/>
             </HBox>
-            <HBox fx:id="hBxBreadcrumbs" GridPane.rowIndex="0" GridPane.columnIndex="1" spacing="5" alignment="CENTER_LEFT"/>
+            <HBox fx:id="hBxBreadcrumbs" GridPane.rowIndex="1" GridPane.columnIndex="0" spacing="5" alignment="CENTER_LEFT"/>
         </GridPane>
     </top>
     <center>

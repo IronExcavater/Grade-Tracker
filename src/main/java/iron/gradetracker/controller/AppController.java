@@ -11,8 +11,8 @@ public class AppController extends Controller<App> {
     @FXML private BorderPane bPaneRoot;
     @FXML private TabPane tPaneMenu;
 
-    public AppController(Stage stage) {
-        this.stage = stage;
+    public AppController(Stage stage, App model) {
+        super(stage, model);
     }
 
     @FXML
@@ -23,11 +23,13 @@ public class AppController extends Controller<App> {
 
     private void loadContent(Tab tab) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/iron/gradetracker/view/%s-view.fxml".formatted(tab.getText().toLowerCase())));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/iron/gradetracker/view/%s-view.fxml".formatted(tab.getText().toLowerCase())),
+                    null, null, _ -> new DataController(stage, model));
             bPaneRoot.setCenter(fxmlLoader.load());
             Controller<App> controller = fxmlLoader.getController();
             controller.model = model;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Exception occurred while loading content for the %s tab".formatted(tab.getText()));
         }
     }
