@@ -29,7 +29,6 @@ public class AppController extends Controller<App> {
             Controller<App> controller = fxmlLoader.getController();
             controller.model = model;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("Exception occurred while loading content for the %s tab".formatted(tab.getText()));
         }
     }

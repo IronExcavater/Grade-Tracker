@@ -71,11 +71,11 @@ public class DataController extends Controller<App> {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
         Data data = currentData;
-        hBxBreadcrumbs.getChildren().add(new BreadcrumbView(this, data));
+        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
         while (!data.equals(model.studentData)) {
             data = data.getParent();
             hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
-            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbView(this, data));
+            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
         }
     }
 }
