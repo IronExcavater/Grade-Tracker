@@ -12,6 +12,7 @@ public class IntegerTextField extends TextField {
     private final SimpleIntegerProperty boundProperty;
     private final SimpleIntegerProperty maxProperty;
     private final boolean isBidirectional;
+    private final int maxLength = 4;
 
     public IntegerTextField(SimpleIntegerProperty boundProperty, boolean isBidirectional, SimpleIntegerProperty maxProperty) {
         this.boundProperty = boundProperty;
@@ -43,9 +44,8 @@ public class IntegerTextField extends TextField {
             textProperty().bind(boundProperty().asString());
     }
 
-    // TODO: Add cap on length of whole number
     private TextFormatter<Integer> integerTextFormatter() {
-        Pattern validPattern = Pattern.compile("([1-9]\\d*|0)?");
+        Pattern validPattern = Pattern.compile("([1-9]\\d{0,%d}|0)?".formatted(maxLength - 1));
         return new TextFormatter<>(change -> {
             String text = change.getControlNewText();
 

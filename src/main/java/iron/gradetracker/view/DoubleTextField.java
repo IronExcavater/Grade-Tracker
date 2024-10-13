@@ -12,6 +12,7 @@ public class DoubleTextField extends TextField {
     private final SimpleDoubleProperty boundProperty;
     private final SimpleDoubleProperty maxProperty;
     private final boolean isBidirectional;
+    private final int maxLength = 4;
 
     public DoubleTextField(SimpleDoubleProperty boundProperty, boolean isBidirectional, SimpleDoubleProperty maxProperty) {
         this.boundProperty = boundProperty;
@@ -43,9 +44,8 @@ public class DoubleTextField extends TextField {
             textProperty().bind(boundProperty().asString());
     }
 
-    // TODO: Add cap on length of whole number
     private TextFormatter<Double> doubleTextFormatter() {
-        Pattern validPattern = Pattern.compile("([1-9]\\d*|0)?(\\.\\d{0,2})?");
+        Pattern validPattern = Pattern.compile("([1-9]\\d{0,%d}|0)?(\\.\\d{0,2})?".formatted(maxLength - 1));
         return new TextFormatter<>(change -> {
             String text = change.getControlNewText();
 
