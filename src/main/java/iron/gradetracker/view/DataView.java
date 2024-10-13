@@ -41,19 +41,53 @@ public abstract class DataView extends GridPane {
     }
 
     protected static TextFormatter<Integer> integerFormatter(SimpleIntegerProperty maxValueProperty) {
-        Pattern validDecimalPattern = Pattern.compile("\\d*(\\.\\d{0,2})?");
+        Pattern validIntegerPattern = Pattern.compile("([1-9]\\d*|0)?");
         return new TextFormatter<>(change -> {
             String text = change.getControlNewText();
-            if (text.isEmpty() || validDecimalPattern.matcher(text).matches() && Double.parseDouble(text) <= maxValueProperty.getValue()) return change;
+
+            if (validIntegerPattern.matcher(text).matches()) {
+                // If larger than maxValue, set to max value
+                if (!text.isEmpty() && maxValueProperty != null) {
+                    int maxValue = maxValueProperty.getValue();
+                    int currentValue = Integer.parseInt(text);
+                    if (currentValue > maxValue) {
+                        change.setText(String.valueOf(maxValue));
+                        change.setRange(0, change.getControlText().length());
+                        change.selectRange(change.getControlNewText().length(), change.getControlNewText().length());
+                    }
+                }
+                return change;
+            }
             return null;
         });
     }
 
     protected static TextFormatter<Double> decimalFormatter(SimpleDoubleProperty maxValueProperty) {
-        Pattern validDecimalPattern = Pattern.compile("\\d*(\\.\\d{0,2})?");
+        Pattern validDecimalPattern = Pattern.compile("([1-9]\\d*|0)?(\\.\\d{0,2})?");
         return new TextFormatter<>(change -> {
             String text = change.getControlNewText();
-            if (text.isEmpty() || validDecimalPattern.matcher(text).matches() && Double.parseDouble(text) <= maxValueProperty.getValue()) return change;
+            System.out.println(text);
+            // Add leading zero before decimal point
+            if (text.startsWith(".")) {
+                if (change.isDeleted()) change.setRange(0, 2);
+                change.setText("0.");
+                change.selectRange(2, 2);
+                return change;
+            }
+            if (validDecimalPattern.matcher(text).matches()) {
+                // If larger than maxValue, set to max value
+                if (!text.isEmpty() && maxValueProperty != null) {
+                    double maxValue = maxValueProperty.getValue();
+                    double currentValue = Double.parseDouble(text);
+                    if (currentValue > maxValue) {
+                        text = (maxValue == (int) maxValue ? String.valueOf((int) maxValue) : String.valueOf(maxValue));
+                        change.setText(text);
+                        change.setRange(0, change.getControlText().length());
+                        change.selectRange(change.getControlNewText().length(), change.getControlNewText().length());
+                    }
+                }
+                return change;
+            }
             return null;
         });
     }

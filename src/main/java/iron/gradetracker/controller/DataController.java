@@ -32,7 +32,7 @@ public class DataController extends Controller<App> {
         switch (currentData) {
             case StudentData studentData -> lstData.getItems().add(new SessionView(new SessionData(studentData)));
             case SessionData sessionData -> lstData.getItems().add(new SubjectView(new SubjectData(sessionData, 6)));
-            case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(new AssessmentData(subjectData, 0, 0, 20)));
+            case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(new AssessmentData(subjectData, 0, 100, 20)));
             default -> {}
         }
     }

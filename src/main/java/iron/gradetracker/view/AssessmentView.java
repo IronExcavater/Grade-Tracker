@@ -3,6 +3,7 @@ package iron.gradetracker.view;
 import iron.gradetracker.model.*;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.util.converter.NumberStringConverter;
 
 public class AssessmentView extends DataView {
@@ -17,7 +18,14 @@ public class AssessmentView extends DataView {
         maxScore.setPrefWidth(0);
         weight.setPrefWidth(0);
 
+        score.focusedProperty().addListener((_, _, newValue) -> { if (!newValue && score.getText().isEmpty()) score.setText("0"); });
+        score.setOnKeyPressed(keyEvent -> { if (keyEvent.getCode() == KeyCode.ENTER) score.getParent().requestFocus(); });
         score.setTextFormatter(decimalFormatter(data.maxScoreProperty()));
+        maxScore.focusedProperty().addListener((_, _, newValue) -> { if (!newValue && maxScore.getText().isEmpty()) maxScore.setText("0"); });
+        maxScore.setOnKeyPressed(keyEvent -> { if (keyEvent.getCode() == KeyCode.ENTER) maxScore.getParent().requestFocus(); });
+        maxScore.setTextFormatter(decimalFormatter(null));
+        weight.focusedProperty().addListener((_, _, newValue) -> { if (!newValue && weight.getText().isEmpty()) weight.setText("0"); });
+        weight.setOnKeyPressed(keyEvent -> { if (keyEvent.getCode() == KeyCode.ENTER) weight.getParent().requestFocus(); });
         weight.setTextFormatter(integerFormatter(data.remainingWeightProperty()));
 
         NumberStringConverter converter = new NumberStringConverter();
