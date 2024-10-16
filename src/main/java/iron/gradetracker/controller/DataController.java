@@ -9,6 +9,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class DataController extends Controller {
 
     @FXML private HBox hBxBreadcrumbs;
@@ -30,9 +32,9 @@ public class DataController extends Controller {
     @FXML
     private void handleAdd() {
         switch (currentData) {
-            case StudentData studentData -> lstData.getItems().add(new SessionView(new SessionData(studentData)));
-            case SessionData sessionData -> lstData.getItems().add(new SubjectView(new SubjectData(sessionData, 6)));
-            case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(new AssessmentData(subjectData, 0, 100, 20)));
+            case StudentData studentData -> lstData.getItems().add(new SessionView(studentData.createChild()));
+            case SessionData sessionData -> lstData.getItems().add(new SubjectView(sessionData.createChild()));
+            case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(subjectData.createChild()));
             default -> {}
         }
         // Update logic
@@ -41,11 +43,17 @@ public class DataController extends Controller {
 
     @FXML
     private void handleDelete() {
-        var selectedItems = lstData.getSelectionModel().getSelectedItems();
-        if (selectedItems.isEmpty()) return;
-        selectedItems.stream().map(view -> view.getData());
+        List<DataView<?>> selectedViews = lstData.getSelectionModel().getSelectedItems();
+        if (selectedViews.isEmpty()) return;
 
-        lstData.getItems().removeAll(selectedItems);
+        List<?> selectedData = selectedViews.stream().map(DataView::getData).toList();
+        switch (currentData) {
+            case StudentData studentData -> studentData.removeChildren(selectedData.stream().map(SessionData.class::cast).toList());
+            case SessionData sessionData -> sessionData.removeChildren(selectedData.stream().map(SubjectData.class::cast).toList());
+            case SubjectData subjectData -> subjectData.removeChildren(selectedData.stream().map(AssessmentData.class::cast).toList());
+            default -> {}
+        }
+        lstData.getItems().removeAll(selectedViews);
         // Update logic
         updateColumnHeadings();
     }
@@ -53,7 +61,7 @@ public class DataController extends Controller {
     @FXML
     public void handleListClick(MouseEvent mouseEvent) {
         if (lstData.getSelectionModel().getSelectedItem() == null) return;
-        Data clickedData = lstData.getSelectionModel().getSelectedItem().getData();
+        Data<?, ?> clickedData = lstData.getSelectionModel().getSelectedItem().getData();
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
@@ -61,7 +69,7 @@ public class DataController extends Controller {
         }
     }
 
-    public void updateCurrentData(Data currentData) {
+    public void updateCurrentData(Data<?, ?> currentData) {
         this.currentData = currentData;
         updateDataViewList();
         updateBreadcrumbs();
@@ -98,7 +106,7 @@ public class DataController extends Controller {
         gPaneHeadings.getChildren().clear();
         gPaneHeadings.getColumnConstraints().clear();
         if (!lstData.getItems().isEmpty()) {
-            DataView childView = lstData.getItems().getFirst();
+            DataView<?> childView = lstData.getItems().getFirst();
             int[] columnWidths = childView.getColumnWidths();
             String[] columnNames = childView.getColumnNames();
             for (int i = 0; i < columnNames.length; i++) {

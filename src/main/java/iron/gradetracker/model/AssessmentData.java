@@ -3,6 +3,7 @@ package iron.gradetracker.model;
 import com.google.gson.annotations.Expose;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import java.util.List;
 
 public class AssessmentData extends Data<SubjectData, AssessmentData> {
 
@@ -14,14 +15,20 @@ public class AssessmentData extends Data<SubjectData, AssessmentData> {
 
     public AssessmentData(SubjectData parent, double score, double maxScore, int weight) {
         super(parent);
-        scoreProperty().set(score);
-        maxScoreProperty().set(maxScore);
-        weightProperty().set(weight);
+        getParent().update();
 
         remainingWeightProperty().bind(Bindings.createIntegerBinding(() -> (100 - getParent().getWeight()) + getWeight(), getParent().weightProperty()));
         markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()));
-        parent.addChild(this);
+
+        maxScoreProperty().set(maxScore);
+        scoreProperty().set(Math.min(score, getMaxScore()));
+        weightProperty().set(Math.min(weight, getRemainingWeight()));
+
+        weightProperty().addListener(_ -> getParent().update());
+        markProperty().addListener(_ -> getParent().update());
     }
+
+    public AssessmentData(SubjectData parent) { this(parent, 0, 100, 20); }
 
     public SimpleDoubleProperty scoreProperty() { return score; }
     public double getScore() { return score.get(); }
@@ -37,4 +44,17 @@ public class AssessmentData extends Data<SubjectData, AssessmentData> {
 
     public SimpleDoubleProperty markProperty() { return mark; }
     public double getMark() { return mark.get(); }
+
+    @Override
+    public AssessmentData createChild() {
+        throw new IllegalArgumentException("AssessmentData does not support children");
+    }
+
+    @Override
+    public void removeChildren(List<AssessmentData> children) {
+        throw new IllegalArgumentException("AssessmentData does not support children");
+    }
+
+    @Override
+    protected void update() {}
 }

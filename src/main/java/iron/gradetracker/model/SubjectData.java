@@ -3,6 +3,7 @@ package iron.gradetracker.model;
 import com.google.gson.annotations.Expose;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import java.util.List;
 
 public class SubjectData extends Data<SessionData, AssessmentData> {
 
@@ -15,24 +16,19 @@ public class SubjectData extends Data<SessionData, AssessmentData> {
 
     public SubjectData(SessionData parent, int creditPoints) {
         super(parent);
-        creditPointsProperty().set(creditPoints);
-
-        weightProperty().bind(Bindings.createIntegerBinding(() ->
-                children.stream()
-                        .mapToInt(AssessmentData::getWeight)
-                        .sum(), children
-        ));
-
-        markProperty().bind(Bindings.createDoubleBinding(() ->
-                children.stream()
-                        .mapToDouble(AssessmentData::getMark)
-                        .sum() / getWeight(), children
-        ));
+        getParent().update();
 
         gradeProperty().bind(Bindings.createStringBinding(() -> App.getGradeMap().getGrade(getMark()).name, markProperty()));
-
         gradePointsProperty().bind(Bindings.createDoubleBinding(() -> App.getGradeMap().getGrade(getMark()).point, markProperty()));
+
+        creditPointsProperty().set(creditPoints);
+
+        creditPointsProperty().addListener(_ -> getParent().update());
+        markProperty().addListener(_ -> getParent().update());
+        gradePointsProperty().addListener(_ -> getParent().update());
     }
+
+    public SubjectData(SessionData parent) { this(parent, 6); }
 
     public SimpleStringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
@@ -51,4 +47,31 @@ public class SubjectData extends Data<SessionData, AssessmentData> {
 
     public SimpleIntegerProperty weightProperty() { return weight; }
     public int getWeight() { return weight.get(); }
+
+    @Override
+    public AssessmentData createChild() {
+        AssessmentData data = new AssessmentData(this);
+        children.add(data);
+        return data;
+    }
+
+    @Override
+    public void removeChildren(List<AssessmentData> children) {
+        this.children.removeAll(children);
+    }
+
+    @Override
+    protected void update() {
+        weightProperty().bind(Bindings.createIntegerBinding(() ->
+                children.stream()
+                        .mapToInt(AssessmentData::getWeight)
+                        .sum(), children
+        ));
+
+        markProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(AssessmentData::getMark)
+                        .sum() / getWeight(), children
+        ));
+    }
 }

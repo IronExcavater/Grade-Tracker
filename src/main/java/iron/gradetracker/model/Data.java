@@ -22,13 +22,13 @@ public abstract class Data<P extends Data<?, ?>, C extends Data<?, ?>> {
 
     public List<C> getChildren() { return children; }
     public void addChild(C child) { children.add(child); }
-    public void addChildren(List<C> children) { this.children.addAll(children); }
-    public void removeChild(C child) { children.remove(child); }
-    public void removeChildren(List<C> children) { this.children.removeAll(children); }
-
     public P getParent() { return parent; }
-    public void setParent(P parent) { this.parent = parent; }
 
     public SimpleStringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
+
+    public abstract C createChild();
+    public abstract void removeChildren(List<C> children);
+
+    protected abstract void update();
 }
