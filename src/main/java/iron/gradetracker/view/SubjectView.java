@@ -14,8 +14,8 @@ public class SubjectView extends DataView<SubjectData> {
         super(data, new int[]{40, 15, 15, 15, 15}, new String[]{"Subject Name", "Credit Points", "Mark", "Grade", "Grade Points"}, "Unnamed Subject");
         creditPoints = new IntegerTextField(data.creditPointsProperty(), true);
         mark.textProperty().bind(data.markProperty().asString());
-        grade.textProperty().bind(data.gradePointsProperty().asString());
-        gradePoints.textProperty().bind(data.creditPointsProperty().asString());
+        grade.textProperty().bind(data.gradeProperty());
+        gradePoints.textProperty().bind(data.gradePointsProperty().asString());
         setColumns(name, creditPoints, mark, grade, gradePoints);
     }
 }

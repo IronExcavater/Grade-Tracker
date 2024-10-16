@@ -26,6 +26,7 @@ public class DataController extends Controller {
 
     @FXML
     private void initialize() {
+        lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         updateCurrentData(currentData);
     }
 
@@ -65,6 +66,7 @@ public class DataController extends Controller {
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
+            if (clickedData instanceof AssessmentData) return;
             updateCurrentData(clickedData);
         }
     }
@@ -93,11 +95,11 @@ public class DataController extends Controller {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
         Data<?, ?> data = currentData;
-        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
+        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data, true));
         while (!data.equals(App.getStudentData())) {
             data = data.getParent();
             hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
-            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
+            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data, false));
         }
     }
 

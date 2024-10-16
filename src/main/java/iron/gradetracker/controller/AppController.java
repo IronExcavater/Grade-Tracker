@@ -1,6 +1,5 @@
 package iron.gradetracker.controller;
 
-import iron.gradetracker.model.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
