@@ -1,9 +1,10 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
-public class AssessmentData extends Data {
+public class AssessmentData extends Data<SubjectData, AssessmentData> {
 
     @Expose private final SimpleDoubleProperty score = new SimpleDoubleProperty();
     @Expose private final SimpleDoubleProperty maxScore = new SimpleDoubleProperty();
@@ -17,17 +18,10 @@ public class AssessmentData extends Data {
         maxScoreProperty().set(maxScore);
         weightProperty().set(weight);
 
-        scoreProperty().addListener(_ -> notifyParent());
-        maxScoreProperty().addListener(_ -> notifyParent());
-        weightProperty().addListener(_ -> notifyParent());
-        markProperty().addListener(_ -> notifyParent());
-
-        remainingWeight.bind(((SubjectData) getParent()).remainingWeightProperty().add(weightProperty()));
-        mark.bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()));
+        remainingWeightProperty().bind(Bindings.createIntegerBinding(() -> (100 - getParent().getWeight()) + getWeight(), getParent().weightProperty()));
+        markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()));
+        parent.addChild(this);
     }
-
-    @Override
-    protected void update() {}
 
     public SimpleDoubleProperty scoreProperty() { return score; }
     public double getScore() { return score.get(); }

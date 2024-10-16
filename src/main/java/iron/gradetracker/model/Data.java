@@ -2,37 +2,33 @@ package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.*;
 
 import java.util.*;
 
-public abstract class Data {
-    protected Data parent = null;
-    protected final List<Data> children = new LinkedList<>();
+public abstract class Data<P extends Data<?, ?>, C extends Data<?, ?>> {
+    protected P parent;
+    protected final ObservableList<C> children = FXCollections.observableArrayList();
 
     @Expose protected final SimpleStringProperty name = new SimpleStringProperty();
 
-    public Data(Data parent, List<Data> children) {
+    public Data(P parent, List<C> children) {
         this.parent = parent;
         this.children.addAll(children);
-        parent.addChild(this);
     }
 
-    public Data(Data parent) { this(parent, new LinkedList<>()); }
+    public Data(P parent) { this(parent, new LinkedList<>()); }
     public Data() {}
 
-    public List<Data> getChildren() { return children; }
-    public void addChild(Data child) { children.add(child); }
-    public void addChildren(List<Data> children) { this.children.addAll(children); }
-    public void removeChild(Data child) { children.remove(child); }
-    public void removeChildren(List<Data> children) { this.children.removeAll(children); }
-    protected void notifyChildren() { for (Data child : children) child.update(); }
+    public List<C> getChildren() { return children; }
+    public void addChild(C child) { children.add(child); }
+    public void addChildren(List<C> children) { this.children.addAll(children); }
+    public void removeChild(C child) { children.remove(child); }
+    public void removeChildren(List<C> children) { this.children.removeAll(children); }
 
-    public Data getParent() { return parent; }
-    public void setParent(Data parent) { this.parent = parent; }
-    protected void notifyParent() { parent.update();}
+    public P getParent() { return parent; }
+    public void setParent(P parent) { this.parent = parent; }
 
     public SimpleStringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
-
-    protected abstract void update();
 }

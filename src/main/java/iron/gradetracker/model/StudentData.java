@@ -1,24 +1,42 @@
 package iron.gradetracker.model;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
-public class StudentData extends Data {
+public class StudentData extends Data<StudentData, SessionData> {
 
-    private final SimpleFloatProperty cwam = new SimpleFloatProperty();
-    private final SimpleFloatProperty cgpa = new SimpleFloatProperty();
+    private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
+    private final SimpleDoubleProperty cwam = new SimpleDoubleProperty();
+    private final SimpleDoubleProperty cgpa = new SimpleDoubleProperty();
 
     public StudentData() {
         name.set("root");
+
+        creditPointsProperty().bind(Bindings.createIntegerBinding(() ->
+                children.stream()
+                        .mapToInt(SessionData::getCreditPoints)
+                        .sum(), children
+        ));
+
+        cwamProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(session -> session.getMark() * session.getCreditPoints())
+                        .sum() / getCreditPoints(), children
+        ));
+
+        cwamProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(session -> session.getGradePoints() * session.getCreditPoints())
+                        .sum() / getCreditPoints(), children
+        ));
     }
 
-    @Override
-    protected void update() {
+    public SimpleDoubleProperty cwamProperty() { return cwam; }
+    public double getCwam() { return cwam.get(); }
 
-    }
+    public SimpleDoubleProperty cgpaProperty() { return cgpa; }
+    public double getCgpa() { return cgpa.get(); }
 
-    public SimpleFloatProperty cwamProperty() { return cwam; }
-    public float getCwam() { return cwam.get(); }
-
-    public SimpleFloatProperty cgpaProperty() { return cgpa; }
-    public float getCgpa() { return cgpa.get(); }
+    public SimpleIntegerProperty creditPointsProperty() { return creditPoints; }
+    public int getCreditPoints() { return creditPoints.get(); }
 }

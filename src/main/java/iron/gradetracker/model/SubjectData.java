@@ -1,40 +1,44 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
-public class SubjectData extends Data {
+public class SubjectData extends Data<SessionData, AssessmentData> {
 
     @Expose private final SimpleStringProperty name = new SimpleStringProperty();
     @Expose private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
+    private final SimpleIntegerProperty weight = new SimpleIntegerProperty();
     private final SimpleDoubleProperty mark = new SimpleDoubleProperty();
     private final SimpleStringProperty grade = new SimpleStringProperty();
     private final SimpleDoubleProperty gradePoints = new SimpleDoubleProperty();
-    private final SimpleIntegerProperty remainingWeight = new SimpleIntegerProperty();
 
     public SubjectData(SessionData parent, int creditPoints) {
         super(parent);
         creditPointsProperty().set(creditPoints);
 
-        creditPointsProperty().addListener(_ -> notifyParent());
-        markProperty().addListener(_ -> notifyParent());
-        gradeProperty().addListener(_ -> notifyParent());
-        gradePointsProperty().addListener(_ -> notifyParent());
-    }
+        weightProperty().bind(Bindings.createIntegerBinding(() ->
+                children.stream()
+                        .mapToInt(AssessmentData::getWeight)
+                        .sum(), children
+        ));
 
-    @Override
-    protected void update() {
-        remainingWeightProperty().set(100 - children.stream()
-                .map(AssessmentData.class::cast)
-                .mapToInt(AssessmentData::getWeight)
-                .sum());
+        markProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(AssessmentData::getMark)
+                        .sum() / getWeight(), children
+        ));
+
+        gradeProperty().bind(Bindings.createStringBinding(() -> App.getGradeMap().getGrade(getMark()).name, markProperty()));
+
+        gradePointsProperty().bind(Bindings.createDoubleBinding(() -> App.getGradeMap().getGrade(getMark()).point, markProperty()));
     }
 
     public SimpleStringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
 
     public SimpleIntegerProperty creditPointsProperty() { return creditPoints; }
-    public float getCreditPoints() { return creditPoints.get(); }
+    public int getCreditPoints() { return creditPoints.get(); }
 
     public SimpleDoubleProperty markProperty() { return mark; }
     public double getMark() { return mark.get(); }
@@ -45,6 +49,6 @@ public class SubjectData extends Data {
     public SimpleDoubleProperty gradePointsProperty() { return gradePoints; }
     public double getGradePoints() { return gradePoints.get(); }
 
-    public SimpleIntegerProperty remainingWeightProperty() { return remainingWeight; }
-    public int getRemainingWeight() { return remainingWeight.get(); }
+    public SimpleIntegerProperty weightProperty() { return weight; }
+    public int getWeight() { return weight.get(); }
 }

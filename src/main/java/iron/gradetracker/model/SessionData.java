@@ -1,27 +1,36 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
-public class SessionData extends Data {
+public class SessionData extends Data<StudentData, SubjectData> {
 
     @Expose private final SimpleStringProperty name = new SimpleStringProperty();
+    private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
     private final SimpleDoubleProperty mark = new SimpleDoubleProperty();
     private final SimpleDoubleProperty gradePoints = new SimpleDoubleProperty();
-    private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
 
     public SessionData(StudentData parent) {
         super(parent);
 
-        nameProperty().addListener(_ -> notifyParent());
-        markProperty().addListener(_ -> notifyParent());
-        gradePointsProperty().addListener(_ -> notifyParent());
-        creditPointsProperty().addListener(_ -> notifyParent());
-    }
+        creditPointsProperty().bind(Bindings.createIntegerBinding(() ->
+                children.stream()
+                        .mapToInt(SubjectData::getCreditPoints)
+                        .sum(), children
+        ));
 
-    @Override
-    protected void update() {
+        markProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(subject -> subject.getMark() * subject.getCreditPoints())
+                        .sum() / getCreditPoints(), children
+        ));
 
+        gradePointsProperty().bind(Bindings.createDoubleBinding(() ->
+                children.stream()
+                        .mapToDouble(subject -> subject.getGradePoints() * subject.getCreditPoints())
+                        .sum() / getCreditPoints(), children
+        ));
     }
 
     public SimpleStringProperty nameProperty() { return name; }

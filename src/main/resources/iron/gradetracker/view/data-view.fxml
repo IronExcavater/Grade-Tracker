@@ -15,6 +15,9 @@
         </GridPane>
     </top>
     <center>
-        <ListView fx:id="lstData" onMouseClicked="#handleListClick"/>
+        <VBox spacing="5">
+            <GridPane fx:id="gPaneHeadings" hgap="10" style="-fx-padding: 0 10"/>
+            <ListView fx:id="lstData" onMouseClicked="#handleListClick"/>
+        </VBox>
     </center>
 </BorderPane>

@@ -6,14 +6,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-public class AppController extends Controller<App> {
+public class AppController extends Controller {
 
     @FXML private BorderPane bPaneRoot;
     @FXML private TabPane tPaneMenu;
 
-    public AppController(Stage stage, App model) {
-        super(stage, model);
-    }
+    public AppController(Stage stage) { super(stage); }
 
     @FXML
     protected void initialize() {
@@ -24,10 +22,8 @@ public class AppController extends Controller<App> {
     private void loadContent(Tab tab) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/iron/gradetracker/view/%s-view.fxml".formatted(tab.getText().toLowerCase())),
-                    null, null, _ -> new DataController(stage, model));
+                    null, null, _ -> new DataController(stage));
             bPaneRoot.setCenter(fxmlLoader.load());
-            Controller<App> controller = fxmlLoader.getController();
-            controller.model = model;
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred while loading content for the %s tab".formatted(tab.getText()));
         }

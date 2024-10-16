@@ -4,27 +4,27 @@ import iron.gradetracker.model.*;
 import iron.gradetracker.view.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class DataController extends Controller<App> {
+public class DataController extends Controller {
 
     @FXML private HBox hBxBreadcrumbs;
-    @FXML private ListView<DataView> lstData;
+    @FXML private GridPane gPaneHeadings;
+    @FXML private ListView<DataView<?>> lstData;
 
-    private Data currentData;
+    private Data<?, ?> currentData;
 
-    public DataController(Stage stage, App app) {
-        super(stage, app);
-        currentData = model.studentData;
+    public DataController(Stage stage) {
+        super(stage);
+        currentData = App.getStudentData();
     }
 
     @FXML
     private void initialize() {
-        setCurrentData(currentData);
+        updateCurrentData(currentData);
     }
 
     @FXML
@@ -35,14 +35,19 @@ public class DataController extends Controller<App> {
             case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(new AssessmentData(subjectData, 0, 100, 20)));
             default -> {}
         }
+        // Update logic
+        updateColumnHeadings();
     }
 
     @FXML
     private void handleDelete() {
-        currentData.removeChildren(lstData.getSelectionModel().getSelectedItems().stream()
-                .map(DataView::getData)
-                .toList());
-        lstData.getItems().removeAll(lstData.getSelectionModel().getSelectedItems());
+        var selectedItems = lstData.getSelectionModel().getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+        selectedItems.stream().map(view -> view.getData());
+
+        lstData.getItems().removeAll(selectedItems);
+        // Update logic
+        updateColumnHeadings();
     }
 
     @FXML
@@ -52,12 +57,18 @@ public class DataController extends Controller<App> {
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
-            setCurrentData(clickedData);
+            updateCurrentData(clickedData);
         }
     }
 
-    public void setCurrentData(Data currentData) {
+    public void updateCurrentData(Data currentData) {
         this.currentData = currentData;
+        updateDataViewList();
+        updateBreadcrumbs();
+        updateColumnHeadings();
+    }
+
+    private void updateDataViewList() {
         // Populate lstData with new DataViews observing currentData children
         lstData.getItems().clear();
         lstData.getItems().addAll(currentData.getChildren().stream()
@@ -68,14 +79,40 @@ public class DataController extends Controller<App> {
                     default -> throw new IllegalStateException("Unexpected value: " + data);
                 })
                 .toList());
+    }
+
+    private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
-        Data data = currentData;
+        Data<?, ?> data = currentData;
         hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
-        while (!data.equals(model.studentData)) {
+        while (!data.equals(App.getStudentData())) {
             data = data.getParent();
             hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
             hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
         }
+    }
+
+    private void updateColumnHeadings() {
+        // Update gPaneHeadings with column headings of currentData
+        gPaneHeadings.getChildren().clear();
+        gPaneHeadings.getColumnConstraints().clear();
+        if (!lstData.getItems().isEmpty()) {
+            DataView childView = lstData.getItems().getFirst();
+            int[] columnWidths = childView.getColumnWidths();
+            String[] columnNames = childView.getColumnNames();
+            for (int i = 0; i < columnNames.length; i++) {
+                Text heading = new Text(columnNames[i]);
+                gPaneHeadings.add(heading, i, 0);
+                gPaneHeadings.getColumnConstraints().add(columnPercentage(columnWidths[i]));
+            }
+        }
+    }
+
+    protected ColumnConstraints columnPercentage(double percentWidth) {
+        ColumnConstraints column = new ColumnConstraints();
+        column.setPercentWidth(percentWidth);
+        column.setHgrow(Priority.ALWAYS);
+        return column;
     }
 }

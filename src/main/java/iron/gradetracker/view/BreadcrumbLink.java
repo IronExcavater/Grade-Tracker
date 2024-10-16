@@ -11,7 +11,7 @@ public class BreadcrumbLink extends Hyperlink {
         this.data = data;
 
         textProperty().bind(data.nameProperty());
-        setOnAction(_ -> controller.setCurrentData(data));
+        setOnAction(_ -> controller.updateCurrentData(data));
     }
 
     public Data getData() { return data; }

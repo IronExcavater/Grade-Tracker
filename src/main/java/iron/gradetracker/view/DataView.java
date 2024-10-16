@@ -6,25 +6,31 @@ import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
-public abstract class DataView extends GridPane {
+public abstract class DataView<T extends Data<?, ?>> extends GridPane {
 
-    private final Data data;
+    protected final T data;
+    private final int[] columnWidths;
+    private final String[] columnNames;
     protected final TextField name = new TextField();
 
-    protected DataView(Data data, String namePrompt) {
+    protected DataView(T data, int[] columnWidths, String[] columnNames, String namePrompt) {
         this.data = data;
+        this.columnWidths = columnWidths;
+        this.columnNames = columnNames;
         setHgap(10);
         name.setPrefWidth(0);
         name.setPromptText(namePrompt);
         Bindings.bindBidirectional(name.textProperty(), data.nameProperty());
     }
 
-    public Data getData() { return data; }
+    public T getData() { return data; }
+    public int[] getColumnWidths() { return columnWidths; }
+    public String[] getColumnNames() { return columnNames; }
 
-    protected void setColumns(double[] percentageWidths, Node... nodes) {
+    protected void setColumns(Node... nodes) {
         for (int i = 0; i < nodes.length; i++) {
             add(nodes[i], i, 0);
-            getColumnConstraints().add(columnPercentage(percentageWidths[i]));
+            getColumnConstraints().add(columnPercentage(columnWidths[i]));
         }
     }
 
