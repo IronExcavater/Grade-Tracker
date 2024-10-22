@@ -24,7 +24,7 @@ public class AppController extends Controller {
                     null, null, _ -> new DataController(stage));
             bPaneRoot.setCenter(fxmlLoader.load());
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred while loading content for the %s tab".formatted(tab.getText()));
+            throw new RuntimeException("Exception occurred while loading content for the %s tab".formatted(tab.getText()), e);
         }
     }
 }

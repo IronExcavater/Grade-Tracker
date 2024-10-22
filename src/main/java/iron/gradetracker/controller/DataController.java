@@ -1,7 +1,9 @@
 package iron.gradetracker.controller;
 
+import iron.gradetracker.DataManager;
 import iron.gradetracker.model.*;
 import iron.gradetracker.view.*;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
@@ -17,7 +19,7 @@ public class DataController extends Controller {
     @FXML private GridPane gPaneHeadings;
     @FXML private ListView<DataView<?>> lstData;
 
-    private Data<?, ?> currentData;
+    private Data<?> currentData;
 
     public DataController(Stage stage) {
         super(stage);
@@ -28,6 +30,7 @@ public class DataController extends Controller {
     private void initialize() {
         lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         updateCurrentData(currentData);
+        lstData.getItems().addListener((ListChangeListener<? super DataView<?>>) _ -> DataManager.markDirty());
     }
 
     @FXML
@@ -62,7 +65,7 @@ public class DataController extends Controller {
     @FXML
     public void handleListClick(MouseEvent mouseEvent) {
         if (lstData.getSelectionModel().getSelectedItem() == null) return;
-        Data<?, ?> clickedData = lstData.getSelectionModel().getSelectedItem().getData();
+        Data<?> clickedData = lstData.getSelectionModel().getSelectedItem().getData();
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
@@ -71,7 +74,7 @@ public class DataController extends Controller {
         }
     }
 
-    public void updateCurrentData(Data<?, ?> currentData) {
+    public void updateCurrentData(Data<?> currentData) {
         this.currentData = currentData;
         updateDataViewList();
         updateBreadcrumbs();
@@ -94,7 +97,7 @@ public class DataController extends Controller {
     private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
-        Data<?, ?> data = currentData;
+        Data<?> data = currentData;
         hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data, true));
         while (!data.equals(App.getStudentData())) {
             data = data.getParent();

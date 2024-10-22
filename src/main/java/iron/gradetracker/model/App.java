@@ -1,9 +1,11 @@
 package iron.gradetracker.model;
 
+import com.google.gson.annotations.Expose;
+
 public class App {
-    public static volatile App instance;
-    private final StudentData studentData;
-    private final GradeScheme gradeScheme;
+    private static volatile App instance;
+    @Expose private GradeScheme gradeScheme;
+    @Expose private StudentData studentData;
 
     private App(StudentData studentData, GradeScheme gradeScheme) {
         this.studentData = studentData;
@@ -18,6 +20,13 @@ public class App {
             }
         } else
             throw new IllegalStateException("App instance is already initialized.");
+    }
+
+    public static void createInstance() { createInstance(new StudentData(), new GradeScheme()); }
+
+    public static void loadInstance(App app) {
+        instance.studentData = app.studentData;
+        instance.gradeScheme = app.gradeScheme;
     }
 
     public static App getInstance() {

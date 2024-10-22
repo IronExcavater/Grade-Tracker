@@ -1,43 +1,40 @@
 package iron.gradetracker.model;
 
-import com.google.gson.annotations.Expose;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import java.util.List;
 
-public class SessionData extends Data<StudentData, SubjectData> {
+public class SessionData extends Data<SubjectData> {
 
-    @Expose private final SimpleStringProperty name = new SimpleStringProperty();
-    private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
-    private final SimpleDoubleProperty mark = new SimpleDoubleProperty();
-    private final SimpleDoubleProperty gradePoints = new SimpleDoubleProperty();
+    private final IntegerProperty creditPoints = new SimpleIntegerProperty();
+    private final DoubleProperty mark = new SimpleDoubleProperty();
+    private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
-    public SessionData(StudentData parent) {
-        super(parent);
-        getParent().update();
+    public SessionData() {}
 
-        creditPointsProperty().addListener(_ -> getParent().update());
-        markProperty().addListener(_ -> getParent().update());
-        gradePointsProperty().addListener(_ -> getParent().update());
-    }
-
-    public SimpleStringProperty nameProperty() { return name; }
-    public String getName() { return name.get(); }
-
-    public SimpleDoubleProperty markProperty() { return mark; }
+    public DoubleProperty markProperty() { return mark; }
     public double getMark() { return mark.get(); }
 
-    public SimpleDoubleProperty gradePointsProperty() { return gradePoints; }
+    public DoubleProperty gradePointsProperty() { return gradePoints; }
     public double getGradePoints() { return gradePoints.get(); }
 
-    public SimpleIntegerProperty creditPointsProperty() { return creditPoints; }
+    public IntegerProperty creditPointsProperty() { return creditPoints; }
     public int getCreditPoints() { return creditPoints.get(); }
 
     @Override
     public SubjectData createChild() {
-        SubjectData data = new SubjectData(this);
-        children.add(data);
-        return data;
+        SubjectData child = new SubjectData();
+        addChild(child);
+        return child;
+    }
+
+    @Override
+    public void addChild(SubjectData child) {
+        children.add(child);
+        child.setParent(this);
+        child.creditPointsProperty().addListener(_ -> update());
+        child.markProperty().addListener(_ -> update());
+        child.gradePointsProperty().addListener(_ -> update());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package iron.gradetracker.view;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.util.converter.NumberStringConverter;
@@ -9,22 +9,22 @@ import java.util.regex.Pattern;
 
 public class IntegerTextField extends TextField {
 
-    private final SimpleIntegerProperty boundProperty;
-    private final SimpleIntegerProperty maxProperty;
+    private final IntegerProperty boundProperty;
+    private final IntegerProperty maxProperty;
     private final boolean isBidirectional;
     private final int maxLength = 4;
 
-    public IntegerTextField(SimpleIntegerProperty boundProperty, boolean isBidirectional, SimpleIntegerProperty maxProperty) {
+    public IntegerTextField(IntegerProperty boundProperty, boolean isBidirectional, IntegerProperty maxProperty) {
         this.boundProperty = boundProperty;
         this.maxProperty = maxProperty;
         this.isBidirectional = isBidirectional;
         initialize();
     }
 
-    public IntegerTextField(SimpleIntegerProperty boundProperty, boolean isBidirectional) { this(boundProperty, isBidirectional, null); }
+    public IntegerTextField(IntegerProperty boundProperty, boolean isBidirectional) { this(boundProperty, isBidirectional, null); }
 
-    public SimpleIntegerProperty boundProperty() { return boundProperty; }
-    public SimpleIntegerProperty maxProperty() { return maxProperty; }
+    public IntegerProperty boundProperty() { return boundProperty; }
+    public IntegerProperty maxProperty() { return maxProperty; }
 
     private void initialize() {
         setPrefWidth(0);

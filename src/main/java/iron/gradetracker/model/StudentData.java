@@ -4,30 +4,39 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import java.util.List;
 
-public class StudentData extends Data<StudentData, SessionData> {
+public class StudentData extends Data<SessionData> {
 
-    private final SimpleIntegerProperty creditPoints = new SimpleIntegerProperty();
-    private final SimpleDoubleProperty cwam = new SimpleDoubleProperty();
-    private final SimpleDoubleProperty cgpa = new SimpleDoubleProperty();
+    private final IntegerProperty creditPoints = new SimpleIntegerProperty();
+    private final DoubleProperty cwam = new SimpleDoubleProperty();
+    private final DoubleProperty cgpa = new SimpleDoubleProperty();
 
     public StudentData() {
         name.set("root");
     }
 
-    public SimpleDoubleProperty cwamProperty() { return cwam; }
+    public DoubleProperty cwamProperty() { return cwam; }
     public double getCwam() { return cwam.get(); }
 
-    public SimpleDoubleProperty cgpaProperty() { return cgpa; }
+    public DoubleProperty cgpaProperty() { return cgpa; }
     public double getCgpa() { return cgpa.get(); }
 
-    public SimpleIntegerProperty creditPointsProperty() { return creditPoints; }
+    public IntegerProperty creditPointsProperty() { return creditPoints; }
     public int getCreditPoints() { return creditPoints.get(); }
 
     @Override
     public SessionData createChild() {
-        SessionData data = new SessionData(this);
-        children.add(data);
-        return data;
+        SessionData child = new SessionData();
+        addChild(child);
+        return child;
+    }
+
+    @Override
+    public void addChild(SessionData child) {
+        children.add(child);
+        child.setParent(this);
+        child.creditPointsProperty().addListener(_ -> update());
+        child.markProperty().addListener(_ -> update());
+        child.gradePointsProperty().addListener(_ -> update());
     }
 
     @Override

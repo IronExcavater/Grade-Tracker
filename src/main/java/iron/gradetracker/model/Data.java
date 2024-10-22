@@ -1,33 +1,34 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.*;
 
 import java.util.*;
 
-public abstract class Data<P extends Data<?, ?>, C extends Data<?, ?>> {
-    protected P parent;
-    protected final ObservableList<C> children = FXCollections.observableArrayList();
+public abstract class Data<C extends Data<?>> {
 
-    @Expose protected final SimpleStringProperty name = new SimpleStringProperty();
+    protected transient Data<?> parent;
+    @Expose protected final ObservableList<C> children = FXCollections.observableArrayList();
 
-    public Data(P parent, List<C> children) {
-        this.parent = parent;
+    @Expose protected final StringProperty name = new SimpleStringProperty();
+
+    public Data(List<C> children) {
         this.children.addAll(children);
     }
 
-    public Data(P parent) { this(parent, new LinkedList<>()); }
     public Data() {}
 
-    public List<C> getChildren() { return children; }
-    public void addChild(C child) { children.add(child); }
-    public P getParent() { return parent; }
+    public void setParent(Data<?> parent) { this.parent = parent; }
+    public Data<?> getParent() { return parent; }
 
-    public SimpleStringProperty nameProperty() { return name; }
+    public List<C> getChildren() { return children; }
+
+    public StringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
 
     public abstract C createChild();
+    public abstract void addChild(C child);
     public abstract void removeChildren(List<C> children);
 
     protected abstract void update();

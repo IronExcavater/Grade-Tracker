@@ -6,7 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
-public abstract class DataView<T extends Data<?, ?>> extends GridPane {
+public abstract class DataView<T extends Data<?>> extends GridPane {
 
     protected final T data;
     private final int[] columnWidths;
