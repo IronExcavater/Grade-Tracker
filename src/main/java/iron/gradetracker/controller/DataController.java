@@ -10,7 +10,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import java.util.List;
 
 public class DataController extends Controller {
@@ -29,6 +28,7 @@ public class DataController extends Controller {
     @FXML
     private void initialize() {
         lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        lstData.setCellFactory(_ -> new DataCell());
         updateCurrentData(currentData);
         lstData.getItems().addListener((ListChangeListener<? super DataView<?>>) _ -> DataManager.markDirty());
     }
@@ -63,7 +63,7 @@ public class DataController extends Controller {
     }
 
     @FXML
-    public void handleListClick(MouseEvent mouseEvent) {
+    private void handleListClick(MouseEvent mouseEvent) {
         if (lstData.getSelectionModel().getSelectedItem() == null) return;
         Data<?> clickedData = lstData.getSelectionModel().getSelectedItem().getData();
 
@@ -127,5 +127,74 @@ public class DataController extends Controller {
         column.setPercentWidth(percentWidth);
         column.setHgrow(Priority.ALWAYS);
         return column;
+    }
+
+    private class DataCell extends ListCell<DataView<?>> {
+        private static final DataFormat DATAVIEW_DATAFORMAT = new DataFormat("iron/data");
+
+        public DataCell() {
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            setOnDragDetected(event -> {
+                if (getItem() == null) return;
+
+                Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(getItem().getData().toString());
+                int dragIndex = lstData.getItems().indexOf(getItem());
+                content.put(DATAVIEW_DATAFORMAT, dragIndex);
+                dragboard.setContent(content);
+                dragboard.setDragView(getGraphic().snapshot(null, null));
+                event.consume();
+            });
+
+            setOnDragOver(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT))
+                    event.acceptTransferModes(TransferMode.MOVE);
+                event.consume();
+            });
+
+            setOnDragEntered(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT)) {
+                    setOpacity(0.3);
+                }
+            });
+
+            setOnDragExited(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT)) {
+                    setOpacity(1);
+                }
+            });
+
+            setOnDragDropped(event -> {
+                if (getItem() == null) return;
+
+                Dragboard dragboard = event.getDragboard();
+                boolean success = false;
+
+                if (dragboard.hasContent(DATAVIEW_DATAFORMAT)) {
+                    int dragIndex = (int) dragboard.getContent(DATAVIEW_DATAFORMAT);
+                    DataView<?> dragView = lstData.getItems().get(dragIndex);
+                    int dropIndex = lstData.getItems().indexOf(getItem());
+
+                    lstData.getItems().set(dragIndex, getItem());
+                    lstData.getItems().set(dropIndex, dragView);
+                    success = true;
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            });
+
+            setOnDragDone(DragEvent::consume);
+        }
+
+        @Override
+        public void updateItem(DataView<?> data, boolean empty) {
+            super.updateItem(data, empty);
+            if (empty || data == null)
+                setGraphic(null);
+            else
+                setGraphic(getItem());
+        }
     }
 }

@@ -72,4 +72,9 @@ public class SubjectData extends Data<AssessmentData> {
                         .sum() / getWeight(), children
         ));
     }
+
+    @Override
+    public String toString() {
+        return "Subject: %s worth %dcp has a mark of %f, receiving a %s".formatted(getName(), getCreditPoints(), getMark(), getGrade());
+    }
 }

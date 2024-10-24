@@ -62,4 +62,9 @@ public class SessionData extends Data<SubjectData> {
                         .sum() / getCreditPoints(), children
         ));
     }
+
+    @Override
+    public String toString() {
+        return "Session: %s worth %scp has a wam of %s and sgpa of %s".formatted(getName(), getCreditPoints(), getMark(), getGradePoints());
+    }
 }

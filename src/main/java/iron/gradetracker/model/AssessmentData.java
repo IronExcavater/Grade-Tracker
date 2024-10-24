@@ -54,4 +54,9 @@ public class AssessmentData extends Data<AssessmentData> {
 
     @Override
     protected void update() {}
+
+    @Override
+    public String toString() {
+        return "Assessment: %s weighted %d%% has a score of %f/%f".formatted(getName(), getWeight(), getScore(), getMaxScore());
+    }
 }

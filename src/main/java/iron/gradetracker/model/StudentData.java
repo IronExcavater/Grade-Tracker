@@ -64,4 +64,9 @@ public class StudentData extends Data<SessionData> {
                         .sum() / getCreditPoints(), children
         ));
     }
+
+    @Override
+    public String toString() {
+        return "Student: Has a cwam of %f and cgpa of %f".formatted(getCwam(), getCgpa());
+    }
 }
