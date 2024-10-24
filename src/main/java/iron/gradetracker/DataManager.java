@@ -134,18 +134,21 @@ class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> 
 
         try {
             Class<?> dataClass = Class.forName("iron.gradetracker.model." + className);
+            Data<?> data = null;
 
             if (dataClass == StudentData.class) {
-                return deserializeStudentData(object, context);
+                data = deserializeStudentData(object, context);
             } else if (dataClass == SessionData.class) {
-                return deserializeSessionData(object, context);
+                data = deserializeSessionData(object, context);
             } else if (dataClass == SubjectData.class) {
-                return deserializeSubjectData(object, context);
+                data = deserializeSubjectData(object, context);
             } else if (dataClass == AssessmentData.class) {
-                return deserilizeAssessmentData(object, context);
+                data = deserilizeAssessmentData(object, context);
             }
+            assert data != null;
 
-            return null;
+            data.startListening();
+            return data;
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

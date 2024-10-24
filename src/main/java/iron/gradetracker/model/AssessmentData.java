@@ -10,7 +10,6 @@ public class AssessmentData extends Data<AssessmentData> {
     @Expose private final DoubleProperty maxScore = new SimpleDoubleProperty();
     @Expose private final IntegerProperty weight = new SimpleIntegerProperty();
     private final IntegerProperty remainingWeight = new SimpleIntegerProperty();
-    private final DoubleProperty mark = new SimpleDoubleProperty();
 
     public AssessmentData(double score, double maxScore, int weight) {
         markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()).multiply(100));
@@ -33,9 +32,6 @@ public class AssessmentData extends Data<AssessmentData> {
 
     public IntegerProperty remainingWeightProperty() { return remainingWeight; }
     public int getRemainingWeight() { return remainingWeight.get(); }
-
-    public DoubleProperty markProperty() { return mark; }
-    public double getMark() { return mark.get(); }
 
     @Override
     public AssessmentData createChild() {

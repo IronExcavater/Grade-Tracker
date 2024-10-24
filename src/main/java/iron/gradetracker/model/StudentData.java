@@ -7,15 +7,11 @@ import java.util.List;
 public class StudentData extends Data<SessionData> {
 
     private final IntegerProperty creditPoints = new SimpleIntegerProperty();
-    private final DoubleProperty cwam = new SimpleDoubleProperty();
     private final DoubleProperty cgpa = new SimpleDoubleProperty();
 
     public StudentData() {
         name.set("root");
     }
-
-    public DoubleProperty cwamProperty() { return cwam; }
-    public double getCwam() { return cwam.get(); }
 
     public DoubleProperty cgpaProperty() { return cgpa; }
     public double getCgpa() { return cgpa.get(); }
@@ -52,7 +48,7 @@ public class StudentData extends Data<SessionData> {
                         .sum(), children
         ));
 
-        cwamProperty().bind(Bindings.createDoubleBinding(() ->
+        markProperty().bind(Bindings.createDoubleBinding(() ->
                 children.stream()
                         .mapToDouble(session -> session.getMark() * session.getCreditPoints())
                         .sum() / getCreditPoints(), children
@@ -67,6 +63,6 @@ public class StudentData extends Data<SessionData> {
 
     @Override
     public String toString() {
-        return "Student: Has a cwam of %f and cgpa of %f".formatted(getCwam(), getCgpa());
+        return "Student: Has a cwam of %f and cgpa of %f".formatted(getMark(), getCgpa());
     }
 }

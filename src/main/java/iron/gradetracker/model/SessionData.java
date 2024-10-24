@@ -7,13 +7,9 @@ import java.util.List;
 public class SessionData extends Data<SubjectData> {
 
     private final IntegerProperty creditPoints = new SimpleIntegerProperty();
-    private final DoubleProperty mark = new SimpleDoubleProperty();
     private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
     public SessionData() {}
-
-    public DoubleProperty markProperty() { return mark; }
-    public double getMark() { return mark.get(); }
 
     public DoubleProperty gradePointsProperty() { return gradePoints; }
     public double getGradePoints() { return gradePoints.get(); }

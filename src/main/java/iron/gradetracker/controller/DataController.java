@@ -10,6 +10,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.Comparator;
 import java.util.List;
 
 public class DataController extends Controller {
@@ -17,6 +19,8 @@ public class DataController extends Controller {
     @FXML private HBox hBxBreadcrumbs;
     @FXML private GridPane gPaneHeadings;
     @FXML private ListView<DataView<?>> lstData;
+
+    @FXML private ComboBox<String> sortCmb;
 
     private Data<?> currentData;
 
@@ -30,7 +34,6 @@ public class DataController extends Controller {
         lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         lstData.setCellFactory(_ -> new DataCell());
         updateCurrentData(currentData);
-        lstData.getItems().addListener((ListChangeListener<? super DataView<?>>) _ -> DataManager.markDirty());
     }
 
     @FXML
@@ -60,6 +63,20 @@ public class DataController extends Controller {
         lstData.getItems().removeAll(selectedViews);
         // Update logic
         updateColumnHeadings();
+    }
+
+    @FXML
+    private void handleSort() {
+        String sortOption = sortCmb.getValue();
+        if (sortOption == null) return;
+
+        switch (sortOption) {
+            case "A to Z" -> lstData.getItems().sort(Comparator.comparing(view -> view.getData().getName()));
+            case "Z to A" -> lstData.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getName()).reversed());
+            case "High to Low" -> lstData.getItems().sort(Comparator.comparing(view -> view.getData().getMark()));
+            case "Low to High" -> lstData.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getMark()).reversed());
+            case "Custom" -> updateDataViewList();
+        }
     }
 
     @FXML
@@ -140,7 +157,7 @@ public class DataController extends Controller {
 
                 Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
-                content.putString(getItem().getData().toString());
+
                 int dragIndex = lstData.getItems().indexOf(getItem());
                 content.put(DATAVIEW_DATAFORMAT, dragIndex);
                 dragboard.setContent(content);
@@ -174,11 +191,15 @@ public class DataController extends Controller {
 
                 if (dragboard.hasContent(DATAVIEW_DATAFORMAT)) {
                     int dragIndex = (int) dragboard.getContent(DATAVIEW_DATAFORMAT);
-                    DataView<?> dragView = lstData.getItems().get(dragIndex);
                     int dropIndex = lstData.getItems().indexOf(getItem());
 
+                    DataView<?> dragView = lstData.getItems().get(dragIndex);
                     lstData.getItems().set(dragIndex, getItem());
                     lstData.getItems().set(dropIndex, dragView);
+
+                    currentData.swapChildren(dragIndex, dropIndex);
+
+                    sortCmb.setValue("Custom");
                     success = true;
                 }
                 event.setDropCompleted(success);

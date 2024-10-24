@@ -9,7 +9,6 @@ public class SubjectData extends Data<AssessmentData> {
 
     @Expose private final IntegerProperty creditPoints = new SimpleIntegerProperty();
     private final IntegerProperty weight = new SimpleIntegerProperty();
-    private final DoubleProperty mark = new SimpleDoubleProperty();
     private final StringProperty grade = new SimpleStringProperty();
     private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
@@ -24,9 +23,6 @@ public class SubjectData extends Data<AssessmentData> {
 
     public IntegerProperty creditPointsProperty() { return creditPoints; }
     public int getCreditPoints() { return creditPoints.get(); }
-
-    public DoubleProperty markProperty() { return mark; }
-    public double getMark() { return mark.get(); }
 
     public StringProperty gradeProperty() { return grade; }
     public String getGrade() { return grade.get(); }
