@@ -1,5 +1,6 @@
 package iron.gradetracker.model;
 
+import iron.gradetracker.DataManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import java.util.List;

@@ -19,7 +19,10 @@ public abstract class Data<C extends Data<?>> {
 
     public Data() {}
 
-    public void startListening() { children.addListener((ListChangeListener<? super C>) _ -> DataManager.markDirty()); }
+    public void startListening() {
+        children.addListener((ListChangeListener<? super C>) _ -> DataManager.markDirty());
+        name.addListener(_ -> DataManager.markDirty());
+    }
 
     public void setParent(Data<?> parent) { this.parent = parent; }
     public Data<?> getParent() { return parent; }

@@ -203,31 +203,31 @@ public class DataController extends Controller {
                     int indexDiff = Math.abs(dropIndex - dragIndex);
 
                     // Animate in-between cell fade out
-                    var fadeOut = Utils.Animation.sequentialTransition(null);
+                    var fadeOut = Utils.Animation.sequentialTransition();
                     var fadeOutTransitions = fadeOut.getChildren();
                     for (int i = Math.min(dragIndex + 1, dropIndex); i < Math.max(dragIndex, dropIndex + 1); i++) {
                         Node cellView = lstData.getItems().get(i);
                         fadeOutTransitions.add(i > dropIndex ? 0 : fadeOutTransitions.size(),
-                                Utils.Animation.toOpacityFade(cellView, 1, 0, 150f / indexDiff, null));
+                                Utils.Animation.toOpacityFade(cellView, 1, 0, 300f / indexDiff));
                     }
                     fadeOut.play();
 
                     // Animate dragCell to move from dragIndex to dropIndex
                     double cellHeight = dragView.getHeight() + 6;
                     dragCell.toFront();
-                    Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 300, () -> {
+                    Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 600, () -> {
                         dragView.setTranslateY(0);
                         lstData.getItems().remove(dragView);
                         lstData.getItems().add(dropIndex, dragView);
                         currentData.shiftChild(dragIndex, dropIndex);
 
                         // Animate in-between cell fade in
-                        var fadeIn = Utils.Animation.sequentialTransition(null);
+                        var fadeIn = Utils.Animation.sequentialTransition();
                         var fadeInTransitions = fadeIn.getChildren();
                         for (int i = Math.min(dragIndex, dropIndex + 1); i < Math.max(dragIndex + 1, dropIndex); i++) {
                             Node cellView = lstData.getItems().get(i);
                             fadeInTransitions.add(i > dropIndex ? 0 : fadeInTransitions.size(),
-                                    Utils.Animation.toOpacityFade(cellView, 0, 1, 150f / indexDiff, null));
+                                    Utils.Animation.toOpacityFade(cellView, 0, 1, 300f / indexDiff));
                         }
                         fadeIn.play();
                     }).play();

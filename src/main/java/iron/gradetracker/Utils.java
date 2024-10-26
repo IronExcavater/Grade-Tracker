@@ -49,6 +49,7 @@ public class Utils {
 
 
     public static class Animation {
+        public static TranslateTransition byYTranslation(Node node, double byY, double duration) { return byYTranslation(node, byY, duration, null); }
         public static TranslateTransition byYTranslation(Node node, double byY, double duration, Runnable onFinished) {
             TranslateTransition transition = new TranslateTransition(Duration.millis(duration), node);
             transition.setByY(byY);
@@ -56,6 +57,7 @@ public class Utils {
             return transition;
         }
 
+        public static FadeTransition toOpacityFade(Node node, double fromFade, double toFade, double duration) { return toOpacityFade(node, fromFade, toFade, duration, null); }
         public static FadeTransition toOpacityFade(Node node, double fromFade, double toFade, double duration, Runnable onFinished) {
             FadeTransition transition = new FadeTransition(Duration.millis(duration), node);
             transition.setFromValue(fromFade);
@@ -64,6 +66,7 @@ public class Utils {
             return transition;
         }
 
+        public static SequentialTransition sequentialTransition(Transition... transitions) { return sequentialTransition(null, transitions); }
         public static SequentialTransition sequentialTransition(Runnable onFinished, Transition... transitions) {
             SequentialTransition transition = new SequentialTransition();
             transition.getChildren().addAll(transitions);

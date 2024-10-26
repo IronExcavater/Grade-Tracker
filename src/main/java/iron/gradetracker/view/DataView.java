@@ -1,7 +1,6 @@
 package iron.gradetracker.view;
 
 import iron.gradetracker.model.Data;
-import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
@@ -11,16 +10,14 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     protected final T data;
     private final int[] columnWidths;
     private final String[] columnNames;
-    protected final TextField name = new TextField();
+    protected final TextField name;
 
     protected DataView(T data, int[] columnWidths, String[] columnNames, String namePrompt) {
         this.data = data;
         this.columnWidths = columnWidths;
         this.columnNames = columnNames;
         setHgap(10);
-        name.setPrefWidth(0);
-        name.setPromptText(namePrompt);
-        Bindings.bindBidirectional(name.textProperty(), data.nameProperty());
+        name = new StringTextField(data.nameProperty(), true, namePrompt);
     }
 
     public T getData() { return data; }

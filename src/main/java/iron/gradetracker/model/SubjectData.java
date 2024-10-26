@@ -1,6 +1,7 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import iron.gradetracker.DataManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import java.util.List;
@@ -32,6 +33,12 @@ public class SubjectData extends Data<AssessmentData> {
 
     public IntegerProperty weightProperty() { return weight; }
     public int getWeight() { return weight.get(); }
+
+    @Override
+    public void startListening() {
+        super.startListening();
+        creditPointsProperty().addListener(_ -> DataManager.markDirty());
+    }
 
     @Override
     public AssessmentData createChild() {
