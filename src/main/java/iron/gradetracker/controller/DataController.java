@@ -3,6 +3,8 @@ package iron.gradetracker.controller;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
 import iron.gradetracker.view.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -19,6 +21,7 @@ public class DataController extends Controller {
     @FXML private ListView<DataView<?>> lstData;
 
     @FXML private ComboBox<String> sortCmb;
+    @FXML private TextField findTf;
 
     private Data<?> currentData;
 
@@ -32,6 +35,14 @@ public class DataController extends Controller {
         lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         lstData.setCellFactory(_ -> new DataCell());
         updateCurrentData(currentData);
+
+        findTf.textProperty().addListener(_ -> handleFind());
+        findTf.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                findTf.getParent().requestFocus();
+                handleFind();
+            }
+        });
     }
 
     @FXML
@@ -75,6 +86,25 @@ public class DataController extends Controller {
             case "Low to High" -> lstData.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getMark()).reversed());
             case "Custom" -> updateDataViewList();
         }
+    }
+
+    private void handleFind() {
+        ObservableList<DataView<?>> filteredList = FXCollections.observableArrayList();
+        String query = findTf.getText();
+
+        updateDataViewList();
+        if (query.isBlank()) {
+            if (!query.isEmpty()) findTf.setText("");
+            return;
+        }
+
+        for (DataView<?> item : lstData.getItems()) {
+            if (item.getData().getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredList.add(item);
+            }
+        }
+
+        lstData.setItems(filteredList);
     }
 
     @FXML
@@ -153,21 +183,27 @@ public class DataController extends Controller {
 
             setOnDragDetected(event -> {
                 if (getItem() == null) return;
+                boolean suitable = true;
 
                 if (sortCmb.getValue() == null || !sortCmb.getValue().equals("Custom")) {
                     sortCmb.setValue("Custom");
-                    event.consume();
-                    return;
+                    suitable = false;
+                }
+                if (!findTf.getText().isBlank()) {
+                    findTf.setText("");
+                    suitable = false;
                 }
 
-                Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
-                ClipboardContent content = new ClipboardContent();
+                if (suitable) {
+                    Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
 
-                int dragIndex = lstData.getItems().indexOf(getItem());
-                dragCell = this;
-                content.put(DATAVIEW_DATAFORMAT, dragIndex);
-                dragboard.setContent(content);
-                dragboard.setDragView(getGraphic().snapshot(null, null));
+                    int dragIndex = lstData.getItems().indexOf(getItem());
+                    dragCell = this;
+                    content.put(DATAVIEW_DATAFORMAT, dragIndex);
+                    dragboard.setContent(content);
+                    dragboard.setDragView(getGraphic().snapshot(null, null));
+                }
                 event.consume();
             });
 
