@@ -6,6 +6,8 @@ import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.Optional;
@@ -47,6 +49,12 @@ public class Utils {
         return alert.showAndWait();
     }
 
+    public static ColumnConstraints columnPercentage(double percentWidth) {
+        ColumnConstraints column = new ColumnConstraints();
+        column.setPercentWidth(percentWidth);
+        column.setHgrow(Priority.ALWAYS);
+        return column;
+    }
 
     public static class Animation {
         public static TranslateTransition byYTranslation(Node node, double byY, double duration) { return byYTranslation(node, byY, duration, null); }

@@ -1,5 +1,6 @@
 package iron.gradetracker.view;
 
+import iron.gradetracker.Utils;
 import iron.gradetracker.model.Data;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
@@ -27,14 +28,7 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     protected void setColumns(Node... nodes) {
         for (int i = 0; i < nodes.length; i++) {
             add(nodes[i], i, 0);
-            getColumnConstraints().add(columnPercentage(columnWidths[i]));
+            getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
         }
-    }
-
-    protected ColumnConstraints columnPercentage(double percentWidth) {
-        ColumnConstraints column = new ColumnConstraints();
-        column.setPercentWidth(percentWidth);
-        column.setHgrow(Priority.ALWAYS);
-        return column;
     }
 }

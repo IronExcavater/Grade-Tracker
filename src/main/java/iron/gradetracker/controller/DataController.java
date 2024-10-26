@@ -3,8 +3,7 @@ package iron.gradetracker.controller;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
 import iron.gradetracker.view.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -162,16 +161,9 @@ public class DataController extends Controller {
             for (int i = 0; i < columnNames.length; i++) {
                 Text heading = new Text(columnNames[i]);
                 gPaneHeadings.add(heading, i, 0);
-                gPaneHeadings.getColumnConstraints().add(columnPercentage(columnWidths[i]));
+                gPaneHeadings.getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
             }
         }
-    }
-
-    protected ColumnConstraints columnPercentage(double percentWidth) {
-        ColumnConstraints column = new ColumnConstraints();
-        column.setPercentWidth(percentWidth);
-        column.setHgrow(Priority.ALWAYS);
-        return column;
     }
 
     private class DataCell extends ListCell<DataView<?>> {
