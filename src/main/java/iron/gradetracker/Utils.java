@@ -1,7 +1,13 @@
 package iron.gradetracker;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Transition;
+import javafx.animation.TranslateTransition;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.util.Optional;
 
 public class Utils {
@@ -41,4 +47,28 @@ public class Utils {
         return alert.showAndWait();
     }
 
+
+    public static class Animation {
+        public static TranslateTransition byYTranslation(Node node, double byY, double duration, Runnable onFinished) {
+            TranslateTransition transition = new TranslateTransition(Duration.millis(duration), node);
+            transition.setByY(byY);
+            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
+            return transition;
+        }
+
+        public static FadeTransition toOpacityFade(Node node, double fromFade, double toFade, double duration, Runnable onFinished) {
+            FadeTransition transition = new FadeTransition(Duration.millis(duration), node);
+            transition.setFromValue(fromFade);
+            transition.setToValue(toFade);
+            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
+            return transition;
+        }
+
+        public static SequentialTransition sequentialTransition(Runnable onFinished, Transition... transitions) {
+            SequentialTransition transition = new SequentialTransition();
+            transition.getChildren().addAll(transitions);
+            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
+            return transition;
+        }
+    }
 }

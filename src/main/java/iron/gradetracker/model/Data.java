@@ -36,10 +36,10 @@ public abstract class Data<C extends Data<?>> {
     public abstract void addChild(C child);
     public abstract void removeChildren(List<C> children);
 
-    public void swapChildren(int i, int j) {
+    public void shiftChild(int i, int f) {
         C temp = children.get(i);
-        children.set(i, children.get(j));
-        children.set(j, temp);
+        children.remove(i);
+        children.add(f, temp);
     }
 
     protected abstract void update();
