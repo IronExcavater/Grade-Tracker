@@ -5,10 +5,8 @@ import com.google.gson.stream.*;
 import iron.gradetracker.model.*;
 import iron.gradetracker.model.data.*;
 import javafx.beans.property.*;
-import javafx.collections.*;
 import java.io.*;
 import java.lang.reflect.*;
-import java.util.*;
 
 public class DataManager {
 
@@ -17,7 +15,6 @@ public class DataManager {
             .registerTypeAdapter(IntegerProperty.class, new IntegerPropertyAdapter())
             .registerTypeAdapter(DoubleProperty.class, new DoublePropertyAdapter())
             .registerTypeAdapter(StringProperty.class, new StringPropertyAdapter())
-            .registerTypeAdapter(ObservableList.class, new ObservableListAdapter())
             .registerTypeAdapter(StudentData.class, new DataAdapter())
             .registerTypeAdapter(SessionData.class, new DataAdapter())
             .registerTypeAdapter(SubjectData.class, new DataAdapter())
@@ -95,38 +92,23 @@ class StringPropertyAdapter extends TypeAdapter<StringProperty> {
     }
 }
 
-class ObservableListAdapter implements JsonSerializer<ObservableList<?>>, JsonDeserializer<ObservableList<?>> {
-
-    @Override
-    public JsonElement serialize(ObservableList src, Type type, JsonSerializationContext context) {
-        return context.serialize(new ArrayList(src));
-    }
-
-    @Override
-    public ObservableList<?> deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
-        List<?> list = context.deserialize(element, ArrayList.class);
-        return FXCollections.observableArrayList(list);
-    }
-}
-
 class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> {
 
     @Override
     public JsonElement serialize(Data<?> data, Type type, JsonSerializationContext context) {
         JsonObject object = new JsonObject();
         object.addProperty("type", data.getClass().getSimpleName());
-        object.addProperty("name", data.getName());
-        switch (data) {
-            case SubjectData subjectData ->
-                object.addProperty("creditPoints", subjectData.getCreditPoints());
-            case AssessmentData assessmentData -> {
-                object.addProperty("score", assessmentData.getScore());
-                object.addProperty("maxScore", assessmentData.getMaxScore());
-                object.addProperty("weight", assessmentData.getWeight());
+
+        for (Field field : data.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                object.add(field.getName(), context.serialize(field.get(data)));
+            } catch (IllegalAccessException e) {
+                throw new JsonParseException("Error serializing field: " + field.getName(), e);
             }
-            default -> {}
         }
-        object.add("children", context.serialize(data.getChildren()));
+
+        if (data.canParent()) object.add("children", context.serialize(data.getChildren()));
         return object;
     }
 
@@ -136,51 +118,27 @@ class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> 
         String className = object.get("type").getAsString();
 
         try {
-            Class<?> dataClass = Class.forName("iron.gradetracker.model." + className);
-            Data<?> data = null;
+            Class<?> dataClass = Class.forName("iron.gradetracker.model.data." + className);
+            Data<?> data = (Data<?>) dataClass.getDeclaredConstructor().newInstance();
 
-            if (dataClass == StudentData.class) {
-                data = deserializeStudentData(object, context);
-            } else if (dataClass == SessionData.class) {
-                data = deserializeSessionData(object, context);
-            } else if (dataClass == SubjectData.class) {
-                data = deserializeSubjectData(object, context);
-            } else if (dataClass == AssessmentData.class) {
-                data = deserilizeAssessmentData(object, context);
+            if (object.has("name")) data.nameProperty().set(object.get("name").getAsString());
+            for (Field field : data.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                if (object.has(fieldName)) field.set(data, context.deserialize(object.get(fieldName), field.getType()));
             }
-            assert data != null;
+            if (data.canParent() && object.has("children")) {
+                ParameterizedType superClass = (ParameterizedType) dataClass.getGenericSuperclass();
+                Type childType = superClass.getActualTypeArguments()[0];
+                object.get("children").getAsJsonArray().forEach(child ->
+                        data.getChildren().add(context.deserialize(child, childType)));
+            }
 
             data.startListening();
             return data;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Data<?> deserializeStudentData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
-        StudentData data = new StudentData();
-        data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, SessionData.class)));
-        return data;
-    }
-
-    private Data<?> deserializeSessionData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
-        SessionData data = new SessionData();
-        data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, SubjectData.class)));
-        return data;
-    }
-
-    private Data<?> deserializeSubjectData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
-        SubjectData data = new SubjectData(object.get("creditPoints").getAsInt());
-        data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, AssessmentData.class)));
-        return data;
-    }
-
-    private Data<?> deserilizeAssessmentData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
-        AssessmentData data = new AssessmentData(object.get("score").getAsDouble(), object.get("maxScore").getAsDouble(), object.get("weight").getAsInt());
-        data.nameProperty().set(object.get("name").getAsString());
-        return data;
     }
 }

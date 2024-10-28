@@ -1,13 +1,11 @@
 package iron.gradetracker.model.data;
 
 import com.google.gson.annotations.Expose;
-import iron.gradetracker.ActionManager;
-import iron.gradetracker.DataManager;
+import iron.gradetracker.*;
 import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.*;
-
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -51,24 +49,30 @@ public abstract class Data<C extends Data<?>> {
     public void setParent(Data<?> parent) { this.parent = parent; }
     public Data<?> getParent() { return parent; }
 
-    private void canParent() { if (childSupplier == null) throw new IllegalArgumentException("Data type does not support children"); }
+    public boolean canParent() { return childSupplier != null; }
 
     public List<C> getChildren() {
-        canParent();
+        if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         return children;
     }
     public C getChild(int index) {
-        canParent();
+        if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         return children.get(index);
     }
     public C createChild() {
-        canParent();
+        if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         C child = childSupplier.get();
         child.startListening();
         return child;
     }
-    protected void addChild(C child) { child.setParent(this); }
-    protected void removeChild(C child) { child.setParent(null); }
+    protected void addChild(C child) {
+        if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
+        child.setParent(this);
+    }
+    protected void removeChild(C child) {
+        if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
+        child.setParent(null);
+    }
 
     public StringProperty nameProperty() { return name; }
     public String getName() { return name.get(); }
