@@ -3,6 +3,7 @@ package iron.gradetracker;
 import com.google.gson.*;
 import com.google.gson.stream.*;
 import iron.gradetracker.model.*;
+import iron.gradetracker.model.data.*;
 import javafx.beans.property.*;
 import javafx.collections.*;
 import java.io.*;
@@ -46,6 +47,8 @@ public class DataManager {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            App.getStudentData().startListening();
         }
     }
 
@@ -157,21 +160,21 @@ class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> 
     private Data<?> deserializeStudentData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
         StudentData data = new StudentData();
         data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.addChild(context.deserialize(child, SessionData.class)));
+        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, SessionData.class)));
         return data;
     }
 
     private Data<?> deserializeSessionData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
         SessionData data = new SessionData();
         data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.addChild(context.deserialize(child, SubjectData.class)));
+        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, SubjectData.class)));
         return data;
     }
 
     private Data<?> deserializeSubjectData(JsonObject object, JsonDeserializationContext context) throws JsonParseException {
         SubjectData data = new SubjectData(object.get("creditPoints").getAsInt());
         data.nameProperty().set(object.get("name").getAsString());
-        object.get("children").getAsJsonArray().forEach(child -> data.addChild(context.deserialize(child, AssessmentData.class)));
+        object.get("children").getAsJsonArray().forEach(child -> data.getChildren().add(context.deserialize(child, AssessmentData.class)));
         return data;
     }
 

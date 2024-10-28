@@ -1,7 +1,8 @@
-package iron.gradetracker.view;
+package iron.gradetracker.view.data;
 
 import iron.gradetracker.Utils;
-import iron.gradetracker.model.Data;
+import iron.gradetracker.model.data.Data;
+import iron.gradetracker.view.StringTextField;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;

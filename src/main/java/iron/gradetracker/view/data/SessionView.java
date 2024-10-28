@@ -1,6 +1,6 @@
-package iron.gradetracker.view;
+package iron.gradetracker.view.data;
 
-import iron.gradetracker.model.SessionData;
+import iron.gradetracker.model.data.SessionData;
 import javafx.scene.text.Text;
 
 public class SessionView extends DataView<SessionData> {

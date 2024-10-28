@@ -1,9 +1,10 @@
-package iron.gradetracker.model;
+package iron.gradetracker.model.data;
 
 import com.google.gson.annotations.Expose;
+import iron.gradetracker.ActionManager;
 import iron.gradetracker.DataManager;
+import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.property.*;
-import java.util.List;
 
 public class AssessmentData extends Data<AssessmentData> {
 
@@ -13,6 +14,7 @@ public class AssessmentData extends Data<AssessmentData> {
     private final IntegerProperty remainingWeight = new SimpleIntegerProperty();
 
     public AssessmentData(double score, double maxScore, int weight) {
+        super(null);
         markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()).multiply(100));
 
         maxScoreProperty().set(maxScore);
@@ -37,24 +39,21 @@ public class AssessmentData extends Data<AssessmentData> {
     @Override
     public void startListening() {
         super.startListening();
-        scoreProperty().addListener(_ -> DataManager.markDirty());
-        maxScoreProperty().addListener(_ -> DataManager.markDirty());
-        weightProperty().addListener(_ -> DataManager.markDirty());
-    }
-
-    @Override
-    public AssessmentData createChild() {
-        throw new IllegalArgumentException("AssessmentData does not support children");
-    }
-
-    @Override
-    public void addChild(AssessmentData child) {
-        throw new IllegalArgumentException("AssessmentData does not support children");
-    }
-
-    @Override
-    public void removeChildren(List<AssessmentData> children) {
-        throw new IllegalArgumentException("AssessmentData does not support children");
+        scoreProperty().addListener((_, oldValue, newValue) -> {
+            if (ActionManager.isActive()) return;
+            ActionManager.executeAction(new ChangeAction<>((Double) oldValue, (Double) newValue, scoreProperty()::set));
+            DataManager.markDirty();
+        });
+        maxScoreProperty().addListener((_, oldValue, newValue) -> {
+            if (ActionManager.isActive()) return;
+            ActionManager.executeAction(new ChangeAction<>((Double) oldValue, (Double) newValue, maxScoreProperty()::set));
+            DataManager.markDirty();
+        });
+        weightProperty().addListener((_, oldValue, newValue) -> {
+            if (ActionManager.isActive()) return;
+            ActionManager.executeAction(new ChangeAction<>((Integer) oldValue, (Integer) newValue, weightProperty()::set));
+            DataManager.markDirty();
+        });
     }
 
     @Override

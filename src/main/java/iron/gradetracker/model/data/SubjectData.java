@@ -1,10 +1,11 @@
-package iron.gradetracker.model;
+package iron.gradetracker.model.data;
 
 import com.google.gson.annotations.Expose;
-import iron.gradetracker.DataManager;
+import iron.gradetracker.*;
+import iron.gradetracker.model.App;
+import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import java.util.List;
 
 public class SubjectData extends Data<AssessmentData> {
 
@@ -14,6 +15,7 @@ public class SubjectData extends Data<AssessmentData> {
     private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
     public SubjectData(int creditPoints) {
+        super(AssessmentData::new);
         gradeProperty().bind(Bindings.createStringBinding(() -> App.getGradeMap().getGrade(getMark()).name, markProperty()));
         gradePointsProperty().bind(Bindings.createDoubleBinding(() -> App.getGradeMap().getGrade(getMark()).point, markProperty()));
 
@@ -37,28 +39,26 @@ public class SubjectData extends Data<AssessmentData> {
     @Override
     public void startListening() {
         super.startListening();
-        creditPointsProperty().addListener(_ -> DataManager.markDirty());
+        creditPointsProperty().addListener((_, oldValue, newValue) -> {
+            if (ActionManager.isActive()) return;
+            ActionManager.executeAction(new ChangeAction<>((Integer) oldValue, (Integer) newValue, creditPointsProperty()::set));
+            DataManager.markDirty();
+        });
     }
 
     @Override
-    public AssessmentData createChild() {
-        AssessmentData child = new AssessmentData();
-        addChild(child);
-        return child;
-    }
-
-    @Override
-    public void addChild(AssessmentData child) {
-        children.add(child);
-        child.setParent(this);
+    protected void addChild(AssessmentData child) {
+        super.addChild(child);
         child.remainingWeightProperty().bind(Bindings.createIntegerBinding(() -> (100 - getWeight()) + getWeight(), weightProperty()));
-        child.weightProperty().addListener(_ -> update());
-        child.markProperty().addListener(_ -> update());
+        child.weightProperty().addListener(changeListener);
+        child.markProperty().addListener(changeListener);
     }
-
     @Override
-    public void removeChildren(List<AssessmentData> children) {
-        this.children.removeAll(children);
+    protected void removeChild(AssessmentData child) {
+        super.removeChild(child);
+        child.remainingWeightProperty().unbind();
+        child.weightProperty().removeListener(changeListener);
+        child.markProperty().removeListener(changeListener);
     }
 
     @Override

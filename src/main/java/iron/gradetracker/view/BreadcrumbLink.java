@@ -1,7 +1,7 @@
 package iron.gradetracker.view;
 
 import iron.gradetracker.controller.DataController;
-import iron.gradetracker.model.Data;
+import iron.gradetracker.model.data.Data;
 import javafx.scene.control.Hyperlink;
 
 public class BreadcrumbLink extends Hyperlink {

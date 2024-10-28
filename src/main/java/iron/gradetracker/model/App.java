@@ -1,6 +1,7 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import iron.gradetracker.model.data.StudentData;
 
 public class App {
     private static volatile App instance;

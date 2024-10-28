@@ -1,6 +1,7 @@
-package iron.gradetracker.view;
+package iron.gradetracker.view.data;
 
-import iron.gradetracker.model.SubjectData;
+import iron.gradetracker.model.data.SubjectData;
+import iron.gradetracker.view.IntegerTextField;
 import javafx.scene.text.Text;
 
 public class SubjectView extends DataView<SubjectData> {

@@ -1,8 +1,7 @@
-package iron.gradetracker.model;
+package iron.gradetracker.model.data;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import java.util.List;
 
 public class StudentData extends Data<SessionData> {
 
@@ -10,6 +9,7 @@ public class StudentData extends Data<SessionData> {
     private final DoubleProperty cgpa = new SimpleDoubleProperty();
 
     public StudentData() {
+        super(SessionData::new);
         name.set("root");
     }
 
@@ -20,24 +20,18 @@ public class StudentData extends Data<SessionData> {
     public int getCreditPoints() { return creditPoints.get(); }
 
     @Override
-    public SessionData createChild() {
-        SessionData child = new SessionData();
-        addChild(child);
-        return child;
+    protected void addChild(SessionData child) {
+        super.addChild(child);
+        child.creditPointsProperty().addListener(changeListener);
+        child.markProperty().addListener(changeListener);
+        child.gradePointsProperty().addListener(changeListener);
     }
-
     @Override
-    public void addChild(SessionData child) {
-        children.add(child);
-        child.setParent(this);
-        child.creditPointsProperty().addListener(_ -> update());
-        child.markProperty().addListener(_ -> update());
-        child.gradePointsProperty().addListener(_ -> update());
-    }
-
-    @Override
-    public void removeChildren(List<SessionData> children) {
-        this.children.removeAll(children);
+    protected void removeChild(SessionData child) {
+        super.removeChild(child);
+        child.creditPointsProperty().removeListener(changeListener);
+        child.markProperty().removeListener(changeListener);
+        child.gradePointsProperty().removeListener(changeListener);
     }
 
     @Override

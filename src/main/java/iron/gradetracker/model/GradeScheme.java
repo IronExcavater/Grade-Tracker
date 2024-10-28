@@ -1,16 +1,14 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
-
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public class GradeScheme {
     @Expose private NavigableMap<Double, Grade> gradeMap = new TreeMap<>();
 
     public static class Grade {
-        @Expose String name;
-        @Expose double point;
+        @Expose public String name;
+        @Expose public double point;
 
         public Grade(String name, double point) {
             this.name = name;

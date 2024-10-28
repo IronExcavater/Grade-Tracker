@@ -1,8 +1,12 @@
 package iron.gradetracker.controller;
 
+import iron.gradetracker.ActionManager;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
+import iron.gradetracker.model.action.*;
+import iron.gradetracker.model.data.*;
 import iron.gradetracker.view.*;
+import iron.gradetracker.view.data.*;
 import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.Node;
@@ -17,10 +21,12 @@ public class DataController extends Controller {
 
     @FXML private HBox hBxBreadcrumbs;
     @FXML private GridPane gPaneHeadings;
-    @FXML private ListView<DataView<?>> lstData;
+    @FXML private ListView<DataView<?>> dataLst;
 
     @FXML private ComboBox<String> sortCmb;
     @FXML private TextField findTf;
+    @FXML private Button undoBtn;
+    @FXML private Button redoBtn;
 
     private Data<?> currentData;
 
@@ -31,8 +37,8 @@ public class DataController extends Controller {
 
     @FXML
     private void initialize() {
-        lstData.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        lstData.setCellFactory(_ -> new DataCell());
+        dataLst.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        dataLst.setCellFactory(_ -> new DataCell());
         updateCurrentData(currentData);
 
         findTf.textProperty().addListener(_ -> handleFind());
@@ -42,34 +48,40 @@ public class DataController extends Controller {
                 handleFind();
             }
         });
+
+        undoBtn.disableProperty().bind(ActionManager.canUndoProperty().not());
+        redoBtn.disableProperty().bind(ActionManager.canRedoProperty().not());
     }
 
     @FXML
     private void handleAdd() {
-        switch (currentData) {
-            case StudentData studentData -> lstData.getItems().add(new SessionView(studentData.createChild()));
-            case SessionData sessionData -> lstData.getItems().add(new SubjectView(sessionData.createChild()));
-            case SubjectData subjectData -> lstData.getItems().add(new AssessmentView(subjectData.createChild()));
-            default -> {}
-        }
-        // Update logic
+        ActionManager.executeAction(switch (currentData) {
+            case StudentData studentData -> new AddAction<>(studentData.getChildren(), studentData.createChild());
+            case SessionData sessionData -> new AddAction<>(sessionData.getChildren(), sessionData.createChild());
+            case SubjectData subjectData -> new AddAction<>(subjectData.getChildren(), subjectData.createChild());
+            default -> throw new IllegalStateException("Unexpected value: " + currentData);
+        });
+        // Update visuals
+        updateDataViewList();
         updateColumnHeadings();
     }
 
     @FXML
     private void handleDelete() {
-        List<DataView<?>> selectedViews = lstData.getSelectionModel().getSelectedItems();
+        List<DataView<?>> selectedViews = dataLst.getSelectionModel().getSelectedItems();
         if (selectedViews.isEmpty()) return;
 
-        List<?> selectedData = selectedViews.stream().map(DataView::getData).toList();
-        switch (currentData) {
-            case StudentData studentData -> studentData.removeChildren(selectedData.stream().map(SessionData.class::cast).toList());
-            case SessionData sessionData -> sessionData.removeChildren(selectedData.stream().map(SubjectData.class::cast).toList());
-            case SubjectData subjectData -> subjectData.removeChildren(selectedData.stream().map(AssessmentData.class::cast).toList());
+        var deleteAction = new CompositeAction();
+        for (var data : selectedViews.stream().map(DataView::getData).toList().reversed())
+            switch (currentData) {
+            case StudentData studentData -> deleteAction.addAction(new RemoveAction<>(studentData.getChildren(), (SessionData) data));
+            case SessionData sessionData -> deleteAction.addAction(new RemoveAction<>(sessionData.getChildren(), (SubjectData) data));
+            case SubjectData subjectData -> deleteAction.addAction(new RemoveAction<>(subjectData.getChildren(), (AssessmentData) data));
             default -> {}
         }
-        lstData.getItems().removeAll(selectedViews);
-        // Update logic
+        ActionManager.executeAction(deleteAction);
+        // Update visuals
+        updateDataViewList();
         updateColumnHeadings();
     }
 
@@ -79,10 +91,10 @@ public class DataController extends Controller {
         if (sortOption == null) return;
 
         switch (sortOption) {
-            case "A to Z" -> lstData.getItems().sort(Comparator.comparing(view -> view.getData().getName()));
-            case "Z to A" -> lstData.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getName()).reversed());
-            case "High to Low" -> lstData.getItems().sort(Comparator.comparing(view -> view.getData().getMark()));
-            case "Low to High" -> lstData.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getMark()).reversed());
+            case "A to Z" -> dataLst.getItems().sort(Comparator.comparing(view -> view.getData().getName()));
+            case "Z to A" -> dataLst.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getName()).reversed());
+            case "High to Low" -> dataLst.getItems().sort(Comparator.comparing(view -> view.getData().getMark()));
+            case "Low to High" -> dataLst.getItems().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getMark()).reversed());
             case "Custom" -> updateDataViewList();
         }
     }
@@ -97,19 +109,32 @@ public class DataController extends Controller {
             return;
         }
 
-        for (DataView<?> item : lstData.getItems()) {
+        for (DataView<?> item : dataLst.getItems()) {
             if (item.getData().getName().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(item);
             }
         }
+        dataLst.setItems(filteredList);
+    }
 
-        lstData.setItems(filteredList);
+    @FXML
+    private void handleUndo() {
+        ActionManager.undo();
+        // Update visuals
+        updateDataViewList();
+    }
+
+    @FXML
+    private void handleRedo() {
+        ActionManager.redo();
+        // Update visuals
+        updateDataViewList();
     }
 
     @FXML
     private void handleListClick(MouseEvent mouseEvent) {
-        if (lstData.getSelectionModel().getSelectedItem() == null) return;
-        Data<?> clickedData = lstData.getSelectionModel().getSelectedItem().getData();
+        if (dataLst.getSelectionModel().getSelectedItem() == null) return;
+        Data<?> clickedData = dataLst.getSelectionModel().getSelectedItem().getData();
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
@@ -127,8 +152,8 @@ public class DataController extends Controller {
 
     private void updateDataViewList() {
         // Populate lstData with new DataViews observing currentData children
-        lstData.getItems().clear();
-        lstData.getItems().addAll(currentData.getChildren().stream()
+        dataLst.getItems().clear();
+        dataLst.getItems().addAll(currentData.getChildren().stream()
                 .map(data -> switch (data) {
                     case SessionData sessionData -> new SessionView(sessionData);
                     case SubjectData subjectData -> new SubjectView(subjectData);
@@ -154,8 +179,8 @@ public class DataController extends Controller {
         // Update gPaneHeadings with column headings of currentData
         gPaneHeadings.getChildren().clear();
         gPaneHeadings.getColumnConstraints().clear();
-        if (!lstData.getItems().isEmpty()) {
-            DataView<?> childView = lstData.getItems().getFirst();
+        if (!dataLst.getItems().isEmpty()) {
+            DataView<?> childView = dataLst.getItems().getFirst();
             int[] columnWidths = childView.getColumnWidths();
             String[] columnNames = childView.getColumnNames();
             for (int i = 0; i < columnNames.length; i++) {
@@ -190,7 +215,7 @@ public class DataController extends Controller {
                     Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
 
-                    int dragIndex = lstData.getItems().indexOf(getItem());
+                    int dragIndex = dataLst.getItems().indexOf(getItem());
                     dragCell = this;
                     content.put(DATAVIEW_DATAFORMAT, dragIndex);
                     dragboard.setContent(content);
@@ -226,7 +251,7 @@ public class DataController extends Controller {
 
                 if (dragboard.hasContent(DATAVIEW_DATAFORMAT)) {
                     int dragIndex = (int) dragboard.getContent(DATAVIEW_DATAFORMAT);
-                    int dropIndex = lstData.getItems().indexOf(getItem());
+                    int dropIndex = dataLst.getItems().indexOf(getItem());
                     DataView<?> dragView = dragCell.getItem();
                     int indexDiff = Math.abs(dropIndex - dragIndex);
 
@@ -234,7 +259,7 @@ public class DataController extends Controller {
                     var fadeOut = Utils.Animation.sequentialTransition();
                     var fadeOutTransitions = fadeOut.getChildren();
                     for (int i = Math.min(dragIndex + 1, dropIndex); i < Math.max(dragIndex, dropIndex + 1); i++) {
-                        Node cellView = lstData.getItems().get(i);
+                        Node cellView = dataLst.getItems().get(i);
                         fadeOutTransitions.add(i > dropIndex ? 0 : fadeOutTransitions.size(),
                                 Utils.Animation.toOpacityFade(cellView, 1, 0, 300f / indexDiff));
                     }
@@ -245,15 +270,15 @@ public class DataController extends Controller {
                     dragCell.toFront();
                     Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 600, () -> {
                         dragView.setTranslateY(0);
-                        lstData.getItems().remove(dragView);
-                        lstData.getItems().add(dropIndex, dragView);
-                        currentData.shiftChild(dragIndex, dropIndex);
-
+                        ActionManager.executeAction(new CompositeAction(
+                                new MoveAction<>(dataLst.getItems(), dragIndex, dropIndex),
+                                new MoveAction<>(currentData.getChildren(), dragIndex, dropIndex)
+                                ));
                         // Animate in-between cell fade in
                         var fadeIn = Utils.Animation.sequentialTransition();
                         var fadeInTransitions = fadeIn.getChildren();
                         for (int i = Math.min(dragIndex, dropIndex + 1); i < Math.max(dragIndex + 1, dropIndex); i++) {
-                            Node cellView = lstData.getItems().get(i);
+                            Node cellView = dataLst.getItems().get(i);
                             fadeInTransitions.add(i > dropIndex ? 0 : fadeInTransitions.size(),
                                     Utils.Animation.toOpacityFade(cellView, 0, 1, 300f / indexDiff));
                         }

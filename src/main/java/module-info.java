@@ -10,4 +10,8 @@ module niclasrogulski.gradetracker {
     opens iron.gradetracker.controller to javafx.fxml;
 
     opens iron.gradetracker.model to com.google.gson;
+    exports iron.gradetracker.model.action;
+    opens iron.gradetracker.model.action to com.google.gson;
+    exports iron.gradetracker.model.data;
+    opens iron.gradetracker.model.data to com.google.gson;
 }

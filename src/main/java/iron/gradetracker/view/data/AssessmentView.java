@@ -1,6 +1,7 @@
-package iron.gradetracker.view;
+package iron.gradetracker.view.data;
 
-import iron.gradetracker.model.*;
+import iron.gradetracker.model.data.AssessmentData;
+import iron.gradetracker.view.*;
 
 public class AssessmentView extends DataView<AssessmentData> {
 

@@ -24,6 +24,8 @@
                     </items>
                 </ComboBox>
                 <TextField fx:id="findTf" promptText="Find..."/>
+                <Button fx:id="undoBtn" text="Undo" onAction="#handleUndo"/>
+                <Button fx:id="redoBtn" text="Redo" onAction="#handleRedo"/>
             </HBox>
             <HBox fx:id="hBxBreadcrumbs" GridPane.rowIndex="1" GridPane.columnIndex="0" spacing="5" alignment="CENTER_LEFT"/>
         </GridPane>
@@ -31,7 +33,7 @@
     <center>
         <VBox spacing="5">
             <GridPane fx:id="gPaneHeadings" hgap="10" style="-fx-padding: 0 10"/>
-            <ListView fx:id="lstData" onMouseClicked="#handleListClick"/>
+            <ListView fx:id="dataLst" onMouseClicked="#handleListClick"/>
         </VBox>
     </center>
 </BorderPane>
