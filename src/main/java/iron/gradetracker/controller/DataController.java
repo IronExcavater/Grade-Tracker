@@ -24,7 +24,7 @@ public class DataController extends Controller {
     @FXML private ListView<DataView<?>> dataLst;
 
     @FXML private ComboBox<String> sortCmb;
-    @FXML private TextField findTf;
+    @FXML private StringTextField findTf;
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
 
@@ -42,19 +42,14 @@ public class DataController extends Controller {
         updateCurrentData(currentData);
 
         findTf.textProperty().addListener(_ -> handleFind());
-        findTf.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.ENTER) {
-                findTf.getParent().requestFocus();
-                handleFind();
-            }
-        });
+        findTf.setRunnable(this::handleFind);
 
         undoBtn.disableProperty().bind(ActionManager.canUndoProperty().not());
         redoBtn.disableProperty().bind(ActionManager.canRedoProperty().not());
     }
 
     @FXML
-    private void handleAdd() {
+    public void handleAdd() {
         ActionManager.executeAction(switch (currentData) {
             case StudentData studentData -> new AddAction<>(studentData.getChildren(), studentData.createChild());
             case SessionData sessionData -> new AddAction<>(sessionData.getChildren(), sessionData.createChild());
@@ -67,7 +62,7 @@ public class DataController extends Controller {
     }
 
     @FXML
-    private void handleDelete() {
+    public void handleDelete() {
         List<DataView<?>> selectedViews = dataLst.getSelectionModel().getSelectedItems();
         if (selectedViews.isEmpty()) return;
 
@@ -86,7 +81,7 @@ public class DataController extends Controller {
     }
 
     @FXML
-    private void handleSort() {
+    public void handleSort() {
         String sortOption = sortCmb.getValue();
         if (sortOption == null) return;
 
@@ -99,7 +94,7 @@ public class DataController extends Controller {
         }
     }
 
-    private void handleFind() {
+    public void handleFind() {
         ObservableList<DataView<?>> filteredList = FXCollections.observableArrayList();
         String query = findTf.getText();
 
@@ -118,14 +113,14 @@ public class DataController extends Controller {
     }
 
     @FXML
-    private void handleUndo() {
+    public void handleUndo() {
         ActionManager.undo();
         // Update visuals
         updateDataViewList();
     }
 
     @FXML
-    private void handleRedo() {
+    public void handleRedo() {
         ActionManager.redo();
         // Update visuals
         updateDataViewList();

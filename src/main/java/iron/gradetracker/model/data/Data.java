@@ -41,7 +41,9 @@ public abstract class Data<C extends Data<?>> {
         });
         name.addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
-            ActionManager.executeAction(new ChangeAction<>(oldValue, newValue, nameProperty()::set));
+            ActionManager.executeAction(
+                    new ChangeAction<>(Utils.defaultIfNull(oldValue, ""), Utils.defaultIfNull(newValue, ""),
+                    nameProperty()::set));
             DataManager.markDirty();
         });
     }

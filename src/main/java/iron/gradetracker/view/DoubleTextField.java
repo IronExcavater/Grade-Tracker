@@ -9,10 +9,11 @@ import java.util.regex.Pattern;
 
 public class DoubleTextField extends TextField {
 
-    private final DoubleProperty boundProperty;
-    private final DoubleProperty maxProperty;
-    private final boolean isBidirectional;
-    private final int maxLength = 4;
+    private DoubleProperty boundProperty;
+    private DoubleProperty maxProperty;
+    private boolean isBidirectional;
+    private Runnable runnable;
+    private int maxLength = 4;
 
     public DoubleTextField(DoubleProperty boundProperty, boolean isBidirectional, DoubleProperty maxProperty) {
         this.boundProperty = boundProperty;
@@ -20,23 +21,51 @@ public class DoubleTextField extends TextField {
         this.isBidirectional = isBidirectional;
         initialize();
     }
-
     public DoubleTextField(DoubleProperty boundProperty, boolean isBidirectional) { this(boundProperty, isBidirectional, null); }
+    public DoubleTextField(DoubleProperty boundProperty) { this(boundProperty, false, null); }
+    public DoubleTextField() {}
 
     public DoubleProperty boundProperty() { return boundProperty; }
+    public void setBoundProperty(DoubleProperty boundProperty, boolean isBidirectional) {
+        this.boundProperty = boundProperty;
+        this.isBidirectional = isBidirectional;
+        initialize();
+    }
+    public void setBoundProperty(DoubleProperty boundProperty) { setBoundProperty(boundProperty, false); }
+
     public DoubleProperty maxProperty() { return maxProperty; }
+    public void setMaxProperty(DoubleProperty maxProperty) {
+        this.maxProperty = maxProperty;
+        initialize();
+    }
+
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+        initialize();
+    }
+
+    public void setRunnable(Runnable runnable) {
+        this.runnable = runnable;
+        initialize();
+    }
 
     private void initialize() {
         setPrefWidth(0);
 
         // Set listeners and events
         focusedProperty().addListener((_, _, newValue) -> { if (!newValue && getText().isEmpty()) setText("0"); });
-        setOnKeyPressed(keyEvent -> { if (keyEvent.getCode() == KeyCode.ENTER) getParent().requestFocus(); });
+        setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                getParent().requestFocus();
+                if (runnable != null) runnable.run();
+            }
+        });
 
         // Set formatter
         setTextFormatter(doubleTextFormatter());
 
         // Set binding
+        if (boundProperty == null) return;
         NumberStringConverter converter = new NumberStringConverter();
         if (isBidirectional)
             Bindings.bindBidirectional(textProperty(), boundProperty(), converter);

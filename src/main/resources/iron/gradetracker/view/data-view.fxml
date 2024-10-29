@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
+<?import iron.gradetracker.view.StringTextField?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="iron.gradetracker.controller.DataController" stylesheets="@../styles.css">
@@ -23,9 +25,21 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
-                <TextField fx:id="findTf" promptText="Find..."/>
-                <Button fx:id="undoBtn" text="Undo" onAction="#handleUndo"/>
-                <Button fx:id="redoBtn" text="Redo" onAction="#handleRedo"/>
+                <StringTextField fx:id="findTf" promptText="Find..."/>
+                <Button fx:id="undoBtn" onAction="#handleUndo">
+                    <graphic>
+                        <ImageView fitWidth="20" preserveRatio="true">
+                            <Image url="@../images/undo.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="redoBtn" onAction="#handleRedo">
+                    <graphic>
+                        <ImageView fitWidth="20" scaleX="-1" preserveRatio="true">
+                            <Image url="@../images/undo.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
             </HBox>
             <HBox fx:id="hBxBreadcrumbs" GridPane.rowIndex="1" GridPane.columnIndex="0" spacing="5" alignment="CENTER_LEFT"/>
         </GridPane>

@@ -7,33 +7,52 @@ import javafx.scene.input.KeyCode;
 
 public class StringTextField extends TextField {
 
-    private final StringProperty boundProperty;
-    private final boolean isBidirectional;
-    private final int maxLength = 40;
+    private StringProperty boundProperty;
+    private boolean isBidirectional = false;
+    private Runnable runnable;
+    private int maxLength = 40;
 
     public StringTextField(StringProperty boundProperty, boolean isBidirectional) {
         this.boundProperty = boundProperty;
         this.isBidirectional = isBidirectional;
         initialize();
     }
-
-    public StringTextField(StringProperty boundProperty, boolean isBidirectional, String promptText) {
-        this(boundProperty, isBidirectional);
-        setPromptText(promptText);
-    }
+    public StringTextField(StringProperty boundProperty) { this(boundProperty, false); }
+    public StringTextField() {}
 
     public StringProperty boundProperty() { return boundProperty; }
+    public void setBoundProperty(StringProperty boundProperty, boolean isBidirectional) {
+        this.boundProperty = boundProperty;
+        this.isBidirectional = isBidirectional;
+        initialize();
+    }
+
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+        initialize();
+    }
+
+    public void setRunnable(Runnable runnable) {
+        this.runnable = runnable;
+        initialize();
+    }
 
     private void initialize() {
-        setPrefWidth(0);
+        //setPrefWidth(0);
 
         // Set listeners and events
-        setOnKeyPressed(keyEvent -> { if (keyEvent.getCode() == KeyCode.ENTER) getParent().requestFocus(); });
+        setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                getParent().requestFocus();
+                if (runnable != null) runnable.run();
+            }
+        });
 
         // Set formatter
         setTextFormatter(stringTextFormatter());
 
         // Set binding
+        if (boundProperty == null) return;
         if (isBidirectional)
             Bindings.bindBidirectional(textProperty(), boundProperty());
         else

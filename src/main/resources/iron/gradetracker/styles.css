@@ -1,3 +1,4 @@
-.Button {
-    font-weight: bold;
+.Title {
+    -fx-font-weight: bold;
+    -fx-font-size: x-large;
 }

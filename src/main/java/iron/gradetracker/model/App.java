@@ -42,7 +42,7 @@ public class App {
         return instance.studentData;
     }
 
-    public static GradeScheme getGradeMap() {
+    public static GradeScheme getGradeScheme() {
         if (instance == null)
             throw new IllegalStateException("App instance is not initialized.");
         return instance.gradeScheme;

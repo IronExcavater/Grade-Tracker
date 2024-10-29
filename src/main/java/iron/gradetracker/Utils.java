@@ -52,6 +52,8 @@ public class Utils {
         return column;
     }
 
+    public static <T> T defaultIfNull(T value, T defaultValue) { return value == null ? defaultValue : value; }
+
     public static class Animation {
         public static TranslateTransition byYTranslation(Node node, double byY, double duration) { return byYTranslation(node, byY, duration, null); }
         public static TranslateTransition byYTranslation(Node node, double byY, double duration, Runnable onFinished) {

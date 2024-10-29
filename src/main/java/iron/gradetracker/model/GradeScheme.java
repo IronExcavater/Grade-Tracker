@@ -1,24 +1,28 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import javafx.beans.property.*;
+
 import java.util.*;
 
 public class GradeScheme {
-    @Expose private NavigableMap<Double, Grade> gradeMap = new TreeMap<>();
+    @Expose private List<Grade> gradeList = new ArrayList<>();
 
     public static class Grade {
-        @Expose public String name;
-        @Expose public double point;
+        @Expose public final StringProperty name = new SimpleStringProperty();
+        @Expose public final DoubleProperty mark = new SimpleDoubleProperty();
+        @Expose public final DoubleProperty point = new SimpleDoubleProperty();
 
-        public Grade(String name, double point) {
-            this.name = name;
-            this.point = point;
+        public Grade(String name, double mark, double point) {
+            this.name.set(name);
+            this.mark.set(mark);
+            this.point.set(point);
         }
     }
 
     public GradeScheme(double[] minMarks, String[] gradeNames, double[] gradePoints) {
         for (int i = 0; i < minMarks.length; i++)
-            gradeMap.put(minMarks[i], new Grade(gradeNames[i], gradePoints[i]));
+            gradeList.add(new Grade(gradeNames[i], minMarks[i], gradePoints[i]));
     }
 
     public GradeScheme() { this(
@@ -28,6 +32,18 @@ public class GradeScheme {
     }
 
     public Grade getGrade(double mark) {
-        return gradeMap.floorEntry(mark).getValue();
+        return gradeList.stream()
+                .filter(grade -> grade.mark.get() <= mark)
+                .max(Comparator.comparingDouble(grade -> grade.mark.get()))
+                .orElse(gradeList.getLast());
     }
+
+    public Grade getGrade(String name) {
+        return gradeList.stream()
+                .filter(grade -> grade.name.get().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<Grade> getGrades() { return gradeList; }
 }

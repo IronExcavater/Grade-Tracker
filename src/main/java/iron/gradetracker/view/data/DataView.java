@@ -19,7 +19,8 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
         this.columnWidths = columnWidths;
         this.columnNames = columnNames;
         setHgap(10);
-        name = new StringTextField(data.nameProperty(), true, namePrompt);
+        name = new StringTextField(data.nameProperty(), true);
+        name.setPromptText(namePrompt);
     }
 
     public T getData() { return data; }

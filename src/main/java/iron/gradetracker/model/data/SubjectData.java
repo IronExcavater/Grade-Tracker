@@ -16,10 +16,14 @@ public class SubjectData extends Data<AssessmentData> {
 
     public SubjectData(int creditPoints) {
         super(AssessmentData::new);
-        gradeProperty().bind(Bindings.createStringBinding(() -> App.getGradeMap().getGrade(getMark()).name, markProperty()));
-        gradePointsProperty().bind(Bindings.createDoubleBinding(() -> App.getGradeMap().getGrade(getMark()).point, markProperty()));
 
+        App.getGradeScheme().getGrades().forEach(grade -> {
+            grade.mark.addListener(_ -> update());
+            grade.point.addListener(_ -> update());
+        });
         creditPointsProperty().set(creditPoints);
+
+        update();
     }
 
     public SubjectData() { this(6); }
@@ -41,7 +45,9 @@ public class SubjectData extends Data<AssessmentData> {
         super.startListening();
         creditPointsProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
-            ActionManager.executeAction(new ChangeAction<>((Integer) oldValue, (Integer) newValue, creditPointsProperty()::set));
+            ActionManager.executeAction(
+                    new ChangeAction<>(Utils.defaultIfNull((Integer) oldValue, 0), Utils.defaultIfNull((Integer) newValue, 0),
+                    creditPointsProperty()::set));
             DataManager.markDirty();
         });
     }
@@ -69,10 +75,20 @@ public class SubjectData extends Data<AssessmentData> {
                         .sum(), children
         ));
 
-        markProperty().bind(Bindings.createDoubleBinding(() ->
-                children.stream()
+        markProperty().bind(Bindings.createDoubleBinding(() -> {
+                double mark = children.stream()
                         .mapToDouble(AssessmentData::getMark)
-                        .sum() / getWeight(), children
+                        .sum() / getWeight();
+                return mark > 0 ? mark : 0;
+                }, children
+        ));
+
+        gradeProperty().bind(Bindings.createStringBinding(() ->
+                App.getGradeScheme().getGrade(getMark()).name.get(), markProperty()
+        ));
+
+        gradePointsProperty().bind(Bindings.createDoubleBinding(() ->
+                App.getGradeScheme().getGrade(getMark()).point.get(), markProperty()
         ));
     }
 
