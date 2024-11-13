@@ -1,7 +1,6 @@
 package iron.gradetracker.controller;
 
-import iron.gradetracker.ActionManager;
-import iron.gradetracker.Utils;
+import iron.gradetracker.*;
 import iron.gradetracker.model.*;
 import iron.gradetracker.model.action.*;
 import iron.gradetracker.model.data.*;
@@ -46,6 +45,13 @@ public class DataController extends Controller {
 
         undoBtn.disableProperty().bind(ActionManager.canUndoProperty().not());
         redoBtn.disableProperty().bind(ActionManager.canRedoProperty().not());
+
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.S), _ -> DataManager.saveData());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.Z), _ -> handleUndo());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.Z, true), _ -> handleRedo());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.N), _ -> handleAdd());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.D), _ -> handleDelete());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.F), _ -> handleFind());
     }
 
     @FXML
@@ -95,6 +101,7 @@ public class DataController extends Controller {
     }
 
     public void handleFind() {
+        findTf.requestFocus();
         ObservableList<DataView<?>> filteredList = FXCollections.observableArrayList();
         String query = findTf.getText();
 
@@ -147,8 +154,7 @@ public class DataController extends Controller {
 
     private void updateDataViewList() {
         // Populate lstData with new DataViews observing currentData children
-        dataLst.getItems().clear();
-        dataLst.getItems().addAll(currentData.getChildren().stream()
+        dataLst.getItems().setAll(currentData.getChildren().stream()
                 .map(data -> switch (data) {
                     case SessionData sessionData -> new SessionView(sessionData);
                     case SubjectData subjectData -> new SubjectView(subjectData);

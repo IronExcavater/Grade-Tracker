@@ -1,14 +1,20 @@
 package iron.gradetracker;
 
 import javafx.animation.*;
-import javafx.scene.Node;
+import javafx.event.EventHandler;
+import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
-import java.util.Optional;
+import java.util.*;
+
 
 public class Utils {
+
+    private static final Map<KeyCombination, EventHandler<KeyEvent>> keyBinds = new HashMap<>();
+
     public static void handleExit(Stage stage) {
         stage.setOnCloseRequest(event -> {
             if (!DataManager.isDirty()) {
@@ -36,13 +42,48 @@ public class Utils {
         });
     }
 
-    private static Optional<ButtonType> createPopup(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
+    public static Optional<ButtonType> createPopup(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.getButtonTypes().setAll(buttonTypes);
         return alert.showAndWait();
+    }
+
+    public static FileChooser createFileChooser(String title, FileChooser.ExtensionFilter... extensionFilters) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        fileChooser.getExtensionFilters().addAll(extensionFilters);
+        return fileChooser;
+    }
+
+    public static KeyCombination createKeyBind(KeyCode key) { return createKeyBind(key, false); }
+    public static KeyCombination createKeyBind(KeyCode key, boolean andShift) {
+        if (andShift) return new KeyCodeCombination(key, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        return new KeyCodeCombination(key, KeyCombination.CONTROL_DOWN);
+    }
+
+    public static void addKeyBind(Scene scene, KeyCombination keyCombination, EventHandler<KeyEvent> action) {
+        EventHandler<KeyEvent> keyHandler = event -> {
+            if (keyCombination.match(event)) {
+                action.handle(event);
+                event.consume();
+            }
+        };
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+        keyBinds.put(keyCombination, keyHandler);
+    }
+
+    public static void removeKeyBind(Scene scene, KeyCombination keyCombination) {
+        var keyHandler = keyBinds.remove(keyCombination);
+        if (keyHandler != null) scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyHandler);
+    }
+
+    public static void clearKeyBinds(Scene scene) {
+        for (var handler : keyBinds.values())
+            scene.removeEventFilter(KeyEvent.KEY_PRESSED, handler);
+        keyBinds.clear();
     }
 
     public static ColumnConstraints columnPercentage(double percentWidth) {

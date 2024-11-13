@@ -1,4 +1,8 @@
 .Title {
     -fx-font-weight: bold;
-    -fx-font-size: x-large;
+    -fx-font-size: xx-large;
+}
+
+.Strong {
+    -fx-font-weight: bold;
 }

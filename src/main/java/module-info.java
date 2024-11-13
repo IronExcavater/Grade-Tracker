@@ -2,6 +2,9 @@ module niclasrogulski.gradetracker {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
+    requires java.desktop;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
 
     exports iron.gradetracker;
     opens iron.gradetracker to javafx.fxml;

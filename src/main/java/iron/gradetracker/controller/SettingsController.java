@@ -1,8 +1,11 @@
 package iron.gradetracker.controller;
 
+import iron.gradetracker.DataManager;
+import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
 import iron.gradetracker.view.*;
 import javafx.fxml.FXML;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class SettingsController extends Controller {
@@ -29,5 +32,7 @@ public class SettingsController extends Controller {
         cPointTf.setBoundProperty(gradeScheme.getGrade("C").point, true);
         pMarkTf.setBoundProperty(gradeScheme.getGrade("P").mark, true);
         pPointTf.setBoundProperty(gradeScheme.getGrade("P").point, true);
+
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.S), _ -> DataManager.saveData());
     }
 }

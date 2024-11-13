@@ -1,16 +1,21 @@
 package iron.gradetracker;
 
 import com.google.gson.*;
+import com.google.gson.annotations.Expose;
 import com.google.gson.stream.*;
 import iron.gradetracker.model.*;
 import iron.gradetracker.model.data.*;
 import javafx.beans.property.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.zip.*;
 
 public class DataManager {
 
-    private static final String FILE_PATH = "data.json";
+    private static final String SAVE_PATH = "data.json";
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(IntegerProperty.class, new IntegerPropertyAdapter())
             .registerTypeAdapter(DoubleProperty.class, new DoublePropertyAdapter())
@@ -26,16 +31,14 @@ public class DataManager {
     public static void saveData() {
         if (!isDirty) return;
 
-        try (FileWriter writer = new FileWriter(FILE_PATH)) {
+        try (FileWriter writer = new FileWriter(SAVE_PATH)) {
             gson.toJson(App.getInstance(), writer);
             isDirty = false;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        } catch (IOException _) {}
     }
 
     public static void loadData() {
-        File file = new File(FILE_PATH);
+        File file = new File(SAVE_PATH);
         App.createInstance();
 
         if (file.exists()) {
@@ -47,6 +50,109 @@ public class DataManager {
         } else {
             App.getStudentData().startListening();
         }
+    }
+
+    public static void exportData(File file) {
+        String directoryPath = file.getParent();
+        String fileName = file.getName().substring(0, file.getName().lastIndexOf("."));
+        String fileExtension = file.getName().substring(file.getName().lastIndexOf("."));
+        switch (fileExtension) {
+            case ".csv" -> exportToCsv(new File(directoryPath, fileName + ".zip"));
+            case ".json" -> exportToJson(file);
+            case ".xlsx" -> exportToXlsx(file);
+        }
+    }
+
+    private static void exportToCsv(File file) {
+        try (FileOutputStream fos = new FileOutputStream(file); ZipOutputStream zos = new ZipOutputStream(fos)) {
+            StringBuilder sessionCsv = new StringBuilder("Session,Credit Points,WAM,GPA\n");
+            StringBuilder subjectCsv = new StringBuilder("Session,Subject,Credit Points,Mark,Grade,Grade Points\n");
+            StringBuilder assessmentCsv = new StringBuilder("Session,Subject,Assessment,Score,Max Score,Weight,Mark\n");
+
+            for (var session : App.getStudentData().getChildren()) {
+                sessionCsv.append("%s,%s,%s,%s\n".formatted(session.getName(), session.getCreditPoints(),
+                        session.getMark(), session.getGradePoints()));
+
+                for (var subject : session.getChildren()) {
+                    subjectCsv.append("%s,%s,%s,%s,%s,%s\n".formatted(session.getName(), subject.getName(),
+                            subject.getCreditPoints(), subject.getMark(), subject.getGrade(),
+                            subject.getGradePoints()));
+
+                    for (var assessment : subject.getChildren()) {
+                        assessmentCsv.append("%s,%s,%s,%s,%s,%s,%s\n".formatted(session.getName(), subject.getName(),
+                                assessment.getName(), assessment.getScore(), assessment.getMaxScore(),
+                                assessment.getWeight(), assessment.getMark()));
+                    }
+                }
+            }
+
+            writeToZip(zos, "sessions.csv", sessionCsv.toString());
+            writeToZip(zos, "subjects.csv", subjectCsv.toString());
+            writeToZip(zos, "assessments.csv", assessmentCsv.toString());
+            if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(file);
+        } catch (IOException _) {}
+    }
+
+    private static void exportToJson(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+            gson.toJson(App.getStudentData(), writer);
+            if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(file);
+        } catch (IOException _) {}
+    }
+
+    private static void exportToXlsx(File file) {
+        try (FileOutputStream fos = new FileOutputStream(file); Workbook workbook = new XSSFWorkbook()) {
+            Sheet sessionSheet = workbook.createSheet("Sessions");
+            Sheet subjectSheet = workbook.createSheet("Subjects");
+            Sheet assessmentSheet = workbook.createSheet("Assessments");
+            populateRow(sessionSheet, "Session", "Credit Points", "WAM", "GPA");
+            populateRow(subjectSheet, "Session", "Subject", "Credit Points", "Mark", "Grade", "Grade Points");
+            populateRow(assessmentSheet, "Session", "Subject", "Assessment", "Score", "Max Score", "Weight", "Mark");
+
+            for (var session : App.getStudentData().getChildren()) {
+                populateRow(sessionSheet, session.getName(), session.getCreditPoints(), session.getMark(),
+                        session.getGradePoints());
+
+                for (var subject : session.getChildren()) {
+                    populateRow(subjectSheet, session.getName(), subject.getName(), subject.getCreditPoints(),
+                            subject.getMark(), subject.getGrade(), subject.getGradePoints());
+
+                    for (var assessment : subject.getChildren()) {
+                        populateRow(assessmentSheet, session.getName(), subject.getName(), assessment.getName(),
+                                assessment.getScore(), assessment.getMaxScore(), assessment.getWeight(),
+                                assessment.getMark());
+                    }
+                }
+            }
+
+            workbook.write(fos);
+            if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(file);
+        } catch (IOException _) {}
+    }
+
+    private static void populateRow(Sheet sheet, Object... values) {
+        Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
+        for (var i = 0; i < values.length; i++) {
+            Cell cell = row.createCell(i);
+            switch (values[i]) {
+                case Integer integer -> cell.setCellValue(integer);
+                case Float f -> cell.setCellValue(f);
+                case Double d -> cell.setCellValue(d);
+                case Short s -> cell.setCellValue(s);
+                case Long l -> cell.setCellValue(l);
+                case Boolean b -> cell.setCellValue(b);
+                default -> cell.setCellValue(values[i].toString());
+            }
+            sheet.autoSizeColumn(i);
+        }
+    }
+
+    private static void writeToZip(ZipOutputStream zos, String fileName, String fileContent) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zos.putNextEntry(zipEntry);
+        byte[] bytes = fileContent.getBytes();
+        zos.write(bytes, 0, bytes.length);
+        zos.closeEntry();
     }
 
     public static boolean isDirty() { return isDirty; }
@@ -98,9 +204,11 @@ class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> 
     public JsonElement serialize(Data<?> data, Type type, JsonSerializationContext context) {
         JsonObject object = new JsonObject();
         object.addProperty("type", data.getClass().getSimpleName());
+        object.addProperty("name", data.getName());
 
         for (Field field : data.getClass().getDeclaredFields()) {
             field.setAccessible(true);
+            if (!field.isAnnotationPresent(Expose.class)) continue;
             try {
                 object.add(field.getName(), context.serialize(field.get(data)));
             } catch (IllegalAccessException e) {

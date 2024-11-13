@@ -6,12 +6,19 @@
 <BorderPane fx:id="bPaneRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="iron.gradetracker.controller.AppController" stylesheets="@../styles.css">
     <top>
-        <TabPane fx:id="tPaneMenu">
-            <tabMinWidth>80</tabMinWidth>
-            <tabMinHeight>30</tabMinHeight>
-            <Tab text="Home"/>
-            <Tab text="Data"/>
-            <Tab text="Settings"/>
-        </TabPane>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem text="Export" onAction="#handleExport"/>
+                </Menu>
+            </MenuBar>
+            <TabPane fx:id="tabMenu">
+                <tabMinWidth>80</tabMinWidth>
+                <tabMinHeight>30</tabMinHeight>
+                <Tab text="Home"/>
+                <Tab text="Data"/>
+                <Tab text="Settings"/>
+            </TabPane>
+        </VBox>
     </top>
 </BorderPane>

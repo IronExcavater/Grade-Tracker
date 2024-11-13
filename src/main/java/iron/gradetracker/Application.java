@@ -2,9 +2,11 @@ package iron.gradetracker;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import iron.gradetracker.controller.AppController;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Application extends javafx.application.Application {
     @Override
@@ -17,6 +19,8 @@ public class Application extends javafx.application.Application {
 
         Utils.handleExit(stage);
 
+        Image icon = new Image(Objects.requireNonNull(Application.class.getResourceAsStream("images/icon.jpeg")));
+        stage.getIcons().add(icon);
         stage.setTitle("Grade Tracker");
         stage.setScene(scene);
         stage.show();

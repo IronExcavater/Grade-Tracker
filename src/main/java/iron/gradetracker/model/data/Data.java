@@ -53,7 +53,7 @@ public abstract class Data<C extends Data<?>> {
 
     public boolean canParent() { return childSupplier != null; }
 
-    public List<C> getChildren() {
+    public ObservableList<C> getChildren() {
         if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         return children;
     }
