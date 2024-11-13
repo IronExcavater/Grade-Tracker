@@ -12,7 +12,7 @@ public class BreadcrumbLink extends Hyperlink {
 
         textProperty().bind(data.nameProperty());
         if (disabled) disableProperty().set(true);
-        setOnAction(_ -> controller.updateCurrentData(data));
+        setOnAction(_ -> controller.setCurrentData(data));
     }
 
     public Data<?> getData() { return data; }

@@ -22,7 +22,6 @@ public class SubjectData extends Data<AssessmentData> {
             grade.point.addListener(_ -> update());
         });
         creditPointsProperty().set(creditPoints);
-
         update();
     }
 
@@ -46,9 +45,7 @@ public class SubjectData extends Data<AssessmentData> {
         creditPointsProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(Utils.defaultIfNull((Integer) oldValue, 0), Utils.defaultIfNull((Integer) newValue, 0),
-                    creditPointsProperty()::set));
-            DataManager.markDirty();
+                    new ChangeAction<>((Integer) oldValue, (Integer) newValue, 0, creditPointsProperty()::set));
         });
     }
 

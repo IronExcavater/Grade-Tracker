@@ -1,12 +1,11 @@
 package iron.gradetracker.controller;
 
-import iron.gradetracker.DataManager;
-import iron.gradetracker.Utils;
+import iron.gradetracker.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.stage.*;
+
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 public class AppController extends Controller {
 
     @FXML private BorderPane bPaneRoot;
-    @FXML private MenuBar menuBar;
     @FXML private TabPane tabMenu;
 
     public AppController(Stage stage) { super(stage); }

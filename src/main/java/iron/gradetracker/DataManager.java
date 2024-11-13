@@ -34,6 +34,7 @@ public class DataManager {
         try (FileWriter writer = new FileWriter(SAVE_PATH)) {
             gson.toJson(App.getInstance(), writer);
             isDirty = false;
+            ActionManager.saveAction();
         } catch (IOException _) {}
     }
 
@@ -157,6 +158,7 @@ public class DataManager {
 
     public static boolean isDirty() { return isDirty; }
     public static void markDirty() { isDirty = true; }
+    public static void markClean() { isDirty = false; }
 }
 
 class IntegerPropertyAdapter extends TypeAdapter<IntegerProperty> {

@@ -1,5 +1,6 @@
 package iron.gradetracker.model.action;
 
+import iron.gradetracker.Utils;
 import java.util.function.Consumer;
 
 public class ChangeAction<T> implements Action {
@@ -8,9 +9,9 @@ public class ChangeAction<T> implements Action {
     private final T newValue;
     private final Consumer<T> setter;
 
-    public ChangeAction(T oldValue, T newValue, Consumer<T> setter) {
-        this.oldValue = oldValue;
-        this.newValue = newValue;
+    public ChangeAction(T oldValue, T newValue, T defaultValue, Consumer<T> setter) {
+        this.oldValue = Utils.defaultIfNull(oldValue, defaultValue);
+        this.newValue = Utils.defaultIfNull(newValue, defaultValue);
         this.setter = setter;
     }
 

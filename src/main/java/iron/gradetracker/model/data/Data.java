@@ -35,16 +35,10 @@ public abstract class Data<C extends Data<?>> {
     }
 
     public void startListening() {
-        children.addListener((ListChangeListener<? super C>) _ -> {
-            if (ActionManager.isActive()) return;
-            DataManager.markDirty();
-        });
         name.addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(Utils.defaultIfNull(oldValue, ""), Utils.defaultIfNull(newValue, ""),
-                    nameProperty()::set));
-            DataManager.markDirty();
+                    new ChangeAction<>(oldValue, newValue, "", nameProperty()::set));
         });
     }
 

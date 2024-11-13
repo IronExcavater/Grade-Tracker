@@ -2,8 +2,6 @@ package iron.gradetracker.model.data;
 
 import com.google.gson.annotations.Expose;
 import iron.gradetracker.ActionManager;
-import iron.gradetracker.DataManager;
-import iron.gradetracker.Utils;
 import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.property.*;
 
@@ -43,23 +41,17 @@ public class AssessmentData extends Data<AssessmentData> {
         scoreProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(Utils.defaultIfNull((Double) oldValue, 0d), Utils.defaultIfNull((Double) newValue, 0d),
-                    scoreProperty()::set));
-            DataManager.markDirty();
+                    new ChangeAction<>((Double) oldValue, (Double) newValue, 0d, scoreProperty()::set));
         });
         maxScoreProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(Utils.defaultIfNull((Double) oldValue, 0d), Utils.defaultIfNull((Double) newValue, 0d),
-                    maxScoreProperty()::set));
-            DataManager.markDirty();
+                    new ChangeAction<>((Double) oldValue, (Double) newValue, 0d, maxScoreProperty()::set));
         });
         weightProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(Utils.defaultIfNull((Integer) oldValue, 0), Utils.defaultIfNull((Integer) newValue, 0),
-                    weightProperty()::set));
-            DataManager.markDirty();
+                    new ChangeAction<>((Integer) oldValue, (Integer) newValue, 0, weightProperty()::set));
         });
     }
 

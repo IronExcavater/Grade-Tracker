@@ -6,7 +6,9 @@ import iron.gradetracker.model.action.*;
 import iron.gradetracker.model.data.*;
 import iron.gradetracker.view.*;
 import iron.gradetracker.view.data.*;
+import javafx.beans.property.*;
 import javafx.collections.*;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -27,21 +29,18 @@ public class DataController extends Controller {
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
 
-    private Data<?> currentData;
+    private final ObjectProperty<Data<?>> currentData = new SimpleObjectProperty<>();
+    private final ListChangeListener<Data<?>> changeListener = _ -> updateDataViewList();
 
-    public DataController(Stage stage) {
-        super(stage);
-        currentData = App.getStudentData();
-    }
+    public DataController(Stage stage) { super(stage); }
 
     @FXML
     private void initialize() {
+        currentData.addListener((_, _, _) -> updateDataViewList());
+        setCurrentData(App.getStudentData());
+
         dataLst.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         dataLst.setCellFactory(_ -> new DataCell());
-        updateCurrentData(currentData);
-
-        findTf.textProperty().addListener(_ -> handleFind());
-        findTf.setRunnable(this::handleFind);
 
         undoBtn.disableProperty().bind(ActionManager.canUndoProperty().not());
         redoBtn.disableProperty().bind(ActionManager.canRedoProperty().not());
@@ -51,20 +50,17 @@ public class DataController extends Controller {
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.Z, true), _ -> handleRedo());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.N), _ -> handleAdd());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.D), _ -> handleDelete());
-        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.F), _ -> handleFind());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.F), _ -> findTf.requestFocus());
     }
 
     @FXML
     public void handleAdd() {
-        ActionManager.executeAction(switch (currentData) {
+        ActionManager.executeAction(switch (getCurrentData()) {
             case StudentData studentData -> new AddAction<>(studentData.getChildren(), studentData.createChild());
             case SessionData sessionData -> new AddAction<>(sessionData.getChildren(), sessionData.createChild());
             case SubjectData subjectData -> new AddAction<>(subjectData.getChildren(), subjectData.createChild());
             default -> throw new IllegalStateException("Unexpected value: " + currentData);
         });
-        // Update visuals
-        updateDataViewList();
-        updateColumnHeadings();
     }
 
     @FXML
@@ -74,16 +70,13 @@ public class DataController extends Controller {
 
         var deleteAction = new CompositeAction();
         for (var data : selectedViews.stream().map(DataView::getData).toList().reversed())
-            switch (currentData) {
+            switch (getCurrentData()) {
             case StudentData studentData -> deleteAction.addAction(new RemoveAction<>(studentData.getChildren(), (SessionData) data));
             case SessionData sessionData -> deleteAction.addAction(new RemoveAction<>(sessionData.getChildren(), (SubjectData) data));
             case SubjectData subjectData -> deleteAction.addAction(new RemoveAction<>(subjectData.getChildren(), (AssessmentData) data));
             default -> {}
         }
         ActionManager.executeAction(deleteAction);
-        // Update visuals
-        updateDataViewList();
-        updateColumnHeadings();
     }
 
     @FXML
@@ -100,37 +93,14 @@ public class DataController extends Controller {
         }
     }
 
-    public void handleFind() {
-        findTf.requestFocus();
-        ObservableList<DataView<?>> filteredList = FXCollections.observableArrayList();
-        String query = findTf.getText();
-
-        updateDataViewList();
-        if (query.isBlank()) {
-            if (!query.isEmpty()) findTf.setText("");
-            return;
-        }
-
-        for (DataView<?> item : dataLst.getItems()) {
-            if (item.getData().getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(item);
-            }
-        }
-        dataLst.setItems(filteredList);
-    }
-
     @FXML
     public void handleUndo() {
-        ActionManager.undo();
-        // Update visuals
-        updateDataViewList();
+        ActionManager.undoAction();
     }
 
     @FXML
     public void handleRedo() {
-        ActionManager.redo();
-        // Update visuals
-        updateDataViewList();
+        ActionManager.redoAction();
     }
 
     @FXML
@@ -141,33 +111,46 @@ public class DataController extends Controller {
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
             if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
             if (clickedData instanceof AssessmentData) return;
-            updateCurrentData(clickedData);
+            setCurrentData(clickedData);
         }
     }
 
-    public void updateCurrentData(Data<?> currentData) {
-        this.currentData = currentData;
-        updateDataViewList();
-        updateBreadcrumbs();
-        updateColumnHeadings();
+    public Data<?> getCurrentData() { return currentData.get(); }
+
+    public void setCurrentData(Data<?> data) {
+        if (getCurrentData() != null) getCurrentData().getChildren().removeListener(changeListener);
+        currentData.set(data);
+        getCurrentData().getChildren().addListener(changeListener);
     }
 
     private void updateDataViewList() {
         // Populate lstData with new DataViews observing currentData children
-        dataLst.getItems().setAll(currentData.getChildren().stream()
-                .map(data -> switch (data) {
-                    case SessionData sessionData -> new SessionView(sessionData);
-                    case SubjectData subjectData -> new SubjectView(subjectData);
-                    case AssessmentData assessmentData -> new AssessmentView(assessmentData);
-                    default -> throw new IllegalStateException("Unexpected value: " + data);
-                })
-                .toList());
+        ObservableList<DataView<?>> dataViews = FXCollections.observableArrayList(
+                getCurrentData().getChildren().stream()
+                        .map(data -> switch (data) {
+                            case SessionData sessionData -> new SessionView(sessionData);
+                            case SubjectData subjectData -> new SubjectView(subjectData);
+                            case AssessmentData assessmentData -> new AssessmentView(assessmentData);
+                            default -> throw new IllegalStateException("Unexpected value: " + data);
+                        })
+                        .toList());
+
+        FilteredList<DataView<?>> filteredList = new FilteredList<>(dataViews);
+        findTf.textProperty().addListener((_, _, newValue) -> {
+            String query = newValue.trim().toLowerCase();
+            if (query.isEmpty()) filteredList.setPredicate(_ -> true);
+            else filteredList.setPredicate(view -> view.getData().getName().toLowerCase().contains(query));
+        });
+
+        dataLst.setItems(filteredList);
+        updateBreadcrumbs();
+        updateColumnHeadings();
     }
 
     private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
-        Data<?> data = currentData;
+        Data<?> data = getCurrentData();
         hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data, true));
         while (!data.equals(App.getStudentData())) {
             data = data.getParent();
@@ -271,10 +254,7 @@ public class DataController extends Controller {
                     dragCell.toFront();
                     Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 600, () -> {
                         dragView.setTranslateY(0);
-                        ActionManager.executeAction(new CompositeAction(
-                                new MoveAction<>(dataLst.getItems(), dragIndex, dropIndex),
-                                new MoveAction<>(currentData.getChildren(), dragIndex, dropIndex)
-                                ));
+                        ActionManager.executeAction(new MoveAction<>(getCurrentData().getChildren(), dragIndex, dropIndex));
                         // Animate in-between cell fade in
                         var fadeIn = Utils.Animation.sequentialTransition();
                         var fadeInTransitions = fadeIn.getChildren();
