@@ -18,5 +18,5 @@ public class CompositeAction implements Action {
     public void retract() { actions.reversed().forEach(Action::retract); }
 
     @Override
-    public Data<?> getItem() { return actions.getFirst().getItem(); }
+    public Data<?> getFocus() { return actions.getFirst().getFocus(); }
 }

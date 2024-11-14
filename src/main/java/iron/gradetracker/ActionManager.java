@@ -36,8 +36,8 @@ public class ActionManager {
         if (undoStack.isEmpty()) return;
         isActive = true;
         Action action = undoStack.pop();
-        controller.setCurrentData(action.getItem().getParent());
         action.retract();
+        controller.setCurrentData(action.getFocus());
         redoStack.push(action);
         markAction();
         if (undoStack.isEmpty()) canUndo.set(false);
@@ -50,7 +50,7 @@ public class ActionManager {
         isActive = true;
         Action action = redoStack.pop();
         action.execute();
-        controller.setCurrentData(action.getItem().getParent());
+        controller.setCurrentData(action.getFocus());
         undoStack.push(action);
         markAction();
         if (redoStack.isEmpty()) canRedo.set(false);

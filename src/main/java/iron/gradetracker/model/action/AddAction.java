@@ -18,17 +18,11 @@ public class AddAction<T extends Data<?>> implements Action {
     }
 
     @Override
-    public void execute() {
-        parent.getChildren().add(index, item);
-        item.setParent(parent);
-    }
+    public void execute() { parent.getChildren().add(index, item); }
 
     @Override
-    public void retract() {
-        parent.getChildren().remove(index);
-        item.setParent(null);
-    }
+    public void retract() { parent.getChildren().remove(index); }
 
     @Override
-    public Data<?> getItem() { return item; }
+    public Data<?> getFocus() { return parent; }
 }

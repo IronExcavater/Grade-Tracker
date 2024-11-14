@@ -1,16 +1,11 @@
 package iron.gradetracker.view.data;
 
-import com.google.gson.JsonObject;
-import iron.gradetracker.DataManager;
-import iron.gradetracker.Utils;
+import iron.gradetracker.*;
 import iron.gradetracker.model.data.Data;
 import iron.gradetracker.view.StringTextField;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class DataView<T extends Data<?>> extends GridPane {
 

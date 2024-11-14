@@ -25,5 +25,5 @@ public class ChangeAction<T> implements Action {
     public void retract() { setter.accept(oldValue); }
 
     @Override
-    public Data<?> getItem() { return item; }
+    public Data<?> getFocus() { return item.getParent(); }
 }

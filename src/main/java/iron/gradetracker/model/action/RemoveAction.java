@@ -15,17 +15,11 @@ public class RemoveAction<T extends Data<?>> implements Action {
     }
 
     @Override
-    public void execute() {
-        parent.getChildren().remove(index);
-        item.setParent(null);
-    }
+    public void execute() { parent.getChildren().remove(index); }
 
     @Override
-    public void retract() {
-        parent.getChildren().add(index, item);
-        item.setParent(parent);
-    }
+    public void retract() { parent.getChildren().add(index, item); }
 
     @Override
-    public Data<?> getItem() { return item; }
+    public Data<?> getFocus() { return parent; }
 }

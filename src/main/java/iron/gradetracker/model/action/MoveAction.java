@@ -29,5 +29,5 @@ public class MoveAction<T extends Data<?>> implements Action {
     }
 
     @Override
-    public Data<?> getItem() { return item; }
+    public Data<?> getFocus() { return parent; }
 }
