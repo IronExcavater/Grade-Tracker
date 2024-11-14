@@ -8,9 +8,9 @@ public class StudentData extends Data<SessionData> {
     private final IntegerProperty creditPoints = new SimpleIntegerProperty();
     private final DoubleProperty cgpa = new SimpleDoubleProperty();
 
-    public StudentData() {
-        super(SessionData::new);
-        name.set("root");
+    public StudentData() { this(""); }
+    public StudentData(String name) {
+        super(name, SessionData::new);
     }
 
     public DoubleProperty cgpaProperty() { return cgpa; }

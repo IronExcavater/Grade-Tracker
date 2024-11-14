@@ -3,6 +3,7 @@ package iron.gradetracker;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.stream.*;
+import iron.gradetracker.controller.DataController;
 import iron.gradetracker.model.*;
 import iron.gradetracker.model.data.*;
 import javafx.beans.property.*;
@@ -26,6 +27,7 @@ public class DataManager {
             .registerTypeAdapter(AssessmentData.class, new DataAdapter())
             .excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
+    public static DataController controller;
     private static boolean isDirty = false;
 
     public static void saveData() {
@@ -45,7 +47,7 @@ public class DataManager {
 
         if (file.exists()) {
             try (FileReader reader = new FileReader(file)) {
-                App.loadInstance(gson.fromJson(reader, App.class));
+                App.setInstance(gson.fromJson(reader, App.class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -161,7 +163,54 @@ public class DataManager {
     }
 
     public static void importData(File file) {
+        String fileExtension = file.getName().substring(file.getName().lastIndexOf("."));
+        switch (fileExtension) {
+            case ".json" -> importFromJson(file);
+            case ".xlsx" -> importFromXlsx(file);
+        }
+    }
 
+    private static void importFromJson(File file) {
+        try (FileReader reader = new FileReader(file)) {
+            App.setStudentData(gson.fromJson(reader, StudentData.class));
+            if (controller != null) controller.setCurrentData(App.getStudentData());
+        } catch (IOException _) {}
+    }
+
+    private static void importFromXlsx(File file) {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            Workbook workbook = new XSSFWorkbook(fis);
+            Sheet sessionSheet = workbook.getSheet("Sessions");
+            Sheet subjectSheet = workbook.getSheet("Subjects");
+            Sheet assessmentSheet = workbook.getSheet("Assessments");
+
+            String studentName = file.getName().substring(0, file.getName().lastIndexOf("."));
+            StudentData student = new StudentData(studentName);
+
+            for (var sessionRow : sessionSheet) {
+                if (sessionRow.getRowNum() == 0) continue;
+                var session = new SessionData(sessionRow.getCell(0).getStringCellValue());
+                student.getChildren().add(session);
+
+                for (var subjectRow : subjectSheet) {
+                    if (subjectRow.getRowNum() == 0) continue;
+                    var subject = new SubjectData(subjectRow.getCell(1).getStringCellValue(),
+                            (int) subjectRow.getCell(2).getNumericCellValue());
+                    session.getChildren().add(subject);
+
+                    for (var assessmentRow : assessmentSheet) {
+                        if (assessmentRow.getRowNum() == 0) continue;
+                        var assessment = new AssessmentData(assessmentRow.getCell(2).getStringCellValue(),
+                                assessmentRow.getCell(3).getNumericCellValue(),
+                                assessmentRow.getCell(4).getNumericCellValue(),
+                                (int) assessmentRow.getCell(5).getNumericCellValue());
+                        subject.getChildren().add(assessment);
+                    }
+                }
+            }
+            App.setStudentData(student);
+            if (controller != null) controller.setCurrentData(App.getStudentData());
+        } catch (IOException _) {}
     }
 
     public static boolean isDirty() { return isDirty; }

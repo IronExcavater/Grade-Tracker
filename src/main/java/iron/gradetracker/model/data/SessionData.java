@@ -8,8 +8,9 @@ public class SessionData extends Data<SubjectData> {
     private final IntegerProperty creditPoints = new SimpleIntegerProperty();
     private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
-    public SessionData() {
-        super(SubjectData::new);
+    public SessionData() { this(""); }
+    public SessionData(String name) {
+        super(name, SubjectData::new);
     }
 
     public DoubleProperty gradePointsProperty() { return gradePoints; }

@@ -25,15 +25,15 @@ public class App {
 
     public static void createInstance() { createInstance(new StudentData(), new GradeScheme()); }
 
-    public static void loadInstance(App app) {
-        instance.studentData = app.studentData;
-        instance.gradeScheme = app.gradeScheme;
-    }
-
     public static App getInstance() {
         if (instance == null)
             throw new IllegalStateException("App instance is not initialized.");
         return instance;
+    }
+
+    public static void setInstance(App app) {
+        instance.studentData = app.studentData;
+        instance.gradeScheme = app.gradeScheme;
     }
 
     public static StudentData getStudentData() {
@@ -42,9 +42,21 @@ public class App {
         return instance.studentData;
     }
 
+    public static void setStudentData(StudentData studentData) {
+        if (instance == null)
+            throw new IllegalStateException("App instance is not initialized.");
+        instance.studentData = studentData;
+    }
+
     public static GradeScheme getGradeScheme() {
         if (instance == null)
             throw new IllegalStateException("App instance is not initialized.");
         return instance.gradeScheme;
+    }
+
+    public static void setGradeScheme(GradeScheme gradeScheme) {
+        if (instance == null)
+            throw new IllegalStateException("App instance is not initialized.");
+        instance.gradeScheme = gradeScheme;
     }
 }

@@ -8,6 +8,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.util.Duration;
+
+import java.io.File;
 import java.util.*;
 
 
@@ -55,6 +57,7 @@ public class Utils {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
         fileChooser.getExtensionFilters().addAll(extensionFilters);
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         return fileChooser;
     }
 

@@ -1,6 +1,7 @@
 package iron.gradetracker.controller;
 
 import iron.gradetracker.*;
+import iron.gradetracker.model.App;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -45,10 +46,9 @@ public class AppController extends Controller {
 
     @FXML
     private void handleImport() {
-        var csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
         var jsonFilter = new FileChooser.ExtensionFilter("Json Files", "*.json");
         var xlsxFilter = new FileChooser.ExtensionFilter("Excel Files", "*.xlsx");
-        var fileChooser = Utils.createFileChooser("Export File", csvFilter, jsonFilter, xlsxFilter);
+        var fileChooser = Utils.createFileChooser("Export File", jsonFilter, xlsxFilter);
         var file = fileChooser.showOpenDialog(stage);
 
         if (file == null) return;
@@ -61,6 +61,7 @@ public class AppController extends Controller {
         var jsonFilter = new FileChooser.ExtensionFilter("Json Files", "*.json");
         var xlsxFilter = new FileChooser.ExtensionFilter("Excel Files", "*.xlsx");
         var fileChooser = Utils.createFileChooser("Export File", csvFilter, jsonFilter, xlsxFilter);
+        fileChooser.setInitialFileName(App.getStudentData().getName());
         var file = fileChooser.showSaveDialog(stage);
 
         if (file == null) return;

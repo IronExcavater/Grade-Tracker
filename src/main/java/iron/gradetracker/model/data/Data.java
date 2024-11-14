@@ -19,13 +19,9 @@ public abstract class Data<C extends Data<?>> {
     @Expose protected final StringProperty name = new SimpleStringProperty();
     @Expose protected final DoubleProperty mark = new SimpleDoubleProperty();
 
-    public Data(List<C> children, Supplier<C> childSupplier) {
-        this(childSupplier);
-        this.children.addAll(children);
-    }
-
-    public Data(Supplier<C> childSupplier) {
+    public Data(String name, Supplier<C> childSupplier) {
         this.childSupplier = childSupplier;
+        nameProperty().set(name);
         children.addListener((ListChangeListener<? super C>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) change.getAddedSubList().forEach(this::addChild);

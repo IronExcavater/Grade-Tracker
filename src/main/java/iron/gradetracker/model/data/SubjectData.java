@@ -14,8 +14,9 @@ public class SubjectData extends Data<AssessmentData> {
     private final StringProperty grade = new SimpleStringProperty();
     private final DoubleProperty gradePoints = new SimpleDoubleProperty();
 
-    public SubjectData(int creditPoints) {
-        super(AssessmentData::new);
+    public SubjectData() { this("", 6); }
+    public SubjectData(String name, int creditPoints) {
+        super(name, AssessmentData::new);
 
         App.getGradeScheme().getGrades().forEach(grade -> {
             grade.mark.addListener(_ -> update());
@@ -24,8 +25,6 @@ public class SubjectData extends Data<AssessmentData> {
         creditPointsProperty().set(creditPoints);
         update();
     }
-
-    public SubjectData() { this(6); }
 
     public IntegerProperty creditPointsProperty() { return creditPoints; }
     public int getCreditPoints() { return creditPoints.get(); }

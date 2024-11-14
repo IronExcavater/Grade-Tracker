@@ -12,16 +12,14 @@ public class AssessmentData extends Data<AssessmentData> {
     @Expose private final IntegerProperty weight = new SimpleIntegerProperty();
     private final IntegerProperty remainingWeight = new SimpleIntegerProperty();
 
-    public AssessmentData(double score, double maxScore, int weight) {
-        super(null);
+    public AssessmentData() { this("", 0, 100, 20); }
+    public AssessmentData(String name, double score, double maxScore, int weight) {
+        super(name, null);
         markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()).multiply(100));
-
         maxScoreProperty().set(maxScore);
         scoreProperty().set(Math.min(score, getMaxScore()));
         weightProperty().set(Math.min(weight, getRemainingWeight()));
     }
-
-    public AssessmentData() { this(0, 100, 20); }
 
     public DoubleProperty scoreProperty() { return score; }
     public double getScore() { return score.get(); }

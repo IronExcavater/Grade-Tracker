@@ -67,6 +67,7 @@ public class DataController extends Controller {
     @FXML
     private void initialize() {
         ActionManager.controller = this;
+        DataManager.controller = this;
 
         currentViewList.set(FXCollections.observableArrayList());
         getCurrentViewList().addListener((ListChangeListener<? super DataView<?>>) _ -> { updateBreadcrumbs(); updateColumnHeadings(); });
