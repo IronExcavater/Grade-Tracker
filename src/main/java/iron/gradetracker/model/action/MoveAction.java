@@ -1,30 +1,33 @@
 package iron.gradetracker.model.action;
 
-import java.util.List;
+import iron.gradetracker.model.data.Data;
 
-public class MoveAction<T> implements Action {
+public class MoveAction<T extends Data<?>> implements Action {
 
-    private final List<T> list;
+    private final Data<T> parent;
     private final T item;
     private final int initialIndex;
     private final int finalIndex;
 
-    public MoveAction(List<T> list, int initialIndex, int finalIndex) {
-        this.list = list;
-        this.item = list.get(initialIndex);
+    public MoveAction(Data<T> parent, int initialIndex, int finalIndex) {
+        this.parent = parent;
+        this.item = parent.getChildren().get(initialIndex);
         this.initialIndex = initialIndex;
         this.finalIndex = finalIndex;
     }
 
     @Override
     public void execute() {
-        list.remove(initialIndex);
-        list.add(finalIndex, item);
+        parent.getChildren().remove(initialIndex);
+        parent.getChildren().add(finalIndex, item);
     }
 
     @Override
     public void retract() {
-        list.remove(finalIndex);
-        list.add(initialIndex, item);
+        parent.getChildren().remove(finalIndex);
+        parent.getChildren().add(initialIndex, item);
     }
+
+    @Override
+    public Data<?> getItem() { return item; }
 }

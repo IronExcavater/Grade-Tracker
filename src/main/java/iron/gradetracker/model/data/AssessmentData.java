@@ -41,17 +41,17 @@ public class AssessmentData extends Data<AssessmentData> {
         scoreProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>((Double) oldValue, (Double) newValue, 0d, scoreProperty()::set));
+                    new ChangeAction<>(this, (Double) oldValue, (Double) newValue, 0d, scoreProperty()::set));
         });
         maxScoreProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>((Double) oldValue, (Double) newValue, 0d, maxScoreProperty()::set));
+                    new ChangeAction<>(this, (Double) oldValue, (Double) newValue, 0d, maxScoreProperty()::set));
         });
         weightProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>((Integer) oldValue, (Integer) newValue, 0, weightProperty()::set));
+                    new ChangeAction<>(this, (Integer) oldValue, (Integer) newValue, 0, weightProperty()::set));
         });
     }
 

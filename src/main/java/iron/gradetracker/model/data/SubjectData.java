@@ -45,7 +45,7 @@ public class SubjectData extends Data<AssessmentData> {
         creditPointsProperty().addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>((Integer) oldValue, (Integer) newValue, 0, creditPointsProperty()::set));
+                    new ChangeAction<>(this, (Integer) oldValue, (Integer) newValue, 0, creditPointsProperty()::set));
         });
     }
 

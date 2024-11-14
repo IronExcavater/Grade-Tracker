@@ -44,6 +44,18 @@ public class AppController extends Controller {
     }
 
     @FXML
+    private void handleImport() {
+        var csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
+        var jsonFilter = new FileChooser.ExtensionFilter("Json Files", "*.json");
+        var xlsxFilter = new FileChooser.ExtensionFilter("Excel Files", "*.xlsx");
+        var fileChooser = Utils.createFileChooser("Export File", csvFilter, jsonFilter, xlsxFilter);
+        var file = fileChooser.showOpenDialog(stage);
+
+        if (file == null) return;
+        DataManager.importData(file);
+    }
+
+    @FXML
     private void handleExport() {
         var csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
         var jsonFilter = new FileChooser.ExtensionFilter("Json Files", "*.json");

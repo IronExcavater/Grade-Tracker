@@ -1,11 +1,16 @@
 package iron.gradetracker.view.data;
 
+import com.google.gson.JsonObject;
+import iron.gradetracker.DataManager;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.data.Data;
 import iron.gradetracker.view.StringTextField;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class DataView<T extends Data<?>> extends GridPane {
 
@@ -33,4 +38,8 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
             getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
         }
     }
+
+    public String toClipboardData() { return DataManager.gson.toJson(data); }
+
+    public Data<?> fromClipboardData(String json) { return DataManager.gson.fromJson(json, Data.class); }
 }

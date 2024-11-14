@@ -1,26 +1,31 @@
 package iron.gradetracker.model.action;
 
-import java.util.List;
+import iron.gradetracker.model.data.Data;
 
-public class RemoveAction<T> implements Action {
+public class RemoveAction<T extends Data<?>> implements Action {
 
-    private final List<T> list;
+    private final Data<T> parent;
     private final T item;
     private final int index;
 
-    public RemoveAction(List<T> list, T item) {
-        this.list = list;
+    public RemoveAction(Data<T> parent, T item) {
+        this.parent = parent;
         this.item = item;
-        this.index = list.indexOf(item);
+        this.index = parent.getChildren().indexOf(item);
     }
 
     @Override
     public void execute() {
-        list.remove(index);
+        parent.getChildren().remove(index);
+        item.setParent(null);
     }
 
     @Override
     public void retract() {
-        list.add(index, item);
+        parent.getChildren().add(index, item);
+        item.setParent(parent);
     }
+
+    @Override
+    public Data<?> getItem() { return item; }
 }

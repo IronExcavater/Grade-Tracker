@@ -1,5 +1,6 @@
 package iron.gradetracker;
 
+import iron.gradetracker.controller.DataController;
 import iron.gradetracker.model.action.Action;
 import javafx.beans.property.*;
 import java.util.Stack;
@@ -8,7 +9,8 @@ public class ActionManager {
     private static final Stack<Action> undoStack = new Stack<>();
     private static final Stack<Action> redoStack = new Stack<>();
 
-    public static Action savedAction = null;
+    public static DataController controller;
+    private static Action savedAction;
 
     private static boolean isActive = false;
     private static final BooleanProperty canUndo = new SimpleBooleanProperty(false);
@@ -34,9 +36,9 @@ public class ActionManager {
         if (undoStack.isEmpty()) return;
         isActive = true;
         Action action = undoStack.pop();
+        controller.setCurrentData(action.getItem().getParent());
         action.retract();
         redoStack.push(action);
-
         markAction();
         if (undoStack.isEmpty()) canUndo.set(false);
         canRedo.set(true);
@@ -48,8 +50,8 @@ public class ActionManager {
         isActive = true;
         Action action = redoStack.pop();
         action.execute();
+        controller.setCurrentData(action.getItem().getParent());
         undoStack.push(action);
-
         markAction();
         if (redoStack.isEmpty()) canRedo.set(false);
         canUndo.set(true);

@@ -38,7 +38,7 @@ public abstract class Data<C extends Data<?>> {
         name.addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
-                    new ChangeAction<>(oldValue, newValue, "", nameProperty()::set));
+                    new ChangeAction<>(this, oldValue, newValue, "", nameProperty()::set));
         });
     }
 
@@ -46,6 +46,7 @@ public abstract class Data<C extends Data<?>> {
     public Data<?> getParent() { return parent; }
 
     public boolean canParent() { return childSupplier != null; }
+    public boolean hasParent() { return parent != null; }
 
     public ObservableList<C> getChildren() {
         if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");

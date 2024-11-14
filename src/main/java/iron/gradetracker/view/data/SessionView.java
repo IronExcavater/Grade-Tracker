@@ -3,6 +3,9 @@ package iron.gradetracker.view.data;
 import iron.gradetracker.model.data.SessionData;
 import javafx.scene.text.Text;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SessionView extends DataView<SessionData> {
 
     private final Text mark = new Text();

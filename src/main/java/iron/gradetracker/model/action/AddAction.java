@@ -1,31 +1,34 @@
 package iron.gradetracker.model.action;
 
-import iron.gradetracker.controller.DataController;
+import iron.gradetracker.model.data.Data;
 
-import java.util.List;
+public class AddAction<T extends Data<?>> implements Action {
 
-public class AddAction<T> implements Action {
-
-    private final List<T> list;
+    private final Data<T> parent;
     private final T item;
     private final int index;
 
-    public AddAction(List<T> list, T item, int index) {
-        this.list = list;
+    public AddAction(Data<T> parent, T item) {
+        this(parent, item, parent.getChildren().size());
+    }
+    public AddAction(Data<T> parent, T item, int index) {
+        this.parent = parent;
         this.item = item;
         this.index = index;
-    }
-    public AddAction(List<T> list, T item) {
-        this(list, item, list.size());
     }
 
     @Override
     public void execute() {
-        list.add(index, item);
+        parent.getChildren().add(index, item);
+        item.setParent(parent);
     }
 
     @Override
     public void retract() {
-        list.remove(index);
+        parent.getChildren().remove(index);
+        item.setParent(null);
     }
+
+    @Override
+    public Data<?> getItem() { return item; }
 }

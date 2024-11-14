@@ -29,13 +29,16 @@ public class DataController extends Controller {
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
 
+    private static final DataFormat DATAVIEW_DATAFORMAT = new DataFormat("iron/data");
     private final ObjectProperty<Data<?>> currentData = new SimpleObjectProperty<>();
-    private final ListChangeListener<Data<?>> changeListener = _ -> updateDataViewList();
+    private final ListChangeListener<Data<?>> childChangeListener = _ -> updateDataViewList();
 
     public DataController(Stage stage) { super(stage); }
 
     @FXML
     private void initialize() {
+        ActionManager.controller = this;
+
         currentData.addListener((_, _, _) -> updateDataViewList());
         setCurrentData(App.getStudentData());
 
@@ -51,29 +54,31 @@ public class DataController extends Controller {
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.N), _ -> handleAdd());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.D), _ -> handleDelete());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.F), _ -> findTf.requestFocus());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.C), _ -> handleCopy());
+        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.V), _ -> handlePaste());
     }
 
     @FXML
     public void handleAdd() {
         ActionManager.executeAction(switch (getCurrentData()) {
-            case StudentData studentData -> new AddAction<>(studentData.getChildren(), studentData.createChild());
-            case SessionData sessionData -> new AddAction<>(sessionData.getChildren(), sessionData.createChild());
-            case SubjectData subjectData -> new AddAction<>(subjectData.getChildren(), subjectData.createChild());
+            case StudentData studentData -> new AddAction<>(studentData, studentData.createChild());
+            case SessionData sessionData -> new AddAction<>(sessionData, sessionData.createChild());
+            case SubjectData subjectData -> new AddAction<>(subjectData, subjectData.createChild());
             default -> throw new IllegalStateException("Unexpected value: " + currentData);
         });
     }
 
     @FXML
     public void handleDelete() {
-        List<DataView<?>> selectedViews = dataLst.getSelectionModel().getSelectedItems();
+        var selectedViews = dataLst.getSelectionModel().getSelectedItems();
         if (selectedViews.isEmpty()) return;
 
         var deleteAction = new CompositeAction();
         for (var data : selectedViews.stream().map(DataView::getData).toList().reversed())
             switch (getCurrentData()) {
-            case StudentData studentData -> deleteAction.addAction(new RemoveAction<>(studentData.getChildren(), (SessionData) data));
-            case SessionData sessionData -> deleteAction.addAction(new RemoveAction<>(sessionData.getChildren(), (SubjectData) data));
-            case SubjectData subjectData -> deleteAction.addAction(new RemoveAction<>(subjectData.getChildren(), (AssessmentData) data));
+            case StudentData studentData -> deleteAction.addAction(new RemoveAction<>(studentData, (SessionData) data));
+            case SessionData sessionData -> deleteAction.addAction(new RemoveAction<>(sessionData, (SubjectData) data));
+            case SubjectData subjectData -> deleteAction.addAction(new RemoveAction<>(subjectData, (AssessmentData) data));
             default -> {}
         }
         ActionManager.executeAction(deleteAction);
@@ -94,13 +99,34 @@ public class DataController extends Controller {
     }
 
     @FXML
-    public void handleUndo() {
-        ActionManager.undoAction();
-    }
+    public void handleUndo() { ActionManager.undoAction(); }
 
     @FXML
-    public void handleRedo() {
-        ActionManager.redoAction();
+    public void handleRedo() { ActionManager.redoAction(); }
+
+    public void handleCopy() {
+        var selectedView = dataLst.getSelectionModel().getSelectedItem();
+        if (selectedView == null) return;
+        ClipboardContent content = new ClipboardContent();
+        content.put(DATAVIEW_DATAFORMAT, selectedView.toClipboardData());
+        Clipboard.getSystemClipboard().setContent(content);
+    }
+
+    public void handlePaste() {
+        var clipboard = Clipboard.getSystemClipboard();
+        if (clipboard.hasContent(DATAVIEW_DATAFORMAT)) {
+            String json = (String) clipboard.getContent(DATAVIEW_DATAFORMAT);
+            int dropIndex = dataLst.getSelectionModel().getSelectedIndex() + 1;
+            ActionManager.executeAction(switch (getCurrentData()) {
+                case StudentData studentData -> new AddAction<>(studentData,
+                        DataManager.gson.fromJson(json, SessionData.class), dropIndex);
+                case SessionData sessionData -> new AddAction<>(sessionData,
+                        DataManager.gson.fromJson(json, SubjectData.class), dropIndex);
+                case SubjectData subjectData -> new AddAction<>(subjectData,
+                        DataManager.gson.fromJson(json, AssessmentData.class), dropIndex);
+                default -> throw new IllegalStateException("Unexpected value: " + currentData);
+            });
+        }
     }
 
     @FXML
@@ -118,9 +144,9 @@ public class DataController extends Controller {
     public Data<?> getCurrentData() { return currentData.get(); }
 
     public void setCurrentData(Data<?> data) {
-        if (getCurrentData() != null) getCurrentData().getChildren().removeListener(changeListener);
+        if (getCurrentData() != null) getCurrentData().getChildren().removeListener(childChangeListener);
         currentData.set(data);
-        getCurrentData().getChildren().addListener(changeListener);
+        getCurrentData().getChildren().addListener(childChangeListener);
     }
 
     private void updateDataViewList() {
@@ -176,11 +202,16 @@ public class DataController extends Controller {
     }
 
     private class DataCell extends ListCell<DataView<?>> {
-        private static final DataFormat DATAVIEW_DATAFORMAT = new DataFormat("iron/data");
         private static DataCell dragCell;
 
         public DataCell() {
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            var copy = new MenuItem("Copy");
+            copy.setOnAction(_ -> handleCopy());
+            var paste = new MenuItem("Paste");
+            paste.setOnAction(_ -> handlePaste());
+            setContextMenu(new ContextMenu(copy, paste));
 
             setOnDragDetected(event -> {
                 if (getItem() == null) return;
@@ -254,7 +285,7 @@ public class DataController extends Controller {
                     dragCell.toFront();
                     Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 600, () -> {
                         dragView.setTranslateY(0);
-                        ActionManager.executeAction(new MoveAction<>(getCurrentData().getChildren(), dragIndex, dropIndex));
+                        ActionManager.executeAction(new MoveAction<>(getCurrentData().getParent(), dragIndex, dropIndex));
                         // Animate in-between cell fade in
                         var fadeIn = Utils.Animation.sequentialTransition();
                         var fadeInTransitions = fadeIn.getChildren();

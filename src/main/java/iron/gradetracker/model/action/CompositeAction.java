@@ -1,5 +1,7 @@
 package iron.gradetracker.model.action;
 
+import iron.gradetracker.model.data.Data;
+
 import java.util.*;
 
 public class CompositeAction implements Action {
@@ -14,4 +16,7 @@ public class CompositeAction implements Action {
 
     @Override
     public void retract() { actions.reversed().forEach(Action::retract); }
+
+    @Override
+    public Data<?> getItem() { return actions.getFirst().getItem(); }
 }

@@ -9,6 +9,7 @@
         <VBox>
             <MenuBar>
                 <Menu text="File">
+                    <MenuItem text="Import" onAction="#handleImport"/>
                     <MenuItem text="Export" onAction="#handleExport"/>
                 </Menu>
             </MenuBar>
