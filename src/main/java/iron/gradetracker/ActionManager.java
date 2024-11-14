@@ -4,6 +4,7 @@ import iron.gradetracker.controller.DataController;
 import iron.gradetracker.model.action.Action;
 import javafx.beans.property.*;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 public class ActionManager {
     private static final Stack<Action> undoStack = new Stack<>();
@@ -33,29 +34,36 @@ public class ActionManager {
     }
 
     public static void undoAction() {
-        if (undoStack.isEmpty()) return;
-        isActive = true;
-        Action action = undoStack.pop();
-        action.retract();
-        controller.setCurrentData(action.getFocus());
-        redoStack.push(action);
-        markAction();
-        if (undoStack.isEmpty()) canUndo.set(false);
-        canRedo.set(true);
-        isActive = false;
+        if (undoStack.isEmpty() || isActive) return;
+        processAction(undoStack.pop(), true);
     }
 
     public static void redoAction() {
-        if (redoStack.isEmpty()) return;
-        isActive = true;
-        Action action = redoStack.pop();
-        action.execute();
-        controller.setCurrentData(action.getFocus());
-        undoStack.push(action);
-        markAction();
-        if (redoStack.isEmpty()) canRedo.set(false);
-        canUndo.set(true);
-        isActive = false;
+        if (redoStack.isEmpty() || isActive) return;
+        processAction(redoStack.pop(), false);
+    }
+
+    public static void processAction(Action action, boolean isUndo) {
+        Runnable runnable = () -> {
+            isActive = true;
+            if (isUndo) {
+                action.retract();
+                redoStack.push(action);
+                if (undoStack.isEmpty()) canUndo.set(false);
+                canRedo.set(true);
+            }
+            else {
+                action.execute();
+                undoStack.push(action);
+                if (redoStack.isEmpty()) canRedo.set(false);
+                canUndo.set(true);
+            }
+            markAction();
+            isActive = false;
+        };
+
+        if (focusAction(action)) Utils.Coroutine.runAsync(100, TimeUnit.MILLISECONDS, runnable);
+        else runnable.run();
     }
 
     public static void saveAction() { savedAction = undoStack.empty() ? null : undoStack.peek(); }
@@ -64,5 +72,13 @@ public class ActionManager {
         if ((savedAction != null && !undoStack.empty() && savedAction.equals(undoStack.peek()))
                 || (savedAction == null && undoStack.empty())) DataManager.markClean();
         else DataManager.markDirty();
+    }
+
+    private static boolean focusAction(Action action) {
+        if (!action.getFocus().equals(controller.getCurrentData())) {
+            controller.setCurrentData(action.getFocus());
+            return true;
+        }
+        return false;
     }
 }

@@ -70,7 +70,10 @@ public class DataController extends Controller {
         DataManager.controller = this;
 
         currentViewList.set(FXCollections.observableArrayList());
-        getCurrentViewList().addListener((ListChangeListener<? super DataView<?>>) _ -> { updateBreadcrumbs(); updateColumnHeadings(); });
+        getCurrentViewList().addListener((ListChangeListener<? super DataView<?>>) _ -> {
+            updateBreadcrumbs();
+            updateColumnHeadings();
+        });
         setCurrentData(App.getStudentData());
         updateBreadcrumbs();
         updateColumnHeadings();

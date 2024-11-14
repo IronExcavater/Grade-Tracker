@@ -7,29 +7,34 @@
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="iron.gradetracker.controller.SettingsController" stylesheets="@../styles.css">
     <center>
-        <VBox spacing="5" style="-fx-padding: 10" alignment="TOP_CENTER">
-            <HBox spacing="10" alignment="CENTER">
-                <Label text="Name:"/>
-                <StringTextField fx:id="nameTf"/>
-            </HBox>
-            <Label text="Grade Scheme" styleClass="Title"/>
-            <GridPane hgap="20" vgap="10" alignment="CENTER">
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="0" text="Grade" styleClass="Strong"/>
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="Min Mark" styleClass="Strong"/>
-                <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="Grade Points" styleClass="Strong"/>
-                <Label GridPane.rowIndex="1" GridPane.columnIndex="0" text="High Distinction"/>
-                <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="hdMarkTf"/>
-                <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="2" fx:id="hdPointTf"/>
-                <Label GridPane.rowIndex="2" GridPane.columnIndex="0" text="Distinction"/>
-                <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="dMarkTf"/>
-                <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="2" fx:id="dPointTf"/>
-                <Label GridPane.rowIndex="3" GridPane.columnIndex="0" text="Credit"/>
-                <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="cMarkTf"/>
-                <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="2" fx:id="cPointTf"/>
-                <Label GridPane.rowIndex="4" GridPane.columnIndex="0" text="Pass"/>
-                <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="pMarkTf"/>
-                <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="2" fx:id="pPointTf"/>
-            </GridPane>
-        </VBox>
+        <HBox spacing="50" alignment="TOP_CENTER" style="-fx-padding: 10">
+            <VBox spacing="10">
+                <Label text="Grade Scheme" styleClass="Title"/>
+                <GridPane hgap="20" vgap="10" alignment="CENTER">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="0" text="Grade" styleClass="Strong"/>
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="Min Mark" styleClass="Strong"/>
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="Grade Points" styleClass="Strong"/>
+                    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" text="High Distinction"/>
+                    <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="hdMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="2" fx:id="hdPointTf"/>
+                    <Label GridPane.rowIndex="2" GridPane.columnIndex="0" text="Distinction"/>
+                    <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="dMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="2" fx:id="dPointTf"/>
+                    <Label GridPane.rowIndex="3" GridPane.columnIndex="0" text="Credit"/>
+                    <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="cMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="2" fx:id="cPointTf"/>
+                    <Label GridPane.rowIndex="4" GridPane.columnIndex="0" text="Pass"/>
+                    <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="pMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="2" fx:id="pPointTf"/>
+                </GridPane>
+            </VBox>
+            <VBox spacing="10">
+                <Label text="Student Info" styleClass="Title"/>
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Name:"/>
+                    <StringTextField fx:id="nameTf"/>
+                </HBox>
+            </VBox>
+        </HBox>
     </center>
 </BorderPane>

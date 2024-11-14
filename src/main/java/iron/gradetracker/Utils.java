@@ -1,6 +1,7 @@
 package iron.gradetracker;
 
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -11,10 +12,10 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.util.*;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Utils {
-
     private static final Map<KeyCombination, EventHandler<KeyEvent>> keyBinds = new HashMap<>();
 
     public static void handleExit(Stage stage) {
@@ -105,6 +106,18 @@ public class Utils {
     }
 
     public static <T> T defaultIfNull(T value, T defaultValue) { return value == null ? defaultValue : value; }
+
+    public static class Coroutine {
+        public static void runAsync(long delay, TimeUnit timeUnit, Runnable runnable) {
+            CompletableFuture.delayedExecutor(delay, timeUnit).execute(() -> Platform.runLater(runnable));
+        }
+
+        public static void runAsync(long delay, TimeUnit timeUnit, Runnable... runnables) {
+            CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+            for (var runnable : runnables)
+                future = future.thenRunAsync(() -> Platform.runLater(runnable), CompletableFuture.delayedExecutor(delay, timeUnit));
+        }
+    }
 
     public static class Animation {
         private static final Set<Node> animatingNodes = new HashSet<>();
