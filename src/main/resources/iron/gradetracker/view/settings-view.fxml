@@ -8,6 +8,10 @@
             fx:controller="iron.gradetracker.controller.SettingsController" stylesheets="@../styles.css">
     <center>
         <VBox spacing="5" style="-fx-padding: 10" alignment="TOP_CENTER">
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="Name:"/>
+                <StringTextField fx:id="nameTf"/>
+            </HBox>
             <Label text="Grade Scheme" styleClass="Title"/>
             <GridPane hgap="20" vgap="10" alignment="CENTER">
                 <Label GridPane.rowIndex="0" GridPane.columnIndex="0" text="Grade" styleClass="Strong"/>

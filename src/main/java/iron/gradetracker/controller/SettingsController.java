@@ -3,12 +3,15 @@ package iron.gradetracker.controller;
 import iron.gradetracker.DataManager;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
+import iron.gradetracker.model.data.StudentData;
 import iron.gradetracker.view.*;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class SettingsController extends Controller {
+
+    @FXML private StringTextField nameTf;
 
     @FXML private DoubleTextField hdMarkTf;
     @FXML private DoubleTextField hdPointTf;
@@ -23,6 +26,9 @@ public class SettingsController extends Controller {
 
     @FXML
     private void initialize() {
+        StudentData studentData = App.getStudentData();
+        nameTf.setBoundProperty(studentData.nameProperty(), true);
+
         GradeScheme gradeScheme = App.getGradeScheme();
         hdMarkTf.setBoundProperty(gradeScheme.getGrade("HD").mark, true);
         hdPointTf.setBoundProperty(gradeScheme.getGrade("HD").point, true);

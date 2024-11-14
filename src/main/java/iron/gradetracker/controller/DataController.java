@@ -198,11 +198,11 @@ public class DataController extends Controller {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
         hBxBreadcrumbs.getChildren().clear();
         Data<?> data = getCurrentData();
-        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data, true));
+        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
         while (!data.equals(App.getStudentData())) {
             data = data.getParent();
             hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
-            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data, false));
+            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
         }
     }
 

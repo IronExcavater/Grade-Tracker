@@ -27,7 +27,7 @@ public class Utils {
             ButtonType saveButton = new ButtonType("Save");
             ButtonType dontSaveButton = new ButtonType("Don't Save");
             ButtonType cancelButton = ButtonType.CANCEL;
-            Optional<ButtonType> saveResult = createPopup(Alert.AlertType.CONFIRMATION,
+            var saveResult = createPopup(Alert.AlertType.CONFIRMATION,
                     "Unsaved Changes", "You have unsaved changes.", "Do you want to save before exiting?",
                     saveButton, dontSaveButton, cancelButton);
 
@@ -59,6 +59,14 @@ public class Utils {
         fileChooser.getExtensionFilters().addAll(extensionFilters);
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         return fileChooser;
+    }
+
+    public static Optional<?> createDialog(String title, Node content, ButtonType... buttonTypes) {
+        Dialog<?> dialog = new Dialog<>();
+        dialog.setTitle(title);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(buttonTypes);
+        return dialog.showAndWait();
     }
 
     public static KeyCombination createKeyBind(KeyCode key) { return createKeyBind(key, false); }
