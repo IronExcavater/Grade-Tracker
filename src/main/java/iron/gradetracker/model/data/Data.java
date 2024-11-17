@@ -2,18 +2,18 @@ package iron.gradetracker.model.data;
 
 import com.google.gson.annotations.Expose;
 import iron.gradetracker.*;
+import iron.gradetracker.model.MoveObservableList;
 import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.*;
-import java.util.*;
 import java.util.function.Supplier;
 
 public abstract class Data<C extends Data<?>> {
 
     private final Supplier<C> childSupplier;
     protected transient Data<?> parent;
-    @Expose protected final ObservableList<C> children = FXCollections.observableArrayList();
+    @Expose protected final MoveObservableList<C> children = new MoveObservableList<>();
     protected final ChangeListener<Number> changeListener = (_, _, _) -> update();
 
     @Expose protected final StringProperty name = new SimpleStringProperty();
@@ -24,6 +24,7 @@ public abstract class Data<C extends Data<?>> {
         nameProperty().set(name);
         children.addListener((ListChangeListener<? super C>) change -> {
             while (change.next()) {
+                if (change.wasPermutated()) break;
                 if (change.wasAdded()) change.getAddedSubList().forEach(this::addChild);
                 if (change.wasRemoved()) change.getRemoved().forEach(this::removeChild);
             }
@@ -44,7 +45,7 @@ public abstract class Data<C extends Data<?>> {
     public boolean canParent() { return childSupplier != null; }
     public boolean hasParent() { return parent != null; }
 
-    public ObservableList<C> getChildren() {
+    public MoveObservableList<C> getChildren() {
         if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         return children;
     }

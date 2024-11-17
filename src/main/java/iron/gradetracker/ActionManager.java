@@ -2,6 +2,7 @@ package iron.gradetracker;
 
 import iron.gradetracker.controller.DataController;
 import iron.gradetracker.model.action.Action;
+import iron.gradetracker.model.action.MoveAction;
 import javafx.beans.property.*;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -75,10 +76,15 @@ public class ActionManager {
     }
 
     private static boolean focusAction(Action action) {
+        boolean focused = false;
         if (!action.getFocus().equals(controller.getCurrentData())) {
             controller.setCurrentData(action.getFocus());
-            return true;
+            focused = true;
         }
-        return false;
+        if (action instanceof MoveAction<?> && !controller.getSortOption().equals("Custom")) {
+            controller.setSortOption("Custom");
+            focused = true;
+        }
+        return focused;
     }
 }

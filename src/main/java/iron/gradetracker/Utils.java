@@ -9,7 +9,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.util.Duration;
-
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -25,18 +24,19 @@ public class Utils {
                 return;
             }
 
-            ButtonType saveButton = new ButtonType("Save");
-            ButtonType dontSaveButton = new ButtonType("Don't Save");
-            ButtonType cancelButton = ButtonType.CANCEL;
-            var saveResult = createPopup(Alert.AlertType.CONFIRMATION,
+            var saveBtype = new ButtonType("Save");
+            var dontSaveBtype = new ButtonType("Don't Save");
+            var cancelBtype = ButtonType.CANCEL;
+            var savePopup = createPopup(Alert.AlertType.CONFIRMATION,
                     "Unsaved Changes", "You have unsaved changes.", "Do you want to save before exiting?",
-                    saveButton, dontSaveButton, cancelButton);
+                    saveBtype, dontSaveBtype, cancelBtype);
 
+            var saveResult = savePopup.showAndWait();
             saveResult.ifPresentOrElse(result -> {
-                if (result.equals(saveButton)) {
+                if (result.equals(saveBtype)) {
                     DataManager.saveData();
                     stage.close();
-                } else if (result.equals(dontSaveButton)) {
+                } else if (result.equals(dontSaveBtype)) {
                     stage.close();
                 } else {
                     event.consume();
@@ -45,13 +45,13 @@ public class Utils {
         });
     }
 
-    public static Optional<ButtonType> createPopup(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
+    public static Alert createPopup(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.getButtonTypes().setAll(buttonTypes);
-        return alert.showAndWait();
+        return alert;
     }
 
     public static FileChooser createFileChooser(String title, FileChooser.ExtensionFilter... extensionFilters) {
@@ -62,12 +62,12 @@ public class Utils {
         return fileChooser;
     }
 
-    public static Optional<?> createDialog(String title, Node content, ButtonType... buttonTypes) {
+    public static Dialog<?> createDialog(String title, Node content, ButtonType... buttonTypes) {
         Dialog<?> dialog = new Dialog<>();
         dialog.setTitle(title);
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().addAll(buttonTypes);
-        return dialog.showAndWait();
+        return dialog;
     }
 
     public static KeyCombination createKeyBind(KeyCode key) { return createKeyBind(key, false); }

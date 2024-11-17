@@ -4,7 +4,6 @@ import iron.gradetracker.*;
 import iron.gradetracker.model.data.Data;
 import iron.gradetracker.view.StringTextField;
 import javafx.scene.Node;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
 public abstract class DataView<T extends Data<?>> extends GridPane {
@@ -12,7 +11,8 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     protected final T data;
     private final int[] columnWidths;
     private final String[] columnNames;
-    protected final TextField name;
+    private boolean moveToFront;
+    protected final StringTextField name;
 
     protected DataView(T data, int[] columnWidths, String[] columnNames, String namePrompt) {
         this.data = data;
@@ -37,4 +37,7 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     public String toClipboardData() { return DataManager.gson.toJson(data); }
 
     public Data<?> fromClipboardData(String json) { return DataManager.gson.fromJson(json, Data.class); }
+
+    public boolean getMoveToFront() { return moveToFront; }
+    public void setMoveToFront(boolean moveToFront) { this.moveToFront = moveToFront; }
 }

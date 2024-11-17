@@ -2,6 +2,8 @@ package iron.gradetracker.model.action;
 
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.data.Data;
+import iron.gradetracker.model.data.StudentData;
+
 import java.util.function.Consumer;
 
 public class ChangeAction<T> implements Action {
@@ -25,5 +27,8 @@ public class ChangeAction<T> implements Action {
     public void retract() { setter.accept(oldValue); }
 
     @Override
-    public Data<?> getFocus() { return item.getParent(); }
+    public Data<?> getFocus() {
+        if (item.hasParent()) return item.getParent();
+        return item;
+    }
 }

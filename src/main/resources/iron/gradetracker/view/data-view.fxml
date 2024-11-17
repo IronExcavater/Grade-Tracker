@@ -14,7 +14,7 @@
             <HBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10" alignment="CENTER_LEFT">
                 <Button onAction="#handleAdd" text="Add"/>
                 <Button onAction="#handleDelete" text="Delete"/>
-                <ComboBox fx:id="sortCmb" onAction="#handleSort" promptText="Sort...">
+                <ComboBox fx:id="sortCmb" promptText="Sort...">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="A to Z"/>
@@ -47,7 +47,7 @@
     <center>
         <VBox spacing="5">
             <GridPane fx:id="gPaneHeadings" hgap="10" style="-fx-padding: 0 10"/>
-            <ListView fx:id="dataLst" onMouseClicked="#handleListClick"/>
+            <ListView fx:id="dataLst" onMouseClicked="#handleListClick" VBox.vgrow="ALWAYS"/>
         </VBox>
     </center>
 </BorderPane>

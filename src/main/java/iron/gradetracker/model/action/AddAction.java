@@ -2,23 +2,23 @@ package iron.gradetracker.model.action;
 
 import iron.gradetracker.model.data.Data;
 
-public class AddAction<T extends Data<?>> implements Action {
+public class AddAction<E extends Data<?>> implements Action {
 
-    private final Data<T> parent;
-    private final T item;
+    private final Data<E> parent;
+    private final E element;
     private final int index;
 
-    public AddAction(Data<T> parent, T item) {
-        this(parent, item, parent.getChildren().size());
+    public AddAction(Data<E> parent, E element) {
+        this(parent, element, parent.getChildren().size());
     }
-    public AddAction(Data<T> parent, T item, int index) {
+    public AddAction(Data<E> parent, E element, int index) {
         this.parent = parent;
-        this.item = item;
+        this.element = element;
         this.index = index;
     }
 
     @Override
-    public void execute() { parent.getChildren().add(index, item); }
+    public void execute() { parent.getChildren().add(index, element); }
 
     @Override
     public void retract() { parent.getChildren().remove(index); }

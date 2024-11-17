@@ -2,30 +2,28 @@ package iron.gradetracker.model.action;
 
 import iron.gradetracker.model.data.Data;
 
-public class MoveAction<T extends Data<?>> implements Action {
+public class MoveAction<E extends Data<?>> implements Action {
 
-    private final Data<T> parent;
-    private final T item;
-    private final int initialIndex;
-    private final int finalIndex;
+    private final Data<E> parent;
+    private final E element;
+    private final int from;
+    private final int to;
 
-    public MoveAction(Data<T> parent, int initialIndex, int finalIndex) {
+    public MoveAction(Data<E> parent, int from, int to) {
         this.parent = parent;
-        this.item = parent.getChildren().get(initialIndex);
-        this.initialIndex = initialIndex;
-        this.finalIndex = finalIndex;
+        this.element = parent.getChildren().get(from);
+        this.from = from;
+        this.to = to;
     }
 
     @Override
     public void execute() {
-        parent.getChildren().remove(initialIndex);
-        parent.getChildren().add(finalIndex, item);
+        parent.getChildren().move(from, to);
     }
 
     @Override
     public void retract() {
-        parent.getChildren().remove(finalIndex);
-        parent.getChildren().add(initialIndex, item);
+        parent.getChildren().move(to, from);
     }
 
     @Override

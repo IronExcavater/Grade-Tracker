@@ -10,6 +10,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -32,23 +34,58 @@ public class DataController extends Controller {
 
     private static final DataFormat DATAVIEW_DATAFORMAT = new DataFormat("iron/data");
     private final ObjectProperty<Data<?>> currentData = new SimpleObjectProperty<>();
-    private final ObjectProperty<ObservableList<DataView<?>>> currentViewList = new SimpleObjectProperty<>();
 
-    private final ListChangeListener<Data<?>> childChangeListener = change -> {
+    private final MoveObservableList<DataView<?>> currentViewList = new MoveObservableList<>();
+    private final SortedList<DataView<?>> sortedViewList = new SortedList<>(currentViewList);
+
+    private final ListChangeListener<Data<?>> changeListener = change -> {
         while (change.next()) {
-            for (int i = 0; i < change.getAddedSize(); i++) {
-                var view = createView(change.getAddedSubList().get(i));
-                getCurrentViewList().add(change.getFrom() + i, view);
-                if (!Utils.Animation.isAnimating(view))
-                    Utils.Animation.toOpacityFade(view, 0, 1, 300,() -> Utils.Animation.unlockNode(view)).play();
+            if (change.wasPermutated()) {
+                int from = change.getFrom();
+                int to = change.getTo();
+                var view = currentViewList.get(from);
+                double cellHeight = view.getHeight() + 6;
+                int indexDiff = Math.abs(to - from);
+                // Animate in-between cell fade out
+                var fadeOut = Utils.Animation.sequentialTransition();
+                var fadeOutTransitions = fadeOut.getChildren();
+                for (int i = Math.min(from + 1, to); i < Math.max(from, to + 1); i++) {
+                    Node cellView = dataLst.getItems().get(i);
+                    fadeOutTransitions.add(i > to ? 0 : fadeOutTransitions.size(),
+                            Utils.Animation.toOpacityFade(cellView, 1, 0, 300f / indexDiff));
+                }
+                fadeOut.play();
+
+                Utils.Animation.byYTranslation(view, cellHeight * indexDiff * (from > to ? -1 : 1), 600, () -> {
+                    view.setTranslateY(0);
+                    currentViewList.remove(view);
+                    currentViewList.add(to, view);
+                    // Animate in-between cell fade in
+                    var fadeIn = Utils.Animation.sequentialTransition(() -> currentViewList.forEach(Utils.Animation::unlockNode));
+                    var fadeInTransitions = fadeIn.getChildren();
+                    for (int i = Math.min(from, to + 1); i < Math.max(from + 1, to); i++) {
+                        Node cellView = dataLst.getItems().get(i);
+                        fadeInTransitions.add(i > to ? 0 : fadeInTransitions.size(),
+                                Utils.Animation.toOpacityFade(cellView, 0, 1, 300f / indexDiff));
+                    }
+                    fadeIn.play();
+                }).play();
+                break;
             }
             for (int i = change.getRemovedSize() - 1; i >= 0; i--) {
-                var view = getCurrentViewList().get(change.getFrom() + i);
-                if (Utils.Animation.isAnimating(view)) getCurrentViewList().remove(view);
+                var view = currentViewList.get(change.getFrom() + i);
+                if (Utils.Animation.isAnimating(view))
+                    currentViewList.remove(view);
                 else Utils.Animation.toOpacityFade(view, 1, 0, 300, () -> {
-                    getCurrentViewList().remove(view);
+                    currentViewList.remove(view);
                     Utils.Animation.unlockNode(view);
                 }).play();
+            }
+            for (int i = 0; i < change.getAddedSize(); i++) {
+                var view = createView(change.getAddedSubList().get(i));
+                currentViewList.add(change.getFrom() + i, view);
+                if (!Utils.Animation.isAnimating(view))
+                    Utils.Animation.toOpacityFade(view, 0, 1, 300,() -> Utils.Animation.unlockNode(view)).play();
             }
         }
     };
@@ -69,19 +106,22 @@ public class DataController extends Controller {
         ActionManager.controller = this;
         DataManager.controller = this;
 
-        currentViewList.set(FXCollections.observableArrayList());
-        getCurrentViewList().addListener((ListChangeListener<? super DataView<?>>) _ -> {
+        currentViewList.addListener((ListChangeListener<? super DataView<?>>) _ -> {
             updateBreadcrumbs();
             updateColumnHeadings();
         });
-        setCurrentData(App.getStudentData());
-        updateBreadcrumbs();
-        updateColumnHeadings();
+        sortedViewList.comparatorProperty().bind(sortCmb.valueProperty().map(option -> switch(option) {
+            case "A to Z" -> Comparator.comparing((DataView<?> view) -> view.getData().getName());
+            case "Z to A" -> Comparator.comparing((DataView<?> view) -> view.getData().getName()).reversed();
+            case "High to Low" -> Comparator.comparing((DataView<?> view) -> view.getData().getMark());
+            case "Low to High" -> Comparator.comparing((DataView<?> view) -> view.getData().getMark()).reversed();
+            default -> null;
+        }));
 
         dataLst.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         dataLst.setCellFactory(_ -> new DataCell());
         dataLst.itemsProperty().bind(Bindings.createObjectBinding(() -> {
-            FilteredList<DataView<?>> filteredList = new FilteredList<>(getCurrentViewList());
+            FilteredList<DataView<?>> filteredList = new FilteredList<>(sortedViewList);
             findTf.textProperty().addListener((_, _, newValue) -> {
                 String query = newValue.trim().toLowerCase();
                 if (query.isEmpty()) filteredList.setPredicate(_ -> true);
@@ -101,6 +141,8 @@ public class DataController extends Controller {
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.F), _ -> findTf.requestFocus());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.C), _ -> handleCopy());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.V), _ -> handlePaste());
+
+        setCurrentData(App.getStudentData());
     }
 
     @FXML
@@ -128,19 +170,6 @@ public class DataController extends Controller {
             default -> {}
         }
         ActionManager.executeAction(deleteAction);
-    }
-
-    @FXML
-    public void handleSort() {
-        String sortOption = sortCmb.getValue();
-        if (sortOption == null) return;
-
-        switch (sortOption) {
-            case "A to Z" -> getCurrentViewList().sort(Comparator.comparing(view -> view.getData().getName()));
-            case "Z to A" -> getCurrentViewList().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getName()).reversed());
-            case "High to Low" -> getCurrentViewList().sort(Comparator.comparing(view -> view.getData().getMark()));
-            case "Low to High" -> getCurrentViewList().sort(Comparator.comparing(view -> ((DataView<?>)view).getData().getMark()).reversed());
-        }
     }
 
     @FXML
@@ -174,6 +203,30 @@ public class DataController extends Controller {
         }
     }
 
+    public void handleRename(Data<?> data) {
+        var renameField = new StringTextField();
+        renameField.setPromptText("Set new name");
+        var validationMessage = new Label();
+        validationMessage.setStyle("-fx-text-fill: red;");
+        var dialogContent = new VBox(2, renameField, validationMessage);
+        dialogContent.setPrefWidth(300);
+        var renameBtype = new ButtonType("Rename");
+        var renameDialog = Utils.createDialog("Rename", dialogContent, renameBtype, ButtonType.CANCEL);
+        var renameButton = (Button) renameDialog.getDialogPane().lookupButton(renameBtype);
+        renameButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String newName = renameField.getText().trim();
+            if (newName.isEmpty()) {
+                validationMessage.setText("Name cannot be blank!");
+                event.consume();
+            } else {
+                data.nameProperty().set(newName);
+            }
+        });
+
+        renameField.setRunnable(renameButton::fire);
+        renameDialog.showAndWait();
+    }
+
     @FXML
     private void handleListClick(MouseEvent mouseEvent) {
         if (dataLst.getSelectionModel().getSelectedItem() == null) return;
@@ -189,13 +242,11 @@ public class DataController extends Controller {
     public Data<?> getCurrentData() { return currentData.get(); }
 
     public void setCurrentData(Data<?> data) {
-        if (getCurrentData() != null) getCurrentData().getChildren().removeListener(childChangeListener);
+        if (getCurrentData() != null) getCurrentData().getChildren().removeListener(changeListener);
         currentData.set(data);
-        getCurrentData().getChildren().addListener(childChangeListener);
-        getCurrentViewList().setAll(getCurrentData().getChildren().stream().map(this::createView).toList());
+        getCurrentData().getChildren().addListener(changeListener);
+        currentViewList.setAll(getCurrentData().getChildren().stream().map(this::createView).toList());
     }
-
-    public ObservableList<DataView<?>> getCurrentViewList() { return currentViewList.get(); }
 
     private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of currentData ancestors
@@ -213,8 +264,8 @@ public class DataController extends Controller {
         // Update gPaneHeadings with column headings of currentData
         gPaneHeadings.getChildren().clear();
         gPaneHeadings.getColumnConstraints().clear();
-        if (!getCurrentViewList().isEmpty()) {
-            DataView<?> childView = getCurrentViewList().getFirst();
+        if (!currentViewList.isEmpty()) {
+            DataView<?> childView = currentViewList.getFirst();
             int[] columnWidths = childView.getColumnWidths();
             String[] columnNames = childView.getColumnNames();
             for (int i = 0; i < columnNames.length; i++) {
@@ -225,25 +276,34 @@ public class DataController extends Controller {
         }
     }
 
+    public void setSortOption(String sortOption) { sortCmb.setValue(sortOption); }
+
+    public String getSortOption() { return sortCmb.getValue() == null ? "Custom" : sortCmb.getValue(); }
+
     private class DataCell extends ListCell<DataView<?>> {
-        private static DataCell dragCell;
+
+        private final ContextMenu contextMenu;
 
         public DataCell() {
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
+            var delete = new MenuItem("Delete");
+            delete.setOnAction(_ -> handleDelete());
             var copy = new MenuItem("Copy");
             copy.setOnAction(_ -> handleCopy());
             var paste = new MenuItem("Paste");
             paste.setOnAction(_ -> handlePaste());
-            setContextMenu(new ContextMenu(copy, paste));
+            var rename = new MenuItem("Rename");
+            rename.setOnAction(_ -> handleRename(getItem().getData()));
+            contextMenu = new ContextMenu(delete, copy, paste, rename);
 
             setOnDragDetected(event -> {
                 if (getItem() == null) return;
                 boolean suitable = true;
 
                 if (sortCmb.getValue() == null || !sortCmb.getValue().equals("Custom")) {
+                    if (sortCmb.getValue() != null) suitable = false;
                     sortCmb.setValue("Custom");
-                    suitable = false;
                 }
                 if (!findTf.getText().isBlank()) {
                     findTf.setText("");
@@ -255,7 +315,6 @@ public class DataController extends Controller {
                     ClipboardContent content = new ClipboardContent();
 
                     int dragIndex = dataLst.getItems().indexOf(getItem());
-                    dragCell = this;
                     content.put(DATAVIEW_DATAFORMAT, dragIndex);
                     dragboard.setContent(content);
                     dragboard.setDragView(getGraphic().snapshot(null, null));
@@ -270,16 +329,14 @@ public class DataController extends Controller {
             });
 
             setOnDragEntered(event -> {
-                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT)) {
+                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT))
                     setOpacity(0.3);
-                }
                 event.consume();
             });
 
             setOnDragExited(event -> {
-                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT)) {
+                if (event.getGestureSource() != this && event.getDragboard().hasContent(DATAVIEW_DATAFORMAT))
                     setOpacity(1);
-                }
                 event.consume();
             });
 
@@ -291,35 +348,7 @@ public class DataController extends Controller {
                 if (dragboard.hasContent(DATAVIEW_DATAFORMAT)) {
                     int dragIndex = (int) dragboard.getContent(DATAVIEW_DATAFORMAT);
                     int dropIndex = dataLst.getItems().indexOf(getItem());
-                    DataView<?> dragView = dragCell.getItem();
-                    int indexDiff = Math.abs(dropIndex - dragIndex);
-
-                    // Animate in-between cell fade out
-                    var fadeOut = Utils.Animation.sequentialTransition();
-                    var fadeOutTransitions = fadeOut.getChildren();
-                    for (int i = Math.min(dragIndex + 1, dropIndex); i < Math.max(dragIndex, dropIndex + 1); i++) {
-                        Node cellView = dataLst.getItems().get(i);
-                        fadeOutTransitions.add(i > dropIndex ? 0 : fadeOutTransitions.size(),
-                                Utils.Animation.toOpacityFade(cellView, 1, 0, 300f / indexDiff));
-                    }
-                    fadeOut.play();
-
-                    // Animate dragCell to move from dragIndex to dropIndex
-                    double cellHeight = dragView.getHeight() + 6;
-                    dragCell.toFront();
-                    Utils.Animation.byYTranslation(dragView, cellHeight * indexDiff * (dragIndex > dropIndex ? -1 : 1), 600, () -> {
-                        dragView.setTranslateY(0);
-                        ActionManager.executeAction(new MoveAction<>(getCurrentData(), dragIndex, dropIndex));
-                        // Animate in-between cell fade in
-                        var fadeIn = Utils.Animation.sequentialTransition(() -> getChildren().forEach(Utils.Animation::unlockNode));
-                        var fadeInTransitions = fadeIn.getChildren();
-                        for (int i = Math.min(dragIndex, dropIndex + 1); i < Math.max(dragIndex + 1, dropIndex); i++) {
-                            Node cellView = dataLst.getItems().get(i);
-                            fadeInTransitions.add(i > dropIndex ? 0 : fadeInTransitions.size(),
-                                    Utils.Animation.toOpacityFade(cellView, 0, 1, 300f / indexDiff));
-                        }
-                        fadeIn.play();
-                    }).play();
+                    ActionManager.executeAction(new MoveAction<>(getCurrentData(), dragIndex, dropIndex));
                     success = true;
                 }
                 event.setDropCompleted(success);
@@ -330,12 +359,19 @@ public class DataController extends Controller {
         }
 
         @Override
-        public void updateItem(DataView<?> data, boolean empty) {
-            super.updateItem(data, empty);
-            if (empty || data == null)
+        public void updateItem(DataView<?> view, boolean empty) {
+            super.updateItem(view, empty);
+            if (empty || view == null) {
                 setGraphic(null);
-            else
-                setGraphic(getItem());
+                setContextMenu(null);
+            } else {
+                if (view.getMoveToFront()) {
+                    System.out.println("hiiii");
+                    toFront();
+                }
+                setGraphic(view);
+                setContextMenu(contextMenu);
+            }
         }
     }
 }
