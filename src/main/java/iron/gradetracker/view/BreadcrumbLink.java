@@ -12,9 +12,9 @@ public class BreadcrumbLink extends Hyperlink {
         this.data = data;
 
         textProperty().bind(data.nameProperty());
-        if (controller.getCurrentData().equals(data))
-            opacityProperty().bind(Bindings.createDoubleBinding(() -> controller.getCurrentData().equals(data) ? 0.3 : 1));
-        setOnAction(_ -> controller.setCurrentData(data));
+        if (controller.getFocusedData().equals(data))
+            opacityProperty().bind(Bindings.createDoubleBinding(() -> controller.getFocusedData().equals(data) ? 0.3 : 1));
+        setOnAction(_ -> controller.setFocusedData(data));
 
         var rename = new MenuItem("Rename");
         rename.setOnAction(_ -> controller.handleRename(data));

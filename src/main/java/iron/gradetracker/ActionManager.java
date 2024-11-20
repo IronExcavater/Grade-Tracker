@@ -77,8 +77,8 @@ public class ActionManager {
 
     private static boolean focusAction(Action action) {
         boolean focused = false;
-        if (!action.getFocus().equals(controller.getCurrentData())) {
-            controller.setCurrentData(action.getFocus());
+        if (!action.getFocus().equals(controller.getFocusedData())) {
+            controller.setFocusedData(action.getFocus());
             focused = true;
         }
         if (action instanceof MoveAction<?> && !controller.getSortOption().equals("Custom")) {

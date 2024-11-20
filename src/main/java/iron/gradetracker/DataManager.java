@@ -173,7 +173,7 @@ public class DataManager {
     private static void importFromJson(File file) {
         try (FileReader reader = new FileReader(file)) {
             App.setStudentData(gson.fromJson(reader, StudentData.class));
-            if (controller != null) controller.setCurrentData(App.getStudentData());
+            if (controller != null) controller.setFocusedData(App.getStudentData());
         } catch (IOException _) {}
     }
 
@@ -209,7 +209,7 @@ public class DataManager {
                 }
             }
             App.setStudentData(student);
-            if (controller != null) controller.setCurrentData(App.getStudentData());
+            if (controller != null) controller.setFocusedData(App.getStudentData());
         } catch (IOException _) {}
     }
 

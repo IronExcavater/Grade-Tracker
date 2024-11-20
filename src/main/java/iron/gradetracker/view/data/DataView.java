@@ -35,9 +35,7 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     }
 
     public String toClipboardData() { return DataManager.gson.toJson(data); }
-
     public Data<?> fromClipboardData(String json) { return DataManager.gson.fromJson(json, Data.class); }
 
-    public boolean getMoveToFront() { return moveToFront; }
-    public void setMoveToFront(boolean moveToFront) { this.moveToFront = moveToFront; }
+    public StringTextField getNameTf() { return name; }
 }

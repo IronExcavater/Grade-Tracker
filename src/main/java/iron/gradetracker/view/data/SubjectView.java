@@ -1,6 +1,7 @@
 package iron.gradetracker.view.data;
 
 import iron.gradetracker.model.data.SubjectData;
+import iron.gradetracker.view.DoubleTextField;
 import iron.gradetracker.view.IntegerTextField;
 import javafx.scene.text.Text;
 
@@ -19,4 +20,6 @@ public class SubjectView extends DataView<SubjectData> {
         gradePoints.textProperty().bind(data.gradePointsProperty().asString());
         setColumns(name, creditPoints, mark, grade, gradePoints);
     }
+
+    public IntegerTextField getCreditPointsTf() { return creditPoints; }
 }

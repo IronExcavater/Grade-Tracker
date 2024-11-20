@@ -16,4 +16,8 @@ public class AssessmentView extends DataView<AssessmentData> {
         weight = new IntegerTextField(data.weightProperty(), true, data.remainingWeightProperty());
         setColumns(name, score, maxScore, weight);
     }
+
+    public DoubleTextField getScoreTf() { return score; }
+    public DoubleTextField getMaxScoreTf() { return maxScore; }
+    public IntegerTextField getWeightTf() { return weight; }
 }

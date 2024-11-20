@@ -1,7 +1,6 @@
 package iron.gradetracker.model.action;
 
 import iron.gradetracker.model.data.Data;
-
 import java.util.*;
 
 public class CompositeAction implements Action {

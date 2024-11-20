@@ -118,47 +118,4 @@ public class Utils {
                 future = future.thenRunAsync(() -> Platform.runLater(runnable), CompletableFuture.delayedExecutor(delay, timeUnit));
         }
     }
-
-    public static class Animation {
-        private static final Set<Node> animatingNodes = new HashSet<>();
-
-        public static boolean isAnimating(Node node) { return animatingNodes.contains(node); }
-        public static void lockNode(Node node) { animatingNodes.add(node); }
-        public static void unlockNode(Node node) { animatingNodes.remove(node); }
-
-        public static Node getNode(Transition transition) {
-            return switch (transition) {
-                case TranslateTransition translate -> translate.getNode();
-                case FadeTransition fade -> fade.getNode();
-                default -> throw new IllegalStateException("Unexpected value: " + transition);
-            };
-        }
-
-        public static TranslateTransition byYTranslation(Node node, double byY, double duration) { return byYTranslation(node, byY, duration, null); }
-        public static TranslateTransition byYTranslation(Node node, double byY, double duration, Runnable onFinished) {
-            TranslateTransition transition = new TranslateTransition(Duration.millis(duration), node);
-            lockNode(node);
-            transition.setByY(byY);
-            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
-            return transition;
-        }
-
-        public static FadeTransition toOpacityFade(Node node, double fromFade, double toFade, double duration) { return toOpacityFade(node, fromFade, toFade, duration, null); }
-        public static FadeTransition toOpacityFade(Node node, double fromFade, double toFade, double duration, Runnable onFinished) {
-            FadeTransition transition = new FadeTransition(Duration.millis(duration), node);
-            lockNode(node);
-            transition.setFromValue(fromFade);
-            transition.setToValue(toFade);
-            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
-            return transition;
-        }
-
-        public static SequentialTransition sequentialTransition(Transition... transitions) { return sequentialTransition(null, transitions); }
-        public static SequentialTransition sequentialTransition(Runnable onFinished, Transition... transitions) {
-            SequentialTransition transition = new SequentialTransition();
-            transition.getChildren().addAll(transitions);
-            if (onFinished != null) transition.setOnFinished(_ -> onFinished.run());
-            return transition;
-        }
-    }
 }

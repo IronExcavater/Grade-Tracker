@@ -47,7 +47,7 @@
     <center>
         <VBox spacing="5">
             <GridPane fx:id="gPaneHeadings" hgap="10" style="-fx-padding: 0 10"/>
-            <ListView fx:id="dataLst" onMouseClicked="#handleListClick" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="dataViewLst" onMouseClicked="#handleListClick" VBox.vgrow="ALWAYS"/>
         </VBox>
     </center>
 </BorderPane>
