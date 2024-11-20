@@ -1,8 +1,7 @@
 package iron.gradetracker;
 
 import iron.gradetracker.controller.DataController;
-import iron.gradetracker.model.action.Action;
-import iron.gradetracker.model.action.MoveAction;
+import iron.gradetracker.model.action.*;
 import javafx.beans.property.*;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +23,7 @@ public class ActionManager {
 
     public static void executeAction(Action action) {
         isActive = true;
+        controller.setFocusedData(action.getFocus());
         action.execute();
         undoStack.push(action);
         redoStack.clear();

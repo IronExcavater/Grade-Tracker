@@ -8,11 +8,8 @@ public class AddAction<E extends Data<?>> implements Action {
     private final E element;
     private final int index;
 
-    public AddAction(Data<E> parent, E element) {
-        this(parent, element, parent.getChildren().size());
-    }
-    public AddAction(Data<E> parent, E element, int index) {
-        this.parent = parent;
+    public AddAction(E element, int index) {
+        this.parent = (Data<E>) element.getParent();
         this.element = element;
         this.index = index;
     }

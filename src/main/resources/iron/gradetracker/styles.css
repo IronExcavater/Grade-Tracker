@@ -1,8 +1,10 @@
-.Title {
+.title {
     -fx-font-weight: bold;
     -fx-font-size: xx-large;
 }
-
-.Strong {
+.strong {
     -fx-font-weight: bold;
+}
+.warning {
+    -fx-text-fill: red;
 }

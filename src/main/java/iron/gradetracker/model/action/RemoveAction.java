@@ -9,8 +9,8 @@ public class RemoveAction<E extends Data<?>> implements Action {
     private final List<E> elements;
     private final List<Integer> indexes;
 
-    public RemoveAction(Data<E> parent, List<E> elements) {
-        this.parent = parent;
+    public RemoveAction(List<E> elements) {
+        this.parent = (Data<E>) elements.getFirst().getParent();
         this.elements = elements;
         this.indexes = elements.stream().map(element -> parent.getChildren().indexOf(element)).toList();
     }

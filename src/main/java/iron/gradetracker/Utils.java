@@ -1,6 +1,5 @@
 package iron.gradetracker;
 
-import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.*;
@@ -8,11 +7,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
-import javafx.util.Duration;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Utils {
     private static final Map<KeyCombination, EventHandler<KeyEvent>> keyBinds = new HashMap<>();
@@ -26,13 +23,12 @@ public class Utils {
 
             var saveBtype = new ButtonType("Save");
             var dontSaveBtype = new ButtonType("Don't Save");
-            var cancelBtype = ButtonType.CANCEL;
             var savePopup = createPopup(Alert.AlertType.CONFIRMATION,
                     "Unsaved Changes", "You have unsaved changes.", "Do you want to save before exiting?",
-                    saveBtype, dontSaveBtype, cancelBtype);
+                    saveBtype, dontSaveBtype, ButtonType.CANCEL);
 
             var saveResult = savePopup.showAndWait();
-            saveResult.ifPresentOrElse(result -> {
+            saveResult.ifPresent(result -> {
                 if (result.equals(saveBtype)) {
                     DataManager.saveData();
                     stage.close();
@@ -41,7 +37,7 @@ public class Utils {
                 } else {
                     event.consume();
                 }
-            }, event::consume);
+            });
         });
     }
 
@@ -58,7 +54,11 @@ public class Utils {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
         fileChooser.getExtensionFilters().addAll(extensionFilters);
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        File initial = new File(System.getProperty("user.home"), "Downloads");
+        if (!initial.exists() || !initial.isDirectory()) initial = new File(System.getProperty("user.home"));
+        fileChooser.setInitialDirectory(initial);
+
         return fileChooser;
     }
 

@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.stream.*;
 import iron.gradetracker.controller.DataController;
 import iron.gradetracker.model.*;
+import iron.gradetracker.model.action.ImportAction;
 import iron.gradetracker.model.data.*;
 import javafx.beans.property.*;
 import org.apache.poi.ss.usermodel.*;
@@ -172,8 +173,7 @@ public class DataManager {
 
     private static void importFromJson(File file) {
         try (FileReader reader = new FileReader(file)) {
-            App.setStudentData(gson.fromJson(reader, StudentData.class));
-            if (controller != null) controller.setFocusedData(App.getStudentData());
+            ActionManager.executeAction(new ImportAction(App.getStudentData(), gson.fromJson(reader, StudentData.class)));
         } catch (IOException _) {}
     }
 
@@ -208,8 +208,7 @@ public class DataManager {
                     }
                 }
             }
-            App.setStudentData(student);
-            if (controller != null) controller.setFocusedData(App.getStudentData());
+            ActionManager.executeAction(new ImportAction(App.getStudentData(), student));
         } catch (IOException _) {}
     }
 

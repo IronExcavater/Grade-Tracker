@@ -2,19 +2,17 @@ package iron.gradetracker.model.action;
 
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.data.Data;
-import iron.gradetracker.model.data.StudentData;
-
 import java.util.function.Consumer;
 
-public class ChangeAction<T> implements Action {
+public class ChangeAction<E> implements Action {
 
-    private final Data<?> item;
-    private final T oldValue;
-    private final T newValue;
-    private final Consumer<T> setter;
+    private final Data<?> element;
+    private final E oldValue;
+    private final E newValue;
+    private final Consumer<E> setter;
 
-    public ChangeAction(Data<?> item, T oldValue, T newValue, T defaultValue, Consumer<T> setter) {
-        this.item = item;
+    public ChangeAction(Data<?> element, E oldValue, E newValue, E defaultValue, Consumer<E> setter) {
+        this.element = element;
         this.oldValue = Utils.defaultIfNull(oldValue, defaultValue);
         this.newValue = Utils.defaultIfNull(newValue, defaultValue);
         this.setter = setter;
@@ -28,7 +26,7 @@ public class ChangeAction<T> implements Action {
 
     @Override
     public Data<?> getFocus() {
-        if (item.hasParent()) return item.getParent();
-        return item;
+        if (element.hasParent()) return element.getParent();
+        return element;
     }
 }

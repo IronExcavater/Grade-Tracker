@@ -85,14 +85,17 @@ public class DataController extends Controller {
                 });
             }
 
-            for (int i = 0; i < change.getAddedSize(); i++) {
-                var view = createView(change.getAddedSubList().get(i));
-                originalViewList.add(change.getFrom() + i, view);
-
+            if (change.wasAdded()) {
                 AnimationManager.startAnimation(() -> {
-                    AnimationManager.toOpacityFade(view, 0, 1, 300, () -> view.setOpacity(1)).play();
+                    var fadeIn = AnimationManager.parallelTransition(null);
+                    for (int i = 0; i < change.getAddedSize(); i++) {
+                        var view = createView(change.getAddedSubList().get(i));
+                        originalViewList.add(change.getFrom() + i, view);
+                        if (view.getData().getName().isEmpty()) view.getNameTf().requestFocus();
+                        fadeIn.add(AnimationManager.toOpacityFade(view, 0, 1, 300, () -> view.setOpacity(1)));
+                    }
+                    fadeIn.play();
                 });
-                view.getNameTf().requestFocus();
             }
         }
     };
@@ -155,12 +158,7 @@ public class DataController extends Controller {
     @FXML
     public void handleAdd() {
         int addIndex = dataViewLst.getSelectionModel().getSelectedIndex() + 1;
-        ActionManager.executeAction(switch (getFocusedData()) {
-            case StudentData studentData -> new AddAction<>(studentData, studentData.createChild(), addIndex);
-            case SessionData sessionData -> new AddAction<>(sessionData, sessionData.createChild(), addIndex);
-            case SubjectData subjectData -> new AddAction<>(subjectData, subjectData.createChild(), addIndex);
-            default -> throw new IllegalStateException("Unexpected value: " + focusedData);
-        });
+        ActionManager.executeAction(new AddAction<>(getFocusedData().createChild(), addIndex));
     }
 
     @FXML
@@ -169,14 +167,7 @@ public class DataController extends Controller {
         if (selectedViews.isEmpty()) return;
 
         var selectedData = selectedViews.stream().map(DataView::getData).toList();
-
-        var deleteAction = switch (getFocusedData()) {
-            case StudentData studentData -> new RemoveAction<>(studentData, (List<SessionData>) selectedData);
-            case SessionData sessionData -> new RemoveAction<>(sessionData, (List<SubjectData>) selectedData);
-            case SubjectData subjectData -> new RemoveAction<>(subjectData, (List<AssessmentData>) selectedData);
-            default -> throw new IllegalStateException("Unexpected value: " + getFocusedData());
-        };
-        ActionManager.executeAction(deleteAction);
+        ActionManager.executeAction(new RemoveAction<>(selectedData));
     }
 
     @FXML
@@ -198,15 +189,7 @@ public class DataController extends Controller {
         if (clipboard.hasContent(DATAVIEW_DATAFORMAT)) {
             String json = (String) clipboard.getContent(DATAVIEW_DATAFORMAT);
             int pasteIndex = dataViewLst.getSelectionModel().getSelectedIndex() + 1;
-            ActionManager.executeAction(switch (getFocusedData()) {
-                case StudentData studentData -> new AddAction<>(studentData,
-                        DataManager.gson.fromJson(json, SessionData.class), pasteIndex);
-                case SessionData sessionData -> new AddAction<>(sessionData,
-                        DataManager.gson.fromJson(json, SubjectData.class), pasteIndex);
-                case SubjectData subjectData -> new AddAction<>(subjectData,
-                        DataManager.gson.fromJson(json, AssessmentData.class), pasteIndex);
-                default -> throw new IllegalStateException("Unexpected value: " + focusedData);
-            });
+            ActionManager.executeAction(new AddAction<>(DataManager.gson.fromJson(json, Data.class), pasteIndex));
         }
     }
 
@@ -214,7 +197,7 @@ public class DataController extends Controller {
         var renameField = new StringTextField();
         renameField.setPromptText("Set new name");
         var validationMessage = new Label();
-        validationMessage.setStyle("-fx-text-fill: red;");
+        validationMessage.getStyleClass().add("warning");
         var dialogContent = new VBox(2, renameField, validationMessage);
         dialogContent.setPrefWidth(300);
         var renameBtype = new ButtonType("Rename");
@@ -260,7 +243,7 @@ public class DataController extends Controller {
         hBxBreadcrumbs.getChildren().clear();
         Data<?> data = getFocusedData();
         hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
-        while (!data.equals(App.getStudentData())) {
+        while (data.hasParent()) {
             data = data.getParent();
             hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
             hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
@@ -301,7 +284,10 @@ public class DataController extends Controller {
             var paste = new MenuItem("Paste");
             paste.setOnAction(_ -> handlePaste());
             var rename = new MenuItem("Rename");
-            rename.setOnAction(_ -> handleRename(getItem().getData()));
+            rename.setOnAction(_ -> {
+                getItem().getNameTf().requestFocus();
+                getItem().getNameTf().selectAll();
+            });
             contextMenu = new ContextMenu(delete, copy, paste, rename);
 
             setOnDragDetected(event -> {

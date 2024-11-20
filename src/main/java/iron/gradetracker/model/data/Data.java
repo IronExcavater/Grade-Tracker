@@ -57,6 +57,7 @@ public abstract class Data<C extends Data<?>> {
         if (!canParent()) throw new IllegalArgumentException("This Data type doesn't support children");
         C child = childSupplier.get();
         child.startListening();
+        child.setParent(this);
         return child;
     }
     protected void addChild(C child) {

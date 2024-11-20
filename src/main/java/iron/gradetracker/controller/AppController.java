@@ -52,7 +52,16 @@ public class AppController extends Controller {
         var file = fileChooser.showOpenDialog(stage);
 
         if (file == null) return;
-        DataManager.importData(file);
+
+        var overridePopup = Utils.createPopup(Alert.AlertType.WARNING,
+                "Override Data", "Override existing data.", "Do you want to continue?",
+                ButtonType.YES, ButtonType.CANCEL);
+
+        var overrideResult = overridePopup.showAndWait();
+        overrideResult.ifPresent(result -> {
+            if (result.equals(ButtonType.YES))
+                DataManager.importData(file);
+        });
     }
 
     @FXML

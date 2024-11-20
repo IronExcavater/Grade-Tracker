@@ -1,11 +1,13 @@
 package iron.gradetracker.controller;
 
-import iron.gradetracker.DataManager;
+import iron.gradetracker.*;
 import iron.gradetracker.Utils;
 import iron.gradetracker.model.*;
+import iron.gradetracker.model.action.RemoveAction;
 import iron.gradetracker.model.data.StudentData;
 import iron.gradetracker.view.*;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
@@ -40,5 +42,18 @@ public class SettingsController extends Controller {
         pPointTf.setBoundProperty(gradeScheme.getGrade("P").point, true);
 
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.S), _ -> DataManager.saveData());
+    }
+
+    @FXML
+    private void handleErase() {
+        var overridePopup = Utils.createPopup(Alert.AlertType.WARNING,
+                "Erase data", "Erase existing data.", "Do you want to continue?",
+                ButtonType.YES, ButtonType.CANCEL);
+
+        var overrideResult = overridePopup.showAndWait();
+        overrideResult.ifPresent(result -> {
+            if (result.equals(ButtonType.YES))
+                ActionManager.executeAction(new RemoveAction<>(App.getStudentData().getChildren()));
+        });
     }
 }
