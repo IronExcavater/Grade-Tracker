@@ -1,0 +1,46 @@
+@import url(colours.css);
+.dialog-pane * {
+    -fx-text-fill: -fx-white-00dp;
+    -fx-font-size: 14px;
+}
+.dialog-pane {
+    -fx-background-radius: 10px;
+    -fx-border-color: -fx-black-04dp;
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;
+    -fx-padding: 10px;
+}
+.dialog-pane, .header-panel {
+    -fx-background-color: -fx-black-03dp;
+}
+.content {
+    -fx-padding: 0;
+}
+.button-bar > .container {
+    -fx-padding: 10 0 0 0;
+}
+.button {
+    -fx-background-color: -fx-teal-06dp;
+    -fx-background-radius: 5px;
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-opacity: 1;
+    -fx-min-height: 30px;
+    -fx-font-weight: bold;
+}
+.button:hover {
+    -fx-background-color: -fx-teal-12dp;
+}
+.text {
+    -fx-font-size: large;
+}
+.text-field {
+    -fx-prompt-text-fill: -fx-white-01dp;
+    -fx-background-color: -fx-black-08dp;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+    -fx-font-size: large;
+}
+.warning {
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-text-fill: -fx-warning;
+    -fx-font-weight: bold;
+}

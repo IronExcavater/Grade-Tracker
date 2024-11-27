@@ -29,14 +29,14 @@ public class DataManager {
             .excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
     public static DataController controller;
-    private static boolean isDirty = false;
+    private static BooleanProperty isDirty = new SimpleBooleanProperty(false);
 
     public static void saveData() {
-        if (!isDirty) return;
+        if (!isDirty()) return;
 
         try (FileWriter writer = new FileWriter(SAVE_PATH)) {
             gson.toJson(App.getInstance(), writer);
-            isDirty = false;
+            markClean();
             ActionManager.saveAction();
         } catch (IOException _) {
         }
@@ -212,11 +212,10 @@ public class DataManager {
         } catch (IOException _) {}
     }
 
-    public static boolean isDirty() { return isDirty; }
-
-    public static void markDirty() { isDirty = true; }
-
-    public static void markClean() { isDirty = false; }
+    public static BooleanProperty dirtyProperty() { return isDirty; }
+    public static boolean isDirty() { return isDirty.get(); }
+    public static void markDirty() { isDirty.set(true); }
+    public static void markClean() { isDirty.set(false); }
 
     private static class IntegerPropertyAdapter extends TypeAdapter<IntegerProperty> {
 

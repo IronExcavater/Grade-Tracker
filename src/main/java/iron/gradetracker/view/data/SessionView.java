@@ -1,16 +1,13 @@
 package iron.gradetracker.view.data;
 
 import iron.gradetracker.model.data.SessionData;
-import javafx.scene.text.Text;
-
-import java.util.HashMap;
-import java.util.Map;
+import javafx.scene.control.Label;
 
 public class SessionView extends DataView<SessionData> {
 
-    private final Text mark = new Text();
-    private final Text gradePoints = new Text();
-    private final Text creditPoints = new Text();
+    private final Label mark = new Label();
+    private final Label gradePoints = new Label();
+    private final Label creditPoints = new Label();
 
     public SessionView(SessionData data) {
         super(data, new int[]{55, 15, 15, 15}, new String[]{"Session Name", "Mark", "Grade Points", "Credit Points"}, "Unnamed Session");

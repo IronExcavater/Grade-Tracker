@@ -23,7 +23,7 @@ public class ActionManager {
 
     public static void executeAction(Action action) {
         isActive = true;
-        controller.setFocusedData(action.getFocus());
+        focusAction(action);
         action.execute();
         undoStack.push(action);
         redoStack.clear();

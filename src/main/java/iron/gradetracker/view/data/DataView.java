@@ -11,7 +11,6 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     protected final T data;
     private final int[] columnWidths;
     private final String[] columnNames;
-    private boolean moveToFront;
     protected final StringTextField name;
 
     protected DataView(T data, int[] columnWidths, String[] columnNames, String namePrompt) {
@@ -35,7 +34,6 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
     }
 
     public String toClipboardData() { return DataManager.gson.toJson(data); }
-    public Data<?> fromClipboardData(String json) { return DataManager.gson.fromJson(json, Data.class); }
 
     public StringTextField getNameTf() { return name; }
 }

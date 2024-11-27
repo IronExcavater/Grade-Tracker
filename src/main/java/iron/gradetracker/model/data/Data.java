@@ -34,8 +34,7 @@ public abstract class Data<C extends Data<?>> {
     public void startListening() {
         name.addListener((_, oldValue, newValue) -> {
             if (ActionManager.isActive()) return;
-            ActionManager.executeAction(
-                    new ChangeAction<>(this, oldValue, newValue, "", nameProperty()::set));
+            ActionManager.executeAction(new ChangeAction<>(this, oldValue, newValue, "", nameProperty()::set));
         });
     }
 

@@ -27,6 +27,7 @@ public class DataController extends Controller {
 
     @FXML private ComboBox<String> sortCmb;
     @FXML private StringTextField findTf;
+    @FXML private Button deleteBtn;
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
 
@@ -140,10 +141,10 @@ public class DataController extends Controller {
             return filteredList;
         }));
 
+        deleteBtn.disableProperty().bind(dataViewLst.getSelectionModel().selectedItemProperty().isNull());
         undoBtn.disableProperty().bind(ActionManager.canUndoProperty().not());
         redoBtn.disableProperty().bind(ActionManager.canRedoProperty().not());
 
-        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.S), _ -> DataManager.saveData());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.Z), _ -> handleUndo());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.Z, true), _ -> handleRedo());
         Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.N), _ -> handleAdd());
@@ -200,7 +201,7 @@ public class DataController extends Controller {
         validationMessage.getStyleClass().add("warning");
         var dialogContent = new VBox(2, renameField, validationMessage);
         dialogContent.setPrefWidth(300);
-        var renameBtype = new ButtonType("Rename");
+        var renameBtype = new ButtonType("Rename", ButtonBar.ButtonData.APPLY);
         var renameDialog = Utils.createDialog("Rename", dialogContent, renameBtype, ButtonType.CANCEL);
         var renameButton = (Button) renameDialog.getDialogPane().lookupButton(renameBtype);
         renameButton.addEventFilter(ActionEvent.ACTION, event -> {
@@ -259,7 +260,7 @@ public class DataController extends Controller {
             int[] columnWidths = childView.getColumnWidths();
             String[] columnNames = childView.getColumnNames();
             for (int i = 0; i < columnNames.length; i++) {
-                Text heading = new Text(columnNames[i]);
+                Label heading = new Label(columnNames[i]);
                 gPaneHeadings.add(heading, i, 0);
                 gPaneHeadings.getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
             }

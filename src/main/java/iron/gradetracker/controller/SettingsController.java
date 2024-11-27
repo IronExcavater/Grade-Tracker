@@ -46,7 +46,7 @@ public class SettingsController extends Controller {
 
     @FXML
     private void handleErase() {
-        var overridePopup = Utils.createPopup(Alert.AlertType.WARNING,
+        var overridePopup = Utils.createAlert(Alert.AlertType.WARNING,
                 "Erase data", "Erase existing data.", "Do you want to continue?",
                 ButtonType.YES, ButtonType.CANCEL);
 

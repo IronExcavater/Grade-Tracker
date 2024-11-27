@@ -2,19 +2,42 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import iron.gradetracker.view.ImageButton?>
 
-<BorderPane fx:id="bPaneRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="iron.gradetracker.controller.AppController" stylesheets="@../styles.css">
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="iron.gradetracker.controller.AppController" stylesheets="@../app.css">
     <top>
         <VBox>
-            <MenuBar>
-                <Menu text="File">
-                    <MenuItem text="Import" onAction="#handleImport"/>
-                    <MenuItem text="Export" onAction="#handleExport"/>
-                </Menu>
-            </MenuBar>
-            <TabPane fx:id="tabMenu">
-                <tabMinWidth>80</tabMinWidth>
+            <HBox fx:id="titleHbx" alignment="CENTER" spacing="20">
+                <padding>
+                    <Insets top="10" right="10"/>
+                </padding>
+                <MenuBar>
+                    <Menu text="File">
+                        <MenuItem text="Import" onAction="#handleImport"/>
+                        <MenuItem text="Export" onAction="#handleExport"/>
+                        <MenuItem fx:id="saveMnu" text="Save" onAction="#handleSave"/>
+                    </Menu>
+                    <Menu text="Edit">
+                        <MenuItem fx:id="undoMnu" text="Undo"/>
+                        <MenuItem fx:id="redoMnu" text="Redo"/>
+                    </Menu>
+                </MenuBar>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="GradeTracker" styleClass="h1"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="buttonHbx" spacing="8" alignment="CENTER">
+                    <padding>
+                        <Insets left="10" right="10"/>
+                    </padding>
+                    <ImageButton fx:id="minBtn" styleClass="title-button" prefWidth="13"/>
+                    <ImageButton fx:id="maxBtn" styleClass="title-button" prefWidth="13"/>
+                    <ImageButton fx:id="closeBtn" styleClass="title-button" prefWidth="13"/>
+                </HBox>
+            </HBox>
+            <TabPane fx:id="tabMenu" tabClosingPolicy="UNAVAILABLE" tabDragPolicy="FIXED">
+                <tabMinWidth>100</tabMinWidth>
                 <tabMinHeight>30</tabMinHeight>
                 <Tab text="Home"/>
                 <Tab text="Data"/>

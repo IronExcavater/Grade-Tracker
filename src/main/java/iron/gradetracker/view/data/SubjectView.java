@@ -1,16 +1,15 @@
 package iron.gradetracker.view.data;
 
 import iron.gradetracker.model.data.SubjectData;
-import iron.gradetracker.view.DoubleTextField;
 import iron.gradetracker.view.IntegerTextField;
-import javafx.scene.text.Text;
+import javafx.scene.control.Label;
 
 public class SubjectView extends DataView<SubjectData> {
 
     private final IntegerTextField creditPoints;
-    private final Text mark = new Text();
-    private final Text grade = new Text();
-    private final Text gradePoints = new Text();
+    private final Label mark = new Label();
+    private final Label grade = new Label();
+    private final Label gradePoints = new Label();
 
     public SubjectView(SubjectData data) {
         super(data, new int[]{40, 15, 15, 15, 15}, new String[]{"Subject Name", "Credit Points", "Mark", "Grade", "Grade Points"}, "Unnamed Subject");

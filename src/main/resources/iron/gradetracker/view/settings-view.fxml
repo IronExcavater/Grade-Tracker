@@ -5,11 +5,11 @@
 <?import iron.gradetracker.view.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="iron.gradetracker.controller.SettingsController" stylesheets="@../styles.css">
+            fx:controller="iron.gradetracker.controller.SettingsController" stylesheets="@../app.css">
     <center>
-        <HBox spacing="50" alignment="TOP_CENTER" style="-fx-padding: 10">
+        <HBox spacing="50" alignment="TOP_CENTER" style="-fx-padding: 30">
             <VBox spacing="10">
-                <Label text="Grade Scheme" styleClass="title"/>
+                <Label text="Grade Scheme" styleClass="h1"/>
                 <GridPane hgap="20" vgap="10" alignment="CENTER">
                     <Label GridPane.rowIndex="0" GridPane.columnIndex="0" text="Grade" styleClass="strong"/>
                     <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="Min Mark" styleClass="strong"/>
@@ -29,7 +29,7 @@
                 </GridPane>
             </VBox>
             <VBox spacing="10">
-                <Label text="Student Info" styleClass="title"/>
+                <Label text="Student Info" styleClass="h1"/>
                 <HBox spacing="5" alignment="CENTER">
                     <Label text="Name:"/>
                     <StringTextField fx:id="nameTf"/>

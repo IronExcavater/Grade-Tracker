@@ -1,0 +1,186 @@
+@import url(colours.css);
+
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: -fx-black-04dp;
+    -fx-background-radius: 15px;
+    -fx-border-color: -fx-black-00dp;
+    -fx-border-radius: 10px;
+    -fx-border-width: 5px;
+}
+.root * {
+    -fx-text-fill: -fx-white-00dp;
+}
+
+/* Title */
+#titleHbx, #buttonHbx *, .menu-bar {
+    -fx-background-color: -fx-black-00dp;
+}
+.title-button {
+    -fx-padding: 0;
+    -fx-background-radius: 10px;
+}
+
+/* Menus */
+.menu {
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 5px;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+}
+.menu:hover {
+    -fx-background-color: -fx-black-04dp;
+}
+.menu:showing {
+    -fx-background-color: -fx-teal-01dp;
+}
+.context-menu {
+    -fx-skin: "javafx.scene.control.skin.ContextMenuSkin";
+    -fx-background-color: -fx-teal-02dp;
+    -fx-background-radius: 5px;
+    -fx-padding: 7px;
+    -fx-opacity: 0.9;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+    -fx-background-insets: 0.0, 1.0, 2.0;
+}
+.menu-item {
+    -fx-background-radius: 5px;
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-padding: 4px 7px;
+}
+.menu-item:hover, .menu-item:focused {
+    -fx-background-color: -fx-teal-04dp;
+}
+
+/* Tabs */
+.tab-header-background {
+    -fx-background-color: -fx-black-00dp;
+}
+.tab {
+    -fx-background-color: -fx-black-02dp;
+    -fx-font-size: large;
+    -fx-font-weight: bold;
+}
+.tab:selected {
+    -fx-background-color: -fx-black-04dp;
+    -fx-border-color: -fx-black-04dp;
+}
+.tab:selected * {
+    -fx-border-color: -fx-black-04dp;
+}
+
+/* Lists */
+.list-view, .list-cell {
+    -fx-background-color: -fx-teal-01dp;
+}
+.list-view .list-cell:odd {
+    -fx-background-color: -fx-teal-02dp;
+}
+.list-view .list-cell:selected {
+    -fx-background-color: -fx-teal-04dp;
+}
+.list-view .list-cell:selected:odd {
+    -fx-background-color: -fx-teal-06dp;
+}
+.list-view .list-cell:hover {
+    -fx-background-color: -fx-teal-08dp;
+}
+.list-view .list-cell:hover:selected {
+    -fx-background-color: -fx-teal-12dp;
+}
+.list-view .list-cell:empty {
+    -fx-background-color: -fx-teal-01dp;
+}
+#gPaneHeadings {
+    -fx-background-color: -fx-teal-02dp;
+    -fx-padding: 0px 10px;
+    -fx-alignment: center;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+}
+#dataViewLst {
+    -fx-background-radius: 0 0 10px 10px;
+}
+
+/* Controls */
+.text-field {
+    -fx-prompt-text-fill: -fx-white-01dp;
+    -fx-background-color: -fx-black-08dp;
+    -fx-opacity: 0.8;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+}
+.combo-box-base {
+    -fx-background-color: -fx-teal-06dp;
+}
+.combo-box-base .arrow {
+    -fx-background-color: white;
+}
+.combo-box > .list-cell {
+    -fx-background-color: -fx-teal-06dp;
+    -fx-background-radius: 5px;
+}
+.combo-box .list-view {
+    -fx-background-color: -fx-teal-02dp;
+    -fx-background-radius: 5px;
+    -fx-padding: 7px;
+    -fx-opacity: 0.9;
+    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+    -fx-background-insets: 0.0, 1.0, 2.0;
+}
+.combo-box .list-view .list-cell {
+    -fx-background-radius: 5px;
+    -fx-font-weight: normal;
+    -fx-opacity: 0.95;
+    -fx-padding: 4px 7px;
+    -fx-background-color: -fx-teal-02dp;
+}
+.combo-box .list-view .list-cell:hover {
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-background-color: -fx-teal-04dp;
+}
+.tool-button {
+    -fx-background-color: -fx-teal-06dp;
+    -fx-background-radius: 5px;
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-opacity: 1;
+    -fx-min-height: 30px;
+    -fx-font-weight: bold;
+}
+.tool-button:hover, .combo-box:hover > .list-cell {
+    -fx-background-color: -fx-teal-12dp;
+}
+.tool-button:disabled, .menu-item:disabled {
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 0.25), 20, 0, 0, 0);
+    -fx-text-fill: -fx-grey-00dp;
+}
+.warning {
+    -fx-background-color: -fx-warning;
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+    -fx-font-weight: bold;
+}
+.warning:hover {
+    -fx-background-color: -fx-warning-hover;
+}
+.hyperlink {
+    -fx-text-fill: -fx-white-03dp;
+    -fx-font-weight: 900;
+    -fx-font-size: x-large;
+    -fx-border-width: 0px;
+}
+.hyperlink:pressed {
+    -fx-text-fill: -fx-white-00dp;
+}
+
+/* Text formatting */
+.h1 {
+    -fx-font-weight: bold;
+    -fx-font-size: xx-large;
+}
+.h2 {
+    -fx-font-weight: bold;
+    -fx-font-size: x-large;
+}
+.strong {
+    -fx-font-weight: bold;
+}

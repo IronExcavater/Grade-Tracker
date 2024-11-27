@@ -4,8 +4,10 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.*;
 import java.io.File;
 import java.util.*;
@@ -14,39 +16,14 @@ import java.util.concurrent.*;
 public class Utils {
     private static final Map<KeyCombination, EventHandler<KeyEvent>> keyBinds = new HashMap<>();
 
-    public static void handleExit(Stage stage) {
-        stage.setOnCloseRequest(event -> {
-            if (!DataManager.isDirty()) {
-                stage.close();
-                return;
-            }
-
-            var saveBtype = new ButtonType("Save");
-            var dontSaveBtype = new ButtonType("Don't Save");
-            var savePopup = createPopup(Alert.AlertType.CONFIRMATION,
-                    "Unsaved Changes", "You have unsaved changes.", "Do you want to save before exiting?",
-                    saveBtype, dontSaveBtype, ButtonType.CANCEL);
-
-            var saveResult = savePopup.showAndWait();
-            saveResult.ifPresent(result -> {
-                if (result.equals(saveBtype)) {
-                    DataManager.saveData();
-                    stage.close();
-                } else if (result.equals(dontSaveBtype)) {
-                    stage.close();
-                } else {
-                    event.consume();
-                }
-            });
-        });
-    }
-
-    public static Alert createPopup(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
+    public static Alert createAlert(Alert.AlertType alertType, String title, String header, String content, ButtonType... buttonTypes) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
+        alert.setHeaderText(header + "\n" + content);
         alert.getButtonTypes().setAll(buttonTypes);
+        alert.getDialogPane().getStylesheets().add(Objects.requireNonNull(Utils.class.getResource("dialog.css")).toExternalForm());
+        alert.initStyle(StageStyle.TRANSPARENT);
+        alert.getDialogPane().getScene().setFill(Color.TRANSPARENT);
         return alert;
     }
 
@@ -67,6 +44,9 @@ public class Utils {
         dialog.setTitle(title);
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().addAll(buttonTypes);
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(Utils.class.getResource("dialog.css")).toExternalForm());
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.getDialogPane().getScene().setFill(Color.TRANSPARENT);
         return dialog;
     }
 
@@ -96,6 +76,10 @@ public class Utils {
         for (var handler : keyBinds.values())
             scene.removeEventFilter(KeyEvent.KEY_PRESSED, handler);
         keyBinds.clear();
+    }
+
+    public static Image getImage(String string) {
+        return new Image(Objects.requireNonNull(Utils.class.getResourceAsStream(string)));
     }
 
     public static ColumnConstraints columnPercentage(double percentWidth) {
