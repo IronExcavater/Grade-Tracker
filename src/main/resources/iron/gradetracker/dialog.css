@@ -4,14 +4,17 @@
     -fx-font-size: 14px;
 }
 .dialog-pane {
-    -fx-background-radius: 10px;
-    -fx-border-color: -fx-black-04dp;
+    -fx-background-radius: 15px;
+    -fx-border-color: -fx-black-01dp;
     -fx-border-radius: 10px;
-    -fx-border-width: 2px;
+    -fx-border-width: 5px;
     -fx-padding: 10px;
 }
 .dialog-pane, .header-panel {
-    -fx-background-color: -fx-black-03dp;
+    -fx-background-color: -fx-black-02dp;
+}
+.header-panel {
+    -fx-font-weight: bold;
 }
 .content {
     -fx-padding: 0;
@@ -35,9 +38,10 @@
 }
 .text-field {
     -fx-prompt-text-fill: -fx-white-01dp;
-    -fx-background-color: -fx-black-08dp;
-    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+    -fx-background-color: -fx-black-06dp;
     -fx-font-size: large;
+    -fx-opacity: 0.8;
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
 }
 .warning {
     -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);

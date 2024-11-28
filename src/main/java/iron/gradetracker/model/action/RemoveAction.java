@@ -1,27 +1,29 @@
 package iron.gradetracker.model.action;
 
 import iron.gradetracker.model.data.Data;
-import java.util.List;
+import java.util.*;
 
 public class RemoveAction<E extends Data<?>> implements Action {
 
     private final Data<E> parent;
-    private final List<E> elements;
-    private final List<Integer> indexes;
+    private final Map<Integer, E> elementsMap = new TreeMap<>();
 
     public RemoveAction(List<E> elements) {
         this.parent = (Data<E>) elements.getFirst().getParent();
-        this.elements = elements;
-        this.indexes = elements.stream().map(element -> parent.getChildren().indexOf(element)).toList();
+
+        List<Integer> indexes = elements.stream().map(element -> parent.getChildren().indexOf(element)).toList();
+        for (int i = 0; i < elements.size(); i++) {
+            elementsMap.put(indexes.get(i), elements.get(i));
+        }
     }
 
     @Override
-    public void execute() { parent.getChildren().removeAll(elements); }
+    public void execute() { parent.getChildren().removeAll(elementsMap.values()); }
 
     @Override
     public void retract() {
-        for (int i = 0; i < indexes.size(); i++) {
-            parent.getChildren().add(indexes.get(i), elements.get(i));
+        for (var entry : elementsMap.entrySet()) {
+            parent.getChildren().add(entry.getKey(), entry.getValue());
         }
     }
 

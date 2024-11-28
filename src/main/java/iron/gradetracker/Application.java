@@ -15,16 +15,17 @@ public class Application extends javafx.application.Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/app-view.fxml"), null, null,
                 _ -> new AppController(stage));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Scene scene = new Scene(fxmlLoader.load(), 700, 400);
 
         Image icon = Utils.getImage("images/icon.jpeg");
         stage.getIcons().add(icon);
         stage.setTitle("Grade Tracker");
         stage.setScene(scene);
-        stage.setMinWidth(600);
+        stage.setMinWidth(700);
         stage.setMinHeight(400);
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.getScene().setFill(Color.TRANSPARENT);
+        System.setProperty("prism.allowhidpi", "false");
         stage.show();
     }
 

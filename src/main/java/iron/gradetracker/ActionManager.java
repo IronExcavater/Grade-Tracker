@@ -77,6 +77,7 @@ public class ActionManager {
 
     private static boolean focusAction(Action action) {
         boolean focused = false;
+        if (controller == null) return false;
         if (!action.getFocus().equals(controller.getFocusedData())) {
             controller.setFocusedData(action.getFocus());
             focused = true;

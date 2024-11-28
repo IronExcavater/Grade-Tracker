@@ -3,6 +3,7 @@ package iron.gradetracker;
 import javafx.animation.*;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.*;
 
@@ -17,6 +18,22 @@ public class AnimationManager {
         for (Animation animation : copy)
             animation.stop();
         newAnimation.run();
+    }
+
+    public static void stageTransition(Stage stage, Utils.Point startOrigin, Utils.Point startSize, Utils.Point endOrigin, Utils.Point endSize) {
+        new Transition() {
+            {
+                setCycleDuration(Duration.millis(5));
+                setRate(0.01);
+            }
+            @Override
+            protected void interpolate(double v) {
+                stage.setX(startOrigin.x + (endOrigin.x - startOrigin.x) * v);
+                stage.setY(startOrigin.y + (endOrigin.y - startOrigin.y) * v);
+                stage.setWidth(startSize.x + (endSize.x - startSize.x) * v);
+                stage.setHeight(startSize.y + (endSize.y - startSize.y) * v);
+            }
+        }.play();
     }
 
     public static NodeAnimation byYTranslation(Node node, double byY, double duration) { return byYTranslation(node, byY, duration, null); }

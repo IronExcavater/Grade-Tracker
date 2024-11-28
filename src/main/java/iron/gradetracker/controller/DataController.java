@@ -15,7 +15,6 @@ import javafx.fxml.*;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.*;
 
@@ -24,6 +23,17 @@ public class DataController extends Controller {
     @FXML private HBox hBxBreadcrumbs;
     @FXML private GridPane gPaneHeadings;
     @FXML private ListView<DataView<?>> dataViewLst;
+
+    private final Map<Class<?>, String[]> columnNames = new HashMap<>() {{
+        put(StudentData.class, new String[]{"Session Name", "Mark", "Grade Points", "Credit Points"});
+        put(SessionData.class, new String[]{"Subject Name", "Credit Points", "Mark", "Grade", "Grade Points"});
+        put(SubjectData.class, new String[]{"Assessment Name", "Score", "Max Score", "Weight"});
+    }};
+    private final Map<Class<?>, int[]> columnWidths = new HashMap<>() {{
+        put(StudentData.class, new int[]{55, 15, 15, 15});
+        put(SessionData.class, new int[]{40, 15, 15, 15, 15});
+        put(SubjectData.class, new int[]{55, 15, 15, 15});
+    }};
 
     @FXML private ComboBox<String> sortCmb;
     @FXML private StringTextField findTf;
@@ -230,15 +240,6 @@ public class DataController extends Controller {
         }
     }
 
-    public Data<?> getFocusedData() { return focusedData.get(); }
-
-    public void setFocusedData(Data<?> data) {
-        if (getFocusedData() != null) getFocusedData().getChildren().removeListener(changeListener);
-        focusedData.set(data);
-        getFocusedData().getChildren().addListener(changeListener);
-        originalViewList.setAll(getFocusedData().getChildren().stream().map(this::createView).toList());
-    }
-
     private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of focusedData ancestors
         hBxBreadcrumbs.getChildren().clear();
@@ -246,7 +247,9 @@ public class DataController extends Controller {
         hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
         while (data.hasParent()) {
             data = data.getParent();
-            hBxBreadcrumbs.getChildren().addFirst(new Text(">"));
+            Label arrow = new Label(">");
+            arrow.getStyleClass().add("breadcrumb-arrow");
+            hBxBreadcrumbs.getChildren().addFirst(arrow);
             hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
         }
     }
@@ -255,20 +258,30 @@ public class DataController extends Controller {
         // Update gPaneHeadings with column headings of focusedData
         gPaneHeadings.getChildren().clear();
         gPaneHeadings.getColumnConstraints().clear();
-        if (!originalViewList.isEmpty()) {
-            DataView<?> childView = originalViewList.getFirst();
-            int[] columnWidths = childView.getColumnWidths();
-            String[] columnNames = childView.getColumnNames();
-            for (int i = 0; i < columnNames.length; i++) {
-                Label heading = new Label(columnNames[i]);
-                gPaneHeadings.add(heading, i, 0);
-                gPaneHeadings.getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
-            }
+
+        String[] names = columnNames.get(getFocusedData().getClass());
+        int[] widths = columnWidths.get(getFocusedData().getClass());
+
+        for (int i = 0; i < names.length; i++) {
+            Label heading = new Label(names[i]);
+            gPaneHeadings.add(heading, i, 0);
+            gPaneHeadings.getColumnConstraints().add(Utils.columnPercentage(widths[i]));
         }
     }
 
-    public void setSortOption(String sortOption) { sortCmb.setValue(sortOption); }
+    public Data<?> getFocusedData() { return focusedData.get(); }
+    public void setFocusedData(Data<?> data) {
+        if (getFocusedData() != null) getFocusedData().getChildren().removeListener(changeListener);
+        focusedData.set(data);
+        getFocusedData().getChildren().addListener(changeListener);
+        originalViewList.setAll(getFocusedData().getChildren().stream().map(this::createView).toList());
+    }
 
+    public ListView<DataView<?>> getListView() { return dataViewLst; }
+
+    public TextField getFindTextField() { return findTf; }
+
+    public void setSortOption(String sortOption) { sortCmb.setValue(sortOption); }
     public String getSortOption() { return sortCmb.getValue() == null ? "Custom" : sortCmb.getValue(); }
 
     private class DataCell extends ListCell<DataView<?>> {

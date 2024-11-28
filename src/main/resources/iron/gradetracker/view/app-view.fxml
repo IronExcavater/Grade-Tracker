@@ -17,15 +17,27 @@
                     <Menu text="File">
                         <MenuItem text="Import" onAction="#handleImport"/>
                         <MenuItem text="Export" onAction="#handleExport"/>
-                        <MenuItem fx:id="saveMnu" text="Save" onAction="#handleSave"/>
+                        <MenuItem fx:id="saveItm" text="Save"/>
                     </Menu>
                     <Menu text="Edit">
-                        <MenuItem fx:id="undoMnu" text="Undo"/>
-                        <MenuItem fx:id="redoMnu" text="Redo"/>
+                        <MenuItem fx:id="undoItm" text="Undo"/>
+                        <MenuItem fx:id="redoItm" text="Redo"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem fx:id="addItm" text="Add"/>
+                        <MenuItem fx:id="deleteItm" text="Delete"/>
+                        <SeparatorMenuItem/>
+                        <Menu fx:id="sortMnu" text="Sort">
+                            <MenuItem text="A to Z" onAction="#handleSort"/>
+                            <MenuItem text="Z to A" onAction="#handleSort"/>
+                            <MenuItem text="High to Low" onAction="#handleSort"/>
+                            <MenuItem text="Low to High" onAction="#handleSort"/>
+                            <MenuItem text="Custom" onAction="#handleSort"/>
+                        </Menu>
+                        <MenuItem fx:id="findItm" text="Find"/>
                     </Menu>
                 </MenuBar>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label text="GradeTracker" styleClass="h1"/>
+                <Label fx:id="titleLbl" text="GradeTracker" styleClass="h1"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <HBox fx:id="buttonHbx" spacing="8" alignment="CENTER">
                     <padding>
