@@ -219,9 +219,12 @@ public class Utils {
                             setMaximised(true);
                         }
                         AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize);
+                        mouseEvent.consume();
                     }
-                    else if (pressPos.y - pressOrigin.y <= titleMargin) setMaximised(!isMaximised());
-                    mouseEvent.consume();
+                    else if (pressPos.y - pressOrigin.y <= titleMargin) {
+                        setMaximised(!isMaximised());
+                        mouseEvent.consume();
+                    }
                 }
             }
             else if (mouseEventType == MouseEvent.MOUSE_DRAGGED) {

@@ -2,6 +2,7 @@ package iron.gradetracker.view.data;
 
 import iron.gradetracker.model.data.SubjectData;
 import iron.gradetracker.view.IntegerTextField;
+import javafx.beans.binding.Bindings;
 import javafx.scene.control.Label;
 
 public class SubjectView extends DataView<SubjectData> {
@@ -14,9 +15,9 @@ public class SubjectView extends DataView<SubjectData> {
     public SubjectView(SubjectData data) {
         super(data, new int[]{40, 15, 15, 15, 15}, "Unnamed Subject");
         creditPoints = new IntegerTextField(data.creditPointsProperty(), true);
-        mark.textProperty().bind(data.markProperty().asString());
+        mark.textProperty().bind(Bindings.format("%.2f", data.markProperty()));
         grade.textProperty().bind(data.gradeProperty());
-        gradePoints.textProperty().bind(data.gradePointsProperty().asString());
+        gradePoints.textProperty().bind(Bindings.format("%.0f", data.gradePointsProperty()));
         setColumns(name, creditPoints, mark, grade, gradePoints);
     }
 

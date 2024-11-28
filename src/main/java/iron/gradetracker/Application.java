@@ -25,7 +25,6 @@ public class Application extends javafx.application.Application {
         stage.setMinHeight(400);
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.getScene().setFill(Color.TRANSPARENT);
-        System.setProperty("prism.allowhidpi", "false");
         stage.show();
     }
 

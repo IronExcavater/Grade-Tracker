@@ -142,8 +142,20 @@
 .text-field {
     -fx-prompt-text-fill: -fx-white-01dp;
     -fx-background-color: -fx-black-08dp;
-    -fx-opacity: 0.8;
-    -fx-effect: innershadow(three-pass-box, rgba(128, 128, 128, 0.25), 20, 0, 0, 0);
+    -fx-effect: innershadow(three-pass-box, rgba(255, 255, 255, 0.25), 20, 0, 0, 0);
+}
+.list-cell .text-field {
+    -fx-background-color: -fx-black-03dp;
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 0.25), 20, 0, 0, 0);
+}
+.list-cell:odd .text-field {
+    -fx-background-color: -fx-black-04dp;
+}
+.list-cell:hover .text-field {
+    -fx-background-color: -fx-black-06dp;
+}
+.list-cell:selected .text-field {
+    -fx-background-color: -fx-black-08dp;
 }
 .combo-box-base {
     -fx-background-color: -fx-teal-06dp;

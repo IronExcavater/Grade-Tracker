@@ -1,6 +1,7 @@
 package iron.gradetracker.view.data;
 
 import iron.gradetracker.model.data.SessionData;
+import javafx.beans.binding.Bindings;
 import javafx.scene.control.Label;
 
 public class SessionView extends DataView<SessionData> {
@@ -11,9 +12,9 @@ public class SessionView extends DataView<SessionData> {
 
     public SessionView(SessionData data) {
         super(data, new int[]{55, 15, 15, 15}, "Unnamed Session");
-        mark.textProperty().bind(data.markProperty().asString());
-        gradePoints.textProperty().bind(data.gradePointsProperty().asString());
-        creditPoints.textProperty().bind(data.creditPointsProperty().asString());
+        mark.textProperty().bind(Bindings.format("%.2f", data.markProperty()));
+        gradePoints.textProperty().bind(Bindings.format("%.2f", data.gradePointsProperty()));
+        creditPoints.textProperty().bind(Bindings.format("%d", data.creditPointsProperty()));
         setColumns(name, mark, gradePoints, creditPoints);
     }
 }

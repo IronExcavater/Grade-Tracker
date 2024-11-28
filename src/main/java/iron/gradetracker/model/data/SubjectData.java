@@ -17,11 +17,6 @@ public class SubjectData extends Data<AssessmentData> {
     public SubjectData() { this("", 6); }
     public SubjectData(String name, int creditPoints) {
         super(name, AssessmentData::new);
-
-        App.getGradeScheme().getGrades().forEach(grade -> {
-            grade.mark.addListener(_ -> update());
-            grade.point.addListener(_ -> update());
-        });
         creditPointsProperty().set(creditPoints);
         update();
     }
@@ -45,6 +40,10 @@ public class SubjectData extends Data<AssessmentData> {
             if (ActionManager.isActive()) return;
             ActionManager.executeAction(
                     new ChangeAction<>(this, (Integer) oldValue, (Integer) newValue, 0, creditPointsProperty()::set));
+        });
+        App.getGradeScheme().getGrades().forEach(grade -> {
+            grade.mark.addListener(_ -> update());
+            grade.point.addListener(_ -> update());
         });
     }
 
@@ -70,7 +69,6 @@ public class SubjectData extends Data<AssessmentData> {
                         .mapToInt(AssessmentData::getWeight)
                         .sum(), children
         ));
-
         markProperty().bind(Bindings.createDoubleBinding(() -> {
                 double mark = children.stream()
                         .mapToDouble(AssessmentData::getMark)
@@ -78,11 +76,9 @@ public class SubjectData extends Data<AssessmentData> {
                 return mark > 0 ? mark : 0;
                 }, children
         ));
-
         gradeProperty().bind(Bindings.createStringBinding(() ->
                 App.getGradeScheme().getGrade(getMark()).name.get(), markProperty()
         ));
-
         gradePointsProperty().bind(Bindings.createDoubleBinding(() ->
                 App.getGradeScheme().getGrade(getMark()).point.get(), markProperty()
         ));

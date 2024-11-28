@@ -11,6 +11,7 @@ public class SessionData extends Data<SubjectData> {
     public SessionData() { this(""); }
     public SessionData(String name) {
         super(name, SubjectData::new);
+        update();
     }
 
     public DoubleProperty gradePointsProperty() { return gradePoints; }
@@ -41,17 +42,19 @@ public class SessionData extends Data<SubjectData> {
                         .mapToInt(SubjectData::getCreditPoints)
                         .sum(), children
         ));
-
-        markProperty().bind(Bindings.createDoubleBinding(() ->
-                children.stream()
+        markProperty().bind(Bindings.createDoubleBinding(() -> {
+                double mark = children.stream()
                         .mapToDouble(subject -> subject.getMark() * subject.getCreditPoints())
-                        .sum() / getCreditPoints(), children
+                        .sum() / getCreditPoints();
+                return mark > 0 ? mark : 0;
+                }, children
         ));
-
-        gradePointsProperty().bind(Bindings.createDoubleBinding(() ->
-                children.stream()
+        gradePointsProperty().bind(Bindings.createDoubleBinding(() -> {
+                double gradePoints = children.stream()
                         .mapToDouble(subject -> subject.getGradePoints() * subject.getCreditPoints())
-                        .sum() / getCreditPoints(), children
+                        .sum() / getCreditPoints();
+                return gradePoints > 0 ? gradePoints : 0;
+                }, children
         ));
     }
 
