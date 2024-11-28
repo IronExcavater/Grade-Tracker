@@ -24,7 +24,6 @@ public abstract class Data<C extends Data<?>> {
         nameProperty().set(name);
         children.addListener((ListChangeListener<? super C>) change -> {
             while (change.next()) {
-                if (change.wasPermutated()) break;
                 if (change.wasAdded()) change.getAddedSubList().forEach(this::addChild);
                 if (change.wasRemoved()) change.getRemoved().forEach(this::removeChild);
             }

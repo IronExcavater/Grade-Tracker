@@ -29,7 +29,7 @@ public class DataManager {
             .excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
     public static DataController controller;
-    private static BooleanProperty isDirty = new SimpleBooleanProperty(false);
+    private static final BooleanProperty isDirty = new SimpleBooleanProperty(false);
 
     public static void saveData() {
         if (!isDirty()) return;
@@ -268,7 +268,7 @@ public class DataManager {
                 field.setAccessible(true);
                 if (!field.isAnnotationPresent(Expose.class)) continue;
                 try {
-                    object.add(field.getName(), context.serialize(field.get(data)));
+                    object.add(field.getName(), context.serialize(field.get(data), field.getType()));
                 } catch (IllegalAccessException e) {
                     throw new JsonParseException("Error serializing field: " + field.getName(), e);
                 }

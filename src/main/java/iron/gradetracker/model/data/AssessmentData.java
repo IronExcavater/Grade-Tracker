@@ -15,7 +15,6 @@ public class AssessmentData extends Data<AssessmentData> {
     public AssessmentData() { this("", 0, 100, 20); }
     public AssessmentData(String name, double score, double maxScore, int weight) {
         super(name, null);
-        markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()).multiply(100));
         maxScoreProperty().set(maxScore);
         scoreProperty().set(Math.min(score, getMaxScore()));
         weightProperty().set(Math.min(weight, getRemainingWeight()));
@@ -51,6 +50,7 @@ public class AssessmentData extends Data<AssessmentData> {
             ActionManager.executeAction(
                     new ChangeAction<>(this, (Integer) oldValue, (Integer) newValue, 0, weightProperty()::set));
         });
+        markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()).multiply(100));
     }
 
     @Override

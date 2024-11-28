@@ -2,10 +2,10 @@ package iron.gradetracker.controller;
 
 import iron.gradetracker.model.*;
 import iron.gradetracker.model.data.StudentData;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import javafx.util.converter.NumberStringConverter;
 
 public class HomeController extends Controller {
 
@@ -17,8 +17,7 @@ public class HomeController extends Controller {
     @FXML
     private void initialize() {
         StudentData studentData = App.getStudentData();
-        NumberStringConverter converter = new NumberStringConverter();
-        gpaLbl.textProperty().bindBidirectional(studentData.cgpaProperty(), converter);
-        wamLbl.textProperty().bindBidirectional(studentData.markProperty(), converter);
+        gpaLbl.textProperty().bind(Bindings.format("%.2f", studentData.cgpaProperty()));
+        wamLbl.textProperty().bind(Bindings.format("%.2f", studentData.markProperty()));
     }
 }
