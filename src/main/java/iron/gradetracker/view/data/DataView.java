@@ -3,6 +3,7 @@ package iron.gradetracker.view.data;
 import iron.gradetracker.*;
 import iron.gradetracker.model.data.Data;
 import iron.gradetracker.view.StringTextField;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 
@@ -18,13 +19,14 @@ public abstract class DataView<T extends Data<?>> extends GridPane {
         this.columnWidths = columnWidths;
         name = new StringTextField(data.nameProperty(), true);
         name.setPromptText(namePrompt);
+        name.setPrefWidth(0);
     }
 
     public T getData() { return data; }
 
-    protected void setColumns(Node... nodes) {
-        for (int i = 0; i < nodes.length; i++) {
-            add(nodes[i], i, 0);
+    protected void setColumns(Region... regions) {
+        for (int i = 0; i < regions.length; i++) {
+            add(regions[i], i, 0);
             getColumnConstraints().add(Utils.columnPercentage(columnWidths[i]));
         }
     }

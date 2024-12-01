@@ -26,18 +26,19 @@ public class DataController extends Controller {
     @FXML private ListView<DataView<?>> dataViewLst;
 
     private final Map<Class<?>, String[]> columnNames = new HashMap<>() {{
-        put(StudentData.class, new String[]{"Session Name", "Mark", "Grade Points", "Credit Points"});
+        put(StudentData.class, new String[]{"Session Name", "SWAM", "SGPA", "Credit Points"});
         put(SessionData.class, new String[]{"Subject Name", "Credit Points", "Mark", "Grade", "Grade Points"});
-        put(SubjectData.class, new String[]{"Assessment Name", "Score", "Max Score", "Weight"});
+        put(SubjectData.class, new String[]{"Assessment Name", "Score", "Max Score", "Weight", "Date"});
     }};
     private final Map<Class<?>, int[]> columnWidths = new HashMap<>() {{
         put(StudentData.class, new int[]{55, 15, 15, 15});
         put(SessionData.class, new int[]{40, 15, 15, 15, 15});
-        put(SubjectData.class, new int[]{55, 15, 15, 15});
+        put(SubjectData.class, new int[]{35, 15, 15, 15, 20});
     }};
 
     @FXML private ComboBox<String> sortCmb;
     @FXML private StringTextField findTf;
+    @FXML private Button addBtn;
     @FXML private Button deleteBtn;
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
@@ -179,6 +180,7 @@ public class DataController extends Controller {
         if (selectedViews.isEmpty()) return;
 
         var selectedData = selectedViews.stream().map(DataView::getData).toList();
+        dataViewLst.getSelectionModel().clearSelection();
         ActionManager.executeAction(new RemoveAction<>(selectedData));
     }
 
@@ -270,10 +272,12 @@ public class DataController extends Controller {
         }
     }
 
+    public ObjectProperty<Data<?>> focusedDataProperty() { return focusedData; }
     public Data<?> getFocusedData() { return focusedData.get(); }
     public void setFocusedData(Data<?> data) {
         if (getFocusedData() != null) getFocusedData().getChildren().removeListener(changeListener);
         focusedData.set(data);
+        addBtn.disableProperty().bind(Bindings.greaterThanOrEqual(Bindings.size(getFocusedData().getChildren()), 30));
         getFocusedData().getChildren().addListener(changeListener);
         originalViewList.setAll(getFocusedData().getChildren().stream().map(this::createView).toList());
     }

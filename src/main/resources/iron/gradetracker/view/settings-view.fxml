@@ -32,11 +32,11 @@
                 <Label text="Student Data" styleClass="h1"/>
                 <HBox spacing="5" alignment="CENTER_LEFT">
                     <Label text="Name:"/>
-                    <StringTextField fx:id="nameTf"/>
+                    <StringTextField fx:id="nameTf" HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Less Rounding"/>
-                    <CheckBox fx:id="roundingCbx"/>
+                    <Label text="Decimal Rounding:"/>
+                    <IntegerTextField fx:id="roundingTf" HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <Button text="Erase All Data" styleClass="warning" onAction="#handleErase"/>
             </VBox>

@@ -13,13 +13,11 @@ public class App {
         this.settings = settings;
     }
 
-    public static void createInstance() { createInstance(new StudentData(), new Settings()); }
-    public static void createInstance(StudentData studentData, Settings settings) { createInstance(new App(studentData, settings)); }
-    public static void createInstance(App app) {
+    public static void createInstance() {
         if (instance == null) {
             synchronized (App.class) {
                 if (instance == null)
-                    instance = app;
+                    instance = new App(new StudentData(), new Settings());
             }
         } else
             throw new IllegalStateException("App instance is already initialized.");
@@ -32,8 +30,8 @@ public class App {
     }
 
     public static StudentData getStudentData() { return getInstance().studentData; }
-    public void setStudentData(StudentData studentData) { this.studentData = studentData; }
+    public static void setStudentData(StudentData studentData) { instance.studentData = studentData; }
 
     public static Settings getSettings() { return instance.settings; }
-    public void setSettings(Settings settings) { this.settings = settings; }
+    public static void setSettings(Settings settings) { instance.settings = settings; }
 }

@@ -12,7 +12,7 @@
     <top>
         <GridPane vgap="2" style="-fx-padding: 10 10 2 10">
             <HBox GridPane.rowIndex="0" GridPane.columnIndex="0" spacing="10" alignment="CENTER_LEFT">
-                <Button onAction="#handleAdd" text="Add" styleClass="tool-button"/>
+                <Button fx:id="addBtn" onAction="#handleAdd" text="Add" styleClass="tool-button"/>
                 <Button fx:id="deleteBtn" onAction="#handleDelete" text="Delete" styleClass="tool-button"/>
                 <ComboBox fx:id="sortCmb" promptText="Sort..." styleClass="tool-button">
                     <items>

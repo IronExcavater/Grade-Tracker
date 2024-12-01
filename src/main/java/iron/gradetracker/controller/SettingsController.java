@@ -6,17 +6,16 @@ import iron.gradetracker.model.*;
 import iron.gradetracker.model.action.RemoveAction;
 import iron.gradetracker.model.data.StudentData;
 import iron.gradetracker.view.*;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class SettingsController extends Controller {
 
     @FXML private StringTextField nameTf;
-    @FXML private CheckBox roundingCbx;
+    @FXML private IntegerTextField roundingTf;
 
     @FXML private DoubleTextField hdMarkTf;
     @FXML private DoubleTextField hdPointTf;
@@ -44,7 +43,8 @@ public class SettingsController extends Controller {
         pMarkTf.setProperties(settings.getGrade("P").mark, true, cMarkTf.boundProperty());
         pPointTf.setProperties(settings.getGrade("P").point, true, cPointTf.boundProperty());
 
-        roundingCbx.selectedProperty().bindBidirectional(settings.lessRoundingProperty());
+        roundingTf.setProperties(settings.roundingProperty(), true, new SimpleIntegerProperty(5));
+        roundingTf.prefWidth(50);
     }
 
     @FXML

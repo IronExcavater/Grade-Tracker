@@ -1,6 +1,7 @@
 package iron.gradetracker.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -26,6 +27,8 @@ public class IntegerTextField extends TextField {
     public IntegerTextField() {}
 
     public IntegerProperty boundProperty() { return boundProperty; }
+    public IntegerProperty maxProperty() { return maxProperty; }
+
     public void setBoundProperty(IntegerProperty boundProperty, boolean isBidirectional) {
         this.boundProperty = boundProperty;
         this.isBidirectional = isBidirectional;
@@ -33,19 +36,10 @@ public class IntegerTextField extends TextField {
     }
     public void setBoundProperty(IntegerProperty boundProperty) { setBoundProperty(boundProperty, false); }
 
-    public IntegerProperty maxProperty() { return maxProperty; }
-    public void setMaxProperty(IntegerProperty maxProperty) {
+    public void setProperties(IntegerProperty boundProperty, boolean isBidirectional, IntegerProperty maxProperty) {
+        this.boundProperty = boundProperty;
+        this.isBidirectional = isBidirectional;
         this.maxProperty = maxProperty;
-        initialize();
-    }
-
-    public void setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-        initialize();
-    }
-
-    public void setRunnable(Runnable runnable) {
-        this.runnable = runnable;
         initialize();
     }
 

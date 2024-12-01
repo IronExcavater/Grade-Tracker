@@ -8,7 +8,7 @@ import java.util.*;
 
 public class Settings {
     @Expose private List<Grade> gradeList = new ArrayList<>();
-    @Expose private BooleanProperty lessRounding = new SimpleBooleanProperty(false);
+    @Expose private IntegerProperty rounding = new SimpleIntegerProperty();
 
     public static class Grade {
         @Expose public final StringProperty name = new SimpleStringProperty();
@@ -33,7 +33,7 @@ public class Settings {
     }
 
     public void startListening() {
-        lessRounding.addListener((_, _, _) -> DataManager.saveSettings());
+        rounding.addListener((_, _, _) -> DataManager.saveSettings());
         for (Grade grade : gradeList) {
             grade.mark.addListener((_, _, _) -> DataManager.saveSettings());
             grade.point.addListener((_, _, _) -> DataManager.saveSettings());
@@ -56,5 +56,6 @@ public class Settings {
 
     public List<Grade> getGrades() { return gradeList; }
 
-    public BooleanProperty lessRoundingProperty() { return lessRounding; }
+    public IntegerProperty roundingProperty() { return rounding; }
+    public String getRounding() { return "%." + rounding.get() + "f"; }
 }

@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.time.LocalDate;
 import java.util.zip.*;
 
 public class DataManager {
@@ -23,6 +24,7 @@ public class DataManager {
             .registerTypeAdapter(IntegerProperty.class, new IntegerPropertyAdapter())
             .registerTypeAdapter(DoubleProperty.class, new DoublePropertyAdapter())
             .registerTypeAdapter(StringProperty.class, new StringPropertyAdapter())
+            .registerTypeAdapter(ObjectProperty.class, new DatePropertyAdapter())
             .registerTypeAdapter(StudentData.class, new DataAdapter())
             .registerTypeAdapter(SessionData.class, new DataAdapter())
             .registerTypeAdapter(SubjectData.class, new DataAdapter())
@@ -46,11 +48,12 @@ public class DataManager {
         File file = new File(SAVE_PATH);
 
         try (FileReader reader = new FileReader(file)) {
-            App app = gson.fromJson(reader, App.class);
-            if (app == null) throw new JsonIOException("Json file malformed");
-            app.setSettings(App.getSettings());
+            JsonObject appObject = JsonParser.parseReader(reader).getAsJsonObject();
+            if (appObject == null) throw new JsonIOException("Json file malformed");
+            appObject.add("settings", JsonParser.parseString(gson.toJson(App.getSettings())).getAsJsonObject());
+
             try (FileWriter writer = new FileWriter(file)) {
-                gson.toJson(app, writer);
+                gson.toJson(appObject, writer);
             } catch (IOException _) {}
 
         } catch (JsonSyntaxException | JsonIOException | IOException e) {
@@ -71,17 +74,18 @@ public class DataManager {
 
     public static void loadData() {
         File file = new File(SAVE_PATH);
+        App.createInstance();
 
         try (FileReader reader = new FileReader(file)) {
-            App app = gson.fromJson(reader, App.class);
-            if (app == null) throw new JsonIOException("Json file malformed");
-            App.createInstance(app);
-        } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            App.createInstance();
-        } finally {
-            App.getStudentData().startListening();
-            App.getSettings().startListening();
-        }
+            JsonObject appObject = JsonParser.parseReader(reader).getAsJsonObject();
+            if (appObject == null || !appObject.has("settings") || !appObject.has("studentData"))
+                throw new JsonIOException("Json file malformed");
+            App.setSettings(gson.fromJson(appObject.get("settings"), Settings.class));
+            App.setStudentData(gson.fromJson(appObject.get("studentData"), StudentData.class));
+        } catch (JsonSyntaxException | JsonIOException | IOException | IllegalStateException _) {}
+
+        App.getStudentData().startListening();
+        App.getSettings().startListening();
     }
 
     public static void exportData(File file) {
@@ -296,6 +300,19 @@ public class DataManager {
         }
     }
 
+    private static class DatePropertyAdapter extends TypeAdapter<ObjectProperty<LocalDate>> {
+
+        @Override
+        public void write(JsonWriter jsonWriter, ObjectProperty<LocalDate> dateProperty) throws IOException {
+            jsonWriter.value(dateProperty.get().toString());
+        }
+
+        @Override
+        public ObjectProperty<LocalDate> read(JsonReader jsonReader) throws IOException {
+            return new SimpleObjectProperty<>(LocalDate.parse(jsonReader.nextString()));
+        }
+    }
+
     private static class DataAdapter implements JsonSerializer<Data<?>>, JsonDeserializer<Data<?>> {
 
         @Override
@@ -314,7 +331,7 @@ public class DataManager {
                 }
             }
 
-            if (data.canParent()) object.add("children", context.serialize(data.getChildren()));
+            if (data.hasChildren()) object.add("children", context.serialize(data.getChildren()));
             return object;
         }
 

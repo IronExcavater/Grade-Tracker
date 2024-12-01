@@ -2,9 +2,10 @@ package iron.gradetracker.controller;
 
 import iron.gradetracker.*;
 import iron.gradetracker.model.App;
+import iron.gradetracker.model.data.Data;
 import iron.gradetracker.view.ImageButton;
-import javafx.animation.Transition;
 import javafx.beans.property.*;
+import javafx.collections.ListChangeListener;
 import javafx.event.*;
 import javafx.fxml.*;
 import javafx.geometry.Rectangle2D;
@@ -12,10 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.*;
-import javafx.util.Duration;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -38,10 +36,14 @@ public class AppController extends Controller {
     @FXML private MenuItem sortMnu;
     @FXML private MenuItem findItm;
 
+    @FXML private TabPane tabMenu;
+
     private Utils.ResizeListener resizeListener;
     private final ObjectProperty<DataController> dataController = new SimpleObjectProperty<>();
+
     private final BooleanProperty isSelectionNull = new SimpleBooleanProperty(true);
-    @FXML private TabPane tabMenu;
+    private final BooleanProperty isDataFull = new SimpleBooleanProperty(false);
+    private final ListChangeListener<Data<?>> childChangeListener = change -> isDataFull.set(change.getList().size() >= 30);
 
     public AppController(Stage stage) { super(stage); }
 
@@ -112,7 +114,7 @@ public class AppController extends Controller {
         saveItm.disableProperty().bind(DataManager.dirtyProperty().not());
         undoItm.disableProperty().bind(ActionManager.canUndoProperty().not());
         redoItm.disableProperty().bind(ActionManager.canRedoProperty().not());
-        addItm.disableProperty().bind(dataController.isNull());
+        addItm.disableProperty().bind(dataController.isNull().or(isDataFull));
         deleteItm.disableProperty().bind(dataController.isNull().or(isSelectionNull));
         sortMnu.disableProperty().bind(dataController.isNull());
         findItm.disableProperty().bind(dataController.isNull());
@@ -147,6 +149,15 @@ public class AppController extends Controller {
                 dataController.set(newController);
                 dataController.get().getListView().getSelectionModel().selectedItemProperty().addListener(
                         (_, _, newValue) -> isSelectionNull.set(newValue == null));
+
+                isDataFull.set(dataController.get().getFocusedData().getChildren().size() >= 30);
+                dataController.get().getFocusedData().getChildren().addListener(childChangeListener);
+                dataController.get().focusedDataProperty().addListener((_, oldValue, newValue) -> {
+                    oldValue.getChildren().removeListener(childChangeListener);
+                    newValue.getChildren().addListener(childChangeListener);
+                });
+            } else {
+                dataController.set(null);
             }
         } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException | NoSuchMethodException e) {
@@ -173,7 +184,7 @@ public class AppController extends Controller {
                 maximise ? screenBounds.getWidth() : resizeListener.maxSize.x,
                 maximise ? screenBounds.getHeight() : resizeListener.maxSize.y);
 
-        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize, dataController.get());
+        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize, this);
     }
 
     @FXML
@@ -214,4 +225,8 @@ public class AppController extends Controller {
         MenuItem source = (MenuItem) actionEvent.getSource();
         if (dataController.get() != null) dataController.get().setSortOption(source.getText());
     }
+
+    public BorderPane getRoot() { return root; }
+    public HBox getTitleHbx() { return titleHbx; }
+    public TabPane getTabMenu() { return tabMenu; }
 }

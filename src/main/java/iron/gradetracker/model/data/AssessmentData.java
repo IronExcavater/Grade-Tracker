@@ -5,11 +5,14 @@ import iron.gradetracker.ActionManager;
 import iron.gradetracker.model.action.ChangeAction;
 import javafx.beans.property.*;
 
+import java.time.LocalDate;
+
 public class AssessmentData extends Data<AssessmentData> {
 
     @Expose private final DoubleProperty score = new SimpleDoubleProperty();
     @Expose private final DoubleProperty maxScore = new SimpleDoubleProperty();
     @Expose private final IntegerProperty weight = new SimpleIntegerProperty();
+    @Expose private final ObjectProperty<LocalDate> date = new SimpleObjectProperty<>();
     private final IntegerProperty remainingWeight = new SimpleIntegerProperty();
 
     public AssessmentData() { this("", 0, 100, 20); }
@@ -18,6 +21,7 @@ public class AssessmentData extends Data<AssessmentData> {
         maxScoreProperty().set(maxScore);
         scoreProperty().set(Math.min(score, getMaxScore()));
         weightProperty().set(Math.min(weight, getRemainingWeight()));
+        dateProperty().set(LocalDate.now());
     }
 
     public DoubleProperty scoreProperty() { return score; }
@@ -28,6 +32,9 @@ public class AssessmentData extends Data<AssessmentData> {
 
     public IntegerProperty weightProperty() { return weight; }
     public int getWeight() { return weight.get(); }
+
+    public ObjectProperty<LocalDate> dateProperty() { return date; }
+    public LocalDate getDate() { return date.get(); }
 
     public IntegerProperty remainingWeightProperty() { return remainingWeight; }
     public int getRemainingWeight() { return remainingWeight.get(); }

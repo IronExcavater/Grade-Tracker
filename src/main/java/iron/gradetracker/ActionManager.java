@@ -1,14 +1,14 @@
 package iron.gradetracker;
 
 import iron.gradetracker.controller.DataController;
+import iron.gradetracker.model.LimitedStack;
 import iron.gradetracker.model.action.*;
 import javafx.beans.property.*;
-import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 public class ActionManager {
-    private static final Stack<Action> undoStack = new Stack<>();
-    private static final Stack<Action> redoStack = new Stack<>();
+    private static final LimitedStack<Action> undoStack = new LimitedStack<>(50);
+    private static final LimitedStack<Action> redoStack = new LimitedStack<>(50);
 
     public static DataController controller;
     private static Action savedAction;

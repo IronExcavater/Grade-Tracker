@@ -1,7 +1,9 @@
 package iron.gradetracker;
 
+import iron.gradetracker.controller.AppController;
 import iron.gradetracker.controller.DataController;
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.*;
 import javafx.stage.Stage;
@@ -21,20 +23,21 @@ public class AnimationManager {
         newAnimation.run();
     }
 
-    public static void stageTransition(Stage stage, Utils.Point startOrigin, Utils.Point startSize, Utils.Point endOrigin, Utils.Point endSize, DataController dataController) {
+    public static void stageTransition(Stage stage, Utils.Point startOrigin, Utils.Point startSize, Utils.Point endOrigin, Utils.Point endSize, AppController appController) {
 
-        if (dataController != null) {
-            dataController.getRoot().setManaged(false);
+        if (appController != null) {
+            appController.getRoot().getCenter().setManaged(false);
         }
 
         new Transition() {
             Utils.Point throttleSize = startSize;
             double throttleTime = 0;
             {
-                setCycleDuration(Duration.millis(1000));
+                setCycleDuration(Duration.millis(10));
+                setRate(0.01);
                 setOnFinished(_ -> {
-                    if (dataController != null) {
-                        dataController.getRoot().setManaged(true);
+                    if (appController != null) {
+                        appController.getRoot().getCenter().setManaged(true);
                     }
                 });
             }
@@ -47,7 +50,9 @@ public class AnimationManager {
                 if (Math.abs(throttleSize.x - stage.getWidth()) > 500 || Math.abs(throttleSize.y - stage.getHeight()) > 500 || Math.abs(throttleTime - v) > 0.2) {
                     throttleSize = new Utils.Point(stage.getWidth(), stage.getHeight());
                     throttleTime = v;
-                    if (dataController != null) dataController.getRoot().requestLayout(); // TODO: Doesn't work as expected?
+                    if (appController != null) {
+                        Platform.runLater(() -> appController.getRoot().getCenter().getParent().requestLayout()); // TODO: Doesn't work as expected?
+                    }
                 }
             }
         }.play();
