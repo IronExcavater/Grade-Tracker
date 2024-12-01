@@ -5,25 +5,25 @@ import iron.gradetracker.model.data.StudentData;
 
 public class App {
     private static volatile App instance;
-    @Expose private GradeScheme gradeScheme;
+    @Expose private Settings settings;
     @Expose private StudentData studentData;
 
-    private App(StudentData studentData, GradeScheme gradeScheme) {
+    private App(StudentData studentData, Settings settings) {
         this.studentData = studentData;
-        this.gradeScheme = gradeScheme;
+        this.settings = settings;
     }
 
-    public static void createInstance(StudentData studentData, GradeScheme gradeScheme) {
+    public static void createInstance() { createInstance(new StudentData(), new Settings()); }
+    public static void createInstance(StudentData studentData, Settings settings) { createInstance(new App(studentData, settings)); }
+    public static void createInstance(App app) {
         if (instance == null) {
             synchronized (App.class) {
                 if (instance == null)
-                    instance = new App(studentData, gradeScheme);
+                    instance = app;
             }
         } else
             throw new IllegalStateException("App instance is already initialized.");
     }
-
-    public static void createInstance() { createInstance(new StudentData(), new GradeScheme()); }
 
     public static App getInstance() {
         if (instance == null)
@@ -31,32 +31,9 @@ public class App {
         return instance;
     }
 
-    public static void setInstance(App app) {
-        instance.studentData = app.studentData;
-        instance.gradeScheme = app.gradeScheme;
-    }
+    public static StudentData getStudentData() { return getInstance().studentData; }
+    public void setStudentData(StudentData studentData) { this.studentData = studentData; }
 
-    public static StudentData getStudentData() {
-        if (instance == null)
-            throw new IllegalStateException("App instance is not initialized.");
-        return instance.studentData;
-    }
-
-    public static void setStudentData(StudentData studentData) {
-        if (instance == null)
-            throw new IllegalStateException("App instance is not initialized.");
-        instance.studentData = studentData;
-    }
-
-    public static GradeScheme getGradeScheme() {
-        if (instance == null)
-            throw new IllegalStateException("App instance is not initialized.");
-        return instance.gradeScheme;
-    }
-
-    public static void setGradeScheme(GradeScheme gradeScheme) {
-        if (instance == null)
-            throw new IllegalStateException("App instance is not initialized.");
-        instance.gradeScheme = gradeScheme;
-    }
+    public static Settings getSettings() { return instance.settings; }
+    public void setSettings(Settings settings) { this.settings = settings; }
 }

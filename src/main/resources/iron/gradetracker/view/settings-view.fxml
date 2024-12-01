@@ -29,10 +29,14 @@
                 </GridPane>
             </VBox>
             <VBox spacing="10">
-                <Label text="Student Info" styleClass="h1"/>
-                <HBox spacing="5" alignment="CENTER">
+                <Label text="Student Data" styleClass="h1"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
                     <Label text="Name:"/>
                     <StringTextField fx:id="nameTf"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Less Rounding"/>
+                    <CheckBox fx:id="roundingCbx"/>
                 </HBox>
                 <Button text="Erase All Data" styleClass="warning" onAction="#handleErase"/>
             </VBox>

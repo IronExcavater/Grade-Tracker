@@ -6,6 +6,8 @@ import iron.gradetracker.model.*;
 import iron.gradetracker.model.action.RemoveAction;
 import iron.gradetracker.model.data.StudentData;
 import iron.gradetracker.view.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -14,6 +16,7 @@ import javafx.stage.Stage;
 public class SettingsController extends Controller {
 
     @FXML private StringTextField nameTf;
+    @FXML private CheckBox roundingCbx;
 
     @FXML private DoubleTextField hdMarkTf;
     @FXML private DoubleTextField hdPointTf;
@@ -31,17 +34,17 @@ public class SettingsController extends Controller {
         StudentData studentData = App.getStudentData();
         nameTf.setBoundProperty(studentData.nameProperty(), true);
 
-        GradeScheme gradeScheme = App.getGradeScheme();
-        hdMarkTf.setBoundProperty(gradeScheme.getGrade("HD").mark, true);
-        hdPointTf.setBoundProperty(gradeScheme.getGrade("HD").point, true);
-        dMarkTf.setBoundProperty(gradeScheme.getGrade("D").mark, true);
-        dPointTf.setBoundProperty(gradeScheme.getGrade("D").point, true);
-        cMarkTf.setBoundProperty(gradeScheme.getGrade("C").mark, true);
-        cPointTf.setBoundProperty(gradeScheme.getGrade("C").point, true);
-        pMarkTf.setBoundProperty(gradeScheme.getGrade("P").mark, true);
-        pPointTf.setBoundProperty(gradeScheme.getGrade("P").point, true);
+        Settings settings = App.getSettings();
+        hdMarkTf.setProperties(settings.getGrade("HD").mark, true, new SimpleDoubleProperty(100));
+        hdPointTf.setProperties(settings.getGrade("HD").point, true, null);
+        dMarkTf.setProperties(settings.getGrade("D").mark, true, hdMarkTf.boundProperty());
+        dPointTf.setProperties(settings.getGrade("D").point, true, hdPointTf.boundProperty());
+        cMarkTf.setProperties(settings.getGrade("C").mark, true, dMarkTf.boundProperty());
+        cPointTf.setProperties(settings.getGrade("C").point, true, dPointTf.boundProperty());
+        pMarkTf.setProperties(settings.getGrade("P").mark, true, cMarkTf.boundProperty());
+        pPointTf.setProperties(settings.getGrade("P").point, true, cPointTf.boundProperty());
 
-        Utils.addKeyBind(stage.getScene(), Utils.createKeyBind(KeyCode.S), _ -> DataManager.saveData());
+        roundingCbx.selectedProperty().bindBidirectional(settings.lessRoundingProperty());
     }
 
     @FXML

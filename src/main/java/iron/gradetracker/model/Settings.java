@@ -1,12 +1,14 @@
 package iron.gradetracker.model;
 
 import com.google.gson.annotations.Expose;
+import iron.gradetracker.DataManager;
 import javafx.beans.property.*;
 
 import java.util.*;
 
-public class GradeScheme {
+public class Settings {
     @Expose private List<Grade> gradeList = new ArrayList<>();
+    @Expose private BooleanProperty lessRounding = new SimpleBooleanProperty(false);
 
     public static class Grade {
         @Expose public final StringProperty name = new SimpleStringProperty();
@@ -20,15 +22,22 @@ public class GradeScheme {
         }
     }
 
-    public GradeScheme(double[] minMarks, String[] gradeNames, double[] gradePoints) {
+    public Settings() { this(
+            new double[]{85, 75, 65, 50, 0},
+            new String[]{"HD", "D", "C", "P", "F"},
+            new double[]{7, 6, 5, 4, 0});
+    }
+    public Settings(double[] minMarks, String[] gradeNames, double[] gradePoints) {
         for (int i = 0; i < minMarks.length; i++)
             gradeList.add(new Grade(gradeNames[i], minMarks[i], gradePoints[i]));
     }
 
-    public GradeScheme() { this(
-            new double[]{85, 75, 65, 50, 0},
-            new String[]{"HD", "D", "C", "P", "F"},
-            new double[]{7, 6, 5, 4, 0});
+    public void startListening() {
+        lessRounding.addListener((_, _, _) -> DataManager.saveSettings());
+        for (Grade grade : gradeList) {
+            grade.mark.addListener((_, _, _) -> DataManager.saveSettings());
+            grade.point.addListener((_, _, _) -> DataManager.saveSettings());
+        }
     }
 
     public Grade getGrade(double mark) {
@@ -46,4 +55,6 @@ public class GradeScheme {
     }
 
     public List<Grade> getGrades() { return gradeList; }
+
+    public BooleanProperty lessRoundingProperty() { return lessRounding; }
 }

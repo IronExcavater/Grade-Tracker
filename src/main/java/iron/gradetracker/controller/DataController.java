@@ -20,7 +20,8 @@ import java.util.*;
 
 public class DataController extends Controller {
 
-    @FXML private HBox hBxBreadcrumbs;
+    @FXML private BorderPane root;
+    @FXML private HBox breadcrumbsHbx;
     @FXML private GridPane gPaneHeadings;
     @FXML private ListView<DataView<?>> dataViewLst;
 
@@ -242,15 +243,15 @@ public class DataController extends Controller {
 
     private void updateBreadcrumbs() {
         // Populate hBxBreadcrumbs with Hyperlinks of focusedData ancestors
-        hBxBreadcrumbs.getChildren().clear();
+        breadcrumbsHbx.getChildren().clear();
         Data<?> data = getFocusedData();
-        hBxBreadcrumbs.getChildren().add(new BreadcrumbLink(this, data));
+        breadcrumbsHbx.getChildren().add(new BreadcrumbLink(this, data));
         while (data.hasParent()) {
             data = data.getParent();
             Label arrow = new Label(">");
             arrow.getStyleClass().add("breadcrumb-arrow");
-            hBxBreadcrumbs.getChildren().addFirst(arrow);
-            hBxBreadcrumbs.getChildren().addFirst(new BreadcrumbLink(this, data));
+            breadcrumbsHbx.getChildren().addFirst(arrow);
+            breadcrumbsHbx.getChildren().addFirst(new BreadcrumbLink(this, data));
         }
     }
 
@@ -278,8 +279,8 @@ public class DataController extends Controller {
     }
 
     public ListView<DataView<?>> getListView() { return dataViewLst; }
-
     public TextField getFindTextField() { return findTf; }
+    public BorderPane getRoot() { return root; }
 
     public void setSortOption(String sortOption) { sortCmb.setValue(sortOption); }
     public String getSortOption() { return sortCmb.getValue() == null ? "Custom" : sortCmb.getValue(); }

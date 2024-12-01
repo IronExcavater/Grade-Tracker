@@ -8,4 +8,6 @@ public class Controller {
     public Controller(Stage stage) {
         this.stage = stage;
     }
+
+    public Stage getStage() { return stage; }
 }

@@ -26,6 +26,8 @@ public class DoubleTextField extends TextField {
     public DoubleTextField() {}
 
     public DoubleProperty boundProperty() { return boundProperty; }
+    public DoubleProperty maxProperty() { return maxProperty; }
+
     public void setBoundProperty(DoubleProperty boundProperty, boolean isBidirectional) {
         this.boundProperty = boundProperty;
         this.isBidirectional = isBidirectional;
@@ -33,19 +35,10 @@ public class DoubleTextField extends TextField {
     }
     public void setBoundProperty(DoubleProperty boundProperty) { setBoundProperty(boundProperty, false); }
 
-    public DoubleProperty maxProperty() { return maxProperty; }
-    public void setMaxProperty(DoubleProperty maxProperty) {
+    public void setProperties(DoubleProperty boundProperty, boolean isBidirectional, DoubleProperty maxProperty) {
+        this.boundProperty = boundProperty;
+        this.isBidirectional = isBidirectional;
         this.maxProperty = maxProperty;
-        initialize();
-    }
-
-    public void setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-        initialize();
-    }
-
-    public void setRunnable(Runnable runnable) {
-        this.runnable = runnable;
         initialize();
     }
 

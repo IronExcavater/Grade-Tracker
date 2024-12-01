@@ -218,7 +218,7 @@ public class Utils {
                             }
                             setMaximised(true);
                         }
-                        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize);
+                        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize, null);
                         mouseEvent.consume();
                     }
                     else if (pressPos.y - pressOrigin.y <= titleMargin) {

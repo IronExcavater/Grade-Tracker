@@ -16,13 +16,13 @@ public class ImportAction implements Action {
 
     @Override
     public void execute() {
-        App.setStudentData(newElement);
+        App.getInstance().setStudentData(newElement);
         isNew = true;
     }
 
     @Override
     public void retract() {
-        App.setStudentData(oldElement);
+        App.getInstance().setStudentData(oldElement);
         isNew = false;
     }
 

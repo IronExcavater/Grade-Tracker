@@ -1,8 +1,9 @@
 package iron.gradetracker;
 
+import iron.gradetracker.controller.DataController;
 import javafx.animation.*;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
+import javafx.scene.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.*;
@@ -20,11 +21,22 @@ public class AnimationManager {
         newAnimation.run();
     }
 
-    public static void stageTransition(Stage stage, Utils.Point startOrigin, Utils.Point startSize, Utils.Point endOrigin, Utils.Point endSize) {
+    public static void stageTransition(Stage stage, Utils.Point startOrigin, Utils.Point startSize, Utils.Point endOrigin, Utils.Point endSize, DataController dataController) {
+
+        if (dataController != null) {
+            dataController.getRoot().setManaged(false);
+        }
+
         new Transition() {
+            Utils.Point throttleSize = startSize;
+            double throttleTime = 0;
             {
-                setCycleDuration(Duration.millis(5));
-                setRate(0.01);
+                setCycleDuration(Duration.millis(1000));
+                setOnFinished(_ -> {
+                    if (dataController != null) {
+                        dataController.getRoot().setManaged(true);
+                    }
+                });
             }
             @Override
             protected void interpolate(double v) {
@@ -32,6 +44,11 @@ public class AnimationManager {
                 stage.setY(startOrigin.y + (endOrigin.y - startOrigin.y) * v);
                 stage.setWidth(startSize.x + (endSize.x - startSize.x) * v);
                 stage.setHeight(startSize.y + (endSize.y - startSize.y) * v);
+                if (Math.abs(throttleSize.x - stage.getWidth()) > 500 || Math.abs(throttleSize.y - stage.getHeight()) > 500 || Math.abs(throttleTime - v) > 0.2) {
+                    throttleSize = new Utils.Point(stage.getWidth(), stage.getHeight());
+                    throttleTime = v;
+                    if (dataController != null) dataController.getRoot().requestLayout(); // TODO: Doesn't work as expected?
+                }
             }
         }.play();
     }

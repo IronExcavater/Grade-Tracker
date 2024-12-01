@@ -19,6 +19,7 @@ public class DataManager {
 
     private static final String SAVE_PATH = "data.json";
     public static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(BooleanProperty.class, new BooleanPropertyAdapter())
             .registerTypeAdapter(IntegerProperty.class, new IntegerPropertyAdapter())
             .registerTypeAdapter(DoubleProperty.class, new DoublePropertyAdapter())
             .registerTypeAdapter(StringProperty.class, new StringPropertyAdapter())
@@ -38,22 +39,48 @@ public class DataManager {
             gson.toJson(App.getInstance(), writer);
             markClean();
             ActionManager.saveAction();
-        } catch (IOException _) {
+        } catch (IOException _) {}
+    }
+
+    public static void saveSettings() {
+        File file = new File(SAVE_PATH);
+
+        try (FileReader reader = new FileReader(file)) {
+            App app = gson.fromJson(reader, App.class);
+            if (app == null) throw new JsonIOException("Json file malformed");
+            app.setSettings(App.getSettings());
+            try (FileWriter writer = new FileWriter(file)) {
+                gson.toJson(app, writer);
+            } catch (IOException _) {}
+
+        } catch (JsonSyntaxException | JsonIOException | IOException e) {
+            JsonObject appObject = new JsonObject();
+            JsonObject studentObject = new JsonObject();
+            JsonObject settingsObject = JsonParser.parseString(gson.toJson(App.getSettings(), Settings.class)).getAsJsonObject();
+
+            studentObject.add("type", JsonParser.parseString("StudentData"));
+            studentObject.add("name", JsonParser.parseString(gson.toJson(App.getStudentData().getName())));
+            appObject.add("settings", settingsObject);
+            appObject.add("studentData", studentObject);
+
+            try (FileWriter writer = new FileWriter(file)) {
+                gson.toJson(appObject, writer);
+            } catch (IOException _) {}
         }
     }
 
     public static void loadData() {
         File file = new File(SAVE_PATH);
-        App.createInstance();
 
-        if (file.exists()) {
-            try (FileReader reader = new FileReader(file)) {
-                App.setInstance(gson.fromJson(reader, App.class));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+        try (FileReader reader = new FileReader(file)) {
+            App app = gson.fromJson(reader, App.class);
+            if (app == null) throw new JsonIOException("Json file malformed");
+            App.createInstance(app);
+        } catch (JsonSyntaxException | JsonIOException | IOException e) {
+            App.createInstance();
+        } finally {
             App.getStudentData().startListening();
+            App.getSettings().startListening();
         }
     }
 
@@ -216,6 +243,19 @@ public class DataManager {
     public static boolean isDirty() { return isDirty.get(); }
     public static void markDirty() { isDirty.set(true); }
     public static void markClean() { isDirty.set(false); }
+
+    private static class BooleanPropertyAdapter extends TypeAdapter<BooleanProperty> {
+
+        @Override
+        public void write(JsonWriter jsonWriter, BooleanProperty booleanProperty) throws IOException {
+            jsonWriter.value(booleanProperty.get());
+        }
+
+        @Override
+        public BooleanProperty read(JsonReader jsonReader) throws IOException {
+            return new SimpleBooleanProperty(jsonReader.nextBoolean());
+        }
+    }
 
     private static class IntegerPropertyAdapter extends TypeAdapter<IntegerProperty> {
 

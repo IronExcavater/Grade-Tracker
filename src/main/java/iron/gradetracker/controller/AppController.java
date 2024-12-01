@@ -3,6 +3,7 @@ package iron.gradetracker.controller;
 import iron.gradetracker.*;
 import iron.gradetracker.model.App;
 import iron.gradetracker.view.ImageButton;
+import javafx.animation.Transition;
 import javafx.beans.property.*;
 import javafx.event.*;
 import javafx.fxml.*;
@@ -11,7 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.*;
+import javafx.util.Duration;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -151,8 +155,10 @@ public class AppController extends Controller {
     }
 
     private void handleMaximise(Utils.ResizeListener resizeListener, boolean maximise) {
-        Rectangle2D screenBounds = Screen.getScreensForRectangle(stage.getX(), stage.getY(),
-                stage.getWidth(), stage.getHeight()).getFirst().getBounds();
+        Rectangle2D stageBounds = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+        Rectangle2D screenBounds = Screen.getScreensForRectangle(stageBounds).getFirst().getBounds();
+        if (!maximise && !screenBounds.equals(stageBounds)) return;
+
         if (maximise) {
             resizeListener.maxSize = new Utils.Point(stage.getWidth(), stage.getHeight());
             resizeListener.maxOrigin = new Utils.Point(stage.getX(), stage.getY());
@@ -167,7 +173,7 @@ public class AppController extends Controller {
                 maximise ? screenBounds.getWidth() : resizeListener.maxSize.x,
                 maximise ? screenBounds.getHeight() : resizeListener.maxSize.y);
 
-        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize);
+        AnimationManager.stageTransition(stage, startOrigin, startSize, endOrigin, endSize, dataController.get());
     }
 
     @FXML
