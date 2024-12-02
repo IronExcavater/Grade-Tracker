@@ -19,7 +19,11 @@ public class SubjectView extends DataView<SubjectData> {
         mark.textProperty().bind(Bindings.createStringBinding(() -> String.format(App.getSettings().getRounding(), data.getMark()),
                 data.markProperty(), App.getSettings().roundingProperty()));
         grade.textProperty().bind(data.gradeProperty());
-        gradePoints.textProperty().bind(Bindings.format("%.0f", data.gradePointsProperty()));
+        gradePoints.textProperty().bind(Bindings.createStringBinding(() -> {
+            double value = data.gradePointsProperty().get();
+            if (value == (long) value) return String.format("%d", (long) value);
+            else return String.format("%.2f", value);
+        }, data.gradePointsProperty()));
         setColumns(name, creditPoints, mark, grade, gradePoints);
     }
 

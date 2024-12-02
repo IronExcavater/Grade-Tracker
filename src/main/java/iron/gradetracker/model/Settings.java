@@ -25,11 +25,13 @@ public class Settings {
     public Settings() { this(
             new double[]{85, 75, 65, 50, 0},
             new String[]{"HD", "D", "C", "P", "F"},
-            new double[]{7, 6, 5, 4, 0});
+            new double[]{7, 6, 5, 4, 0},
+            2);
     }
-    public Settings(double[] minMarks, String[] gradeNames, double[] gradePoints) {
+    public Settings(double[] minMarks, String[] gradeNames, double[] gradePoints, int rounding) {
         for (int i = 0; i < minMarks.length; i++)
             gradeList.add(new Grade(gradeNames[i], minMarks[i], gradePoints[i]));
+        this.rounding.set(rounding);
     }
 
     public void startListening() {

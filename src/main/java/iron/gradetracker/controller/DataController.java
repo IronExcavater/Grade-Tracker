@@ -6,6 +6,7 @@ import iron.gradetracker.model.action.*;
 import iron.gradetracker.model.data.*;
 import iron.gradetracker.view.*;
 import iron.gradetracker.view.data.*;
+import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.*;
@@ -16,6 +17,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.*;
 
 public class DataController extends Controller {
@@ -48,6 +51,11 @@ public class DataController extends Controller {
 
     private final MoveObservableList<DataView<?>> originalViewList = new MoveObservableList<>();
     private final SortedList<DataView<?>> sortedViewList = new SortedList<>(originalViewList);
+
+    private final Tooltip unnamedTooltip = new Tooltip("Data must be named to access");
+    private final PauseTransition unnamedTooltipHide = new PauseTransition(Duration.seconds(1)); {
+        unnamedTooltipHide.setOnFinished(_ -> unnamedTooltip.hide());
+    }
 
     private final ListChangeListener<Data<?>> changeListener = change -> {
         while (change.next()) {
@@ -233,11 +241,19 @@ public class DataController extends Controller {
 
     @FXML
     private void handleListClick(MouseEvent mouseEvent) {
-        if (dataViewLst.getSelectionModel().getSelectedItem() == null) return;
-        Data<?> clickedData = dataViewLst.getSelectionModel().getSelectedItem().getData();
+        DataView<?> clickedView = dataViewLst.getSelectionModel().getSelectedItem();
+        if (clickedView == null) return;
+        Data<?> clickedData = clickedView.getData();
 
         if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
-            if (clickedData.getName() == null || clickedData.getName().isBlank()) return;
+            if (clickedData.getName() == null || clickedData.getName().isBlank()) {
+                unnamedTooltip.show(dataViewLst.getScene().getWindow(),
+                        mouseEvent.getScreenX(),
+                        mouseEvent.getScreenY());
+
+                unnamedTooltipHide.playFromStart();
+                return;
+            }
             if (clickedData instanceof AssessmentData) return;
             setFocusedData(clickedData);
         }

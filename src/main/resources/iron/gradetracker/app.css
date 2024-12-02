@@ -214,13 +214,13 @@
     -fx-background-color: -fx-teal-08dp;
 }
 .calendar-grid {
-    -fx-background-color: -fx-black-06dp;
+    -fx-background-color: -fx-black-02dp;
 }
 .date-picker-popup {
     -fx-background-radius: 5px;
 }
-.date-picker-popup, .date-picker-popup .month-year-pane, .date-picker-popup .week-number-cell {
-    -fx-background-color: -fx-black-03dp;
+.date-picker-popup, .date-picker-popup .month-year-pane {
+    -fx-background-color: -fx-black-01dp;
 }
 .date-picker-popup .spinner .button:hover, .date-picker-popup .spinner .button:focused {
     -fx-background-color: -fx-teal-08dp;
