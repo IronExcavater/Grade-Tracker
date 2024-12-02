@@ -17,7 +17,7 @@ public class Application extends javafx.application.Application {
                 _ -> new AppController(stage));
         Scene scene = new Scene(fxmlLoader.load(), 700, 450);
 
-        Image icon = Utils.getImage("images/icon.jpeg");
+        Image icon = Utils.getImage("images/icon/icon.png");
         stage.getIcons().add(icon);
         stage.setTitle("Grade Tracker");
         stage.setScene(scene);
