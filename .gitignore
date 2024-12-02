@@ -4,6 +4,7 @@
 *.iml
 *.ipr
 /target
+/out
 
 ### Maven ###
 .mvn/
