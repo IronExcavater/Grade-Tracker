@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import ironbyte.gradetracker.view.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ironbyte.gradetracker.controller.SettingsController" stylesheets="@../app.css">
+    <center>
+        <HBox spacing="50" alignment="TOP_CENTER" style="-fx-padding: 30">
+            <VBox spacing="10">
+                <Label text="Grade Scheme" styleClass="h1"/>
+                <GridPane hgap="20" vgap="10" alignment="CENTER">
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="0" text="Grade" styleClass="strong"/>
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="Min Mark" styleClass="strong"/>
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="2" text="Grade Points" styleClass="strong"/>
+                    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" text="High Distinction"/>
+                    <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="hdMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="1" GridPane.columnIndex="2" fx:id="hdPointTf"/>
+                    <Label GridPane.rowIndex="2" GridPane.columnIndex="0" text="Distinction"/>
+                    <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="dMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="2" GridPane.columnIndex="2" fx:id="dPointTf"/>
+                    <Label GridPane.rowIndex="3" GridPane.columnIndex="0" text="Credit"/>
+                    <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="cMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="3" GridPane.columnIndex="2" fx:id="cPointTf"/>
+                    <Label GridPane.rowIndex="4" GridPane.columnIndex="0" text="Pass"/>
+                    <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="pMarkTf"/>
+                    <DoubleTextField GridPane.rowIndex="4" GridPane.columnIndex="2" fx:id="pPointTf"/>
+                </GridPane>
+            </VBox>
+            <VBox spacing="10">
+                <Label text="Student Data" styleClass="h1"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Name:"/>
+                    <StringTextField fx:id="nameTf" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Decimal Rounding:"/>
+                    <IntegerTextField fx:id="roundingTf" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button text="Erase All Data" styleClass="warning" onAction="#handleErase"/>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

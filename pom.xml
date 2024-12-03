@@ -4,26 +4,31 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>Iron</groupId>
+    <groupId>IronByte</groupId>
     <artifactId>GradeTracker</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>GradeTracker</name>
+    <description>An intuitive GPA tracking tool that monitors and calculates academic performance</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.appClass>ironbyte.gradetracker.Application</project.appClass>
+        <project.launchClass>ironbyte.gradetracker.Launcher</project.launchClass>
         <junit.version>5.10.0</junit.version>
+        <javafx.version>23</javafx.version>
+        <javafx.home>C:\Program Files\JavaFX\javafx-sdk-23</javafx.home>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>22-ea+11</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>22-ea+11</version>
+            <version>${javafx.version}</version>
         </dependency>
 
         <dependency>
@@ -68,23 +73,320 @@
                     <target>22</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
+                <configuration>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <jlinkImageName>jlink-image</jlinkImageName>
+                    <jmodsPath>target/jmods</jmodsPath>
+                    <jlinkVerbose>true</jlinkVerbose>
+                    <mainClass>${project.appClass}</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>${project.appClass}</mainClass>
+                        </manifest>
+                    </archive>
+                    <outputDirectory>target/jmods</outputDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
                         <configuration>
-                            <mainClass>iron.gradetracker/iron.gradetracker.Application
-                            </mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>target/jmods</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>1.2.2.Final</version>
+                <executions>
+                    <execution>
+                        <id>add-module-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/jmods</outputDirectory>
+                            <overwriteExistingFiles>true</overwriteExistingFiles>
+                            <modules>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.apache.commons</groupId>
+                                        <artifactId>commons-collections4</artifactId>
+                                        <version>4.4</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module org.apache.commons.collections4 {
+                                        requires transitive java.xml;
+                                        exports org.apache.commons.collections4;
+                                        exports org.apache.commons.collections4.bag;
+                                        exports org.apache.commons.collections4.bidimap;
+                                        exports org.apache.commons.collections4.collection;
+                                        exports org.apache.commons.collections4.comparators;
+                                        exports org.apache.commons.collections4.functors;
+                                        exports org.apache.commons.collections4.iterators;
+                                        exports org.apache.commons.collections4.keyvalue;
+                                        exports org.apache.commons.collections4.list;
+                                        exports org.apache.commons.collections4.map;
+                                        exports org.apache.commons.collections4.multimap;
+                                        exports org.apache.commons.collections4.multiset;
+                                        exports org.apache.commons.collections4.properties;
+                                        exports org.apache.commons.collections4.queue;
+                                        exports org.apache.commons.collections4.sequence;
+                                        exports org.apache.commons.collections4.set;
+                                        exports org.apache.commons.collections4.splitmap;
+                                        exports org.apache.commons.collections4.trie;
+                                        exports org.apache.commons.collections4.trie.analyzer;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.apache.commons</groupId>
+                                        <artifactId>commons-math3</artifactId>
+                                        <version>3.6.1</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module commons.math3 {
+                                        requires transitive java.desktop;
+                                        exports org.apache.commons.math3;
+                                        exports org.apache.commons.math3.analysis;
+                                        exports org.apache.commons.math3.analysis.differentiation;
+                                        exports org.apache.commons.math3.analysis.function;
+                                        exports org.apache.commons.math3.analysis.integration;
+                                        exports org.apache.commons.math3.analysis.integration.gauss;
+                                        exports org.apache.commons.math3.analysis.interpolation;
+                                        exports org.apache.commons.math3.analysis.polynomials;
+                                        exports org.apache.commons.math3.analysis.solvers;
+                                        exports org.apache.commons.math3.complex;
+                                        exports org.apache.commons.math3.dfp;
+                                        exports org.apache.commons.math3.distribution;
+                                        exports org.apache.commons.math3.distribution.fitting;
+                                        exports org.apache.commons.math3.exception;
+                                        exports org.apache.commons.math3.exception.util;
+                                        exports org.apache.commons.math3.filter;
+                                        exports org.apache.commons.math3.fitting;
+                                        exports org.apache.commons.math3.fitting.leastsquares;
+                                        exports org.apache.commons.math3.fraction;
+                                        exports org.apache.commons.math3.genetics;
+                                        exports org.apache.commons.math3.geometry;
+                                        exports org.apache.commons.math3.geometry.enclosing;
+                                        exports org.apache.commons.math3.geometry.euclidean.oned;
+                                        exports org.apache.commons.math3.geometry.euclidean.threed;
+                                        exports org.apache.commons.math3.geometry.euclidean.twod;
+                                        exports org.apache.commons.math3.geometry.euclidean.twod.hull;
+                                        exports org.apache.commons.math3.geometry.hull;
+                                        exports org.apache.commons.math3.geometry.partitioning;
+                                        exports org.apache.commons.math3.geometry.partitioning.utilities;
+                                        exports org.apache.commons.math3.geometry.spherical.oned;
+                                        exports org.apache.commons.math3.geometry.spherical.twod;
+                                        exports org.apache.commons.math3.linear;
+                                        exports org.apache.commons.math3.ml.clustering;
+                                        exports org.apache.commons.math3.ml.clustering.evaluation;
+                                        exports org.apache.commons.math3.ml.distance;
+                                        exports org.apache.commons.math3.ml.neuralnet;
+                                        exports org.apache.commons.math3.ml.neuralnet.oned;
+                                        exports org.apache.commons.math3.ml.neuralnet.sofm;
+                                        exports org.apache.commons.math3.ml.neuralnet.sofm.util;
+                                        exports org.apache.commons.math3.ml.neuralnet.twod;
+                                        exports org.apache.commons.math3.ml.neuralnet.twod.util;
+                                        exports org.apache.commons.math3.ode;
+                                        exports org.apache.commons.math3.ode.events;
+                                        exports org.apache.commons.math3.ode.nonstiff;
+                                        exports org.apache.commons.math3.ode.sampling;
+                                        exports org.apache.commons.math3.optim;
+                                        exports org.apache.commons.math3.optim.linear;
+                                        exports org.apache.commons.math3.optim.nonlinear.scalar;
+                                        exports org.apache.commons.math3.optim.nonlinear.scalar.gradient;
+                                        exports org.apache.commons.math3.optim.nonlinear.scalar.noderiv;
+                                        exports org.apache.commons.math3.optim.nonlinear.vector;
+                                        exports org.apache.commons.math3.optim.nonlinear.vector.jacobian;
+                                        exports org.apache.commons.math3.optim.univariate;
+                                        exports org.apache.commons.math3.optimization;
+                                        exports org.apache.commons.math3.optimization.direct;
+                                        exports org.apache.commons.math3.optimization.fitting;
+                                        exports org.apache.commons.math3.optimization.general;
+                                        exports org.apache.commons.math3.optimization.linear;
+                                        exports org.apache.commons.math3.optimization.univariate;
+                                        exports org.apache.commons.math3.primes;
+                                        exports org.apache.commons.math3.random;
+                                        exports org.apache.commons.math3.special;
+                                        exports org.apache.commons.math3.stat;
+                                        exports org.apache.commons.math3.stat.clustering;
+                                        exports org.apache.commons.math3.stat.correlation;
+                                        exports org.apache.commons.math3.stat.descriptive;
+                                        exports org.apache.commons.math3.stat.descriptive.moment;
+                                        exports org.apache.commons.math3.stat.descriptive.rank;
+                                        exports org.apache.commons.math3.stat.descriptive.summary;
+                                        exports org.apache.commons.math3.stat.inference;
+                                        exports org.apache.commons.math3.stat.interval;
+                                        exports org.apache.commons.math3.stat.ranking;
+                                        exports org.apache.commons.math3.stat.regression;
+                                        exports org.apache.commons.math3.transform;
+                                        exports org.apache.commons.math3.util;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.github.virtuald</groupId>
+                                        <artifactId>curvesapi</artifactId>
+                                        <version>1.08</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module com.github.virtuald.curvesapi {
+                                        requires transitive java.desktop;
+                                        exports com.graphbuilder.curve;
+                                        exports com.graphbuilder.geom;
+                                        exports com.graphbuilder.math;
+                                        exports com.graphbuilder.math.func;
+                                        exports com.graphbuilder.org.apache.harmony.awt.gl;
+                                        exports com.graphbuilder.struc;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.openjfx</groupId>
+                                        <artifactId>javafx-base</artifactId>
+                                        <version>23</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module javafx.baseEmpty {
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.openjfx</groupId>
+                                        <artifactId>javafx-controls</artifactId>
+                                        <version>23</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module javafx.controlsEmpty {
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.openjfx</groupId>
+                                        <artifactId>javafx-fxml</artifactId>
+                                        <version>23</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module javafx.fxmlEmpty {
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>org.openjfx</groupId>
+                                        <artifactId>javafx-graphics</artifactId>
+                                        <version>23</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module javafx.graphicsEmpty {
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.zaxxer</groupId>
+                                        <artifactId>sparsebitset</artifactId>
+                                        <version>1.3</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module com.zaxxer.sparsebitset {
+                                        exports com.zaxxer.sparsebits;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                            </modules>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>create-runtime-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create-runtime-image</goal>
+                        </goals>
+                        <configuration>
+                            <jarInclusionPolicy>NONE</jarInclusionPolicy>
+                            <modulePath>
+                                <path>target/jmods</path>
+                            </modulePath>
+                            <modules>
+                                <module>ironbyte.gradetracker</module>
+                            </modules>
+                            <launcher>
+                                <name>Launch</name>
+                                <module>ironbyte.gradetracker/ironbyte.gradetracker.Launcher</module>
+                            </launcher>
+                            <outputDirectory>target/jlink-image</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <configuration>
+                    <name>${project.name}</name>
+                    <appVersion>${project.version}</appVersion>
+                    <vendor>${project.groupId}</vendor>
+                    <runtimeImage>target/jlink-image</runtimeImage>
+                    <module>ironbyte.gradetracker/${project.launchClass}</module>
+                    <modulePaths>
+                        <modulePath>target/jmods</modulePath>
+                    </modulePaths>
+                    <destination>target/dist</destination>
+                    <additionalOptions>
+                        <option>--verbose</option>
+                    </additionalOptions>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>win</id>
+                        <configuration>
+                            <icon>src/main/resources/ironbyte/gradetracker/images/icon/icon.ico</icon>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>mac</id>
+                        <configuration>
+                            <icon>src/main/resources/ironbyte/gradetracker/images/icon/icon.icns</icon>
                         </configuration>
                     </execution>
                 </executions>

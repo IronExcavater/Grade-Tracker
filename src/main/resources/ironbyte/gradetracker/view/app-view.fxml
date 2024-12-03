@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import ironbyte.gradetracker.view.ImageButton?>
+
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ironbyte.gradetracker.controller.AppController" stylesheets="@../app.css">
+    <top>
+        <VBox>
+            <HBox fx:id="titleHbx" alignment="CENTER" spacing="20">
+                <padding>
+                    <Insets top="10" right="10"/>
+                </padding>
+                <MenuBar>
+                    <Menu text="File">
+                        <MenuItem text="Import" onAction="#handleImport"/>
+                        <MenuItem text="Export" onAction="#handleExport"/>
+                        <MenuItem fx:id="saveItm" text="Save"/>
+                    </Menu>
+                    <Menu text="Edit">
+                        <MenuItem fx:id="undoItm" text="Undo"/>
+                        <MenuItem fx:id="redoItm" text="Redo"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem fx:id="addItm" text="Add"/>
+                        <MenuItem fx:id="deleteItm" text="Delete"/>
+                        <SeparatorMenuItem/>
+                        <Menu fx:id="sortMnu" text="Sort">
+                            <MenuItem text="A to Z" onAction="#handleSort"/>
+                            <MenuItem text="Z to A" onAction="#handleSort"/>
+                            <MenuItem text="High to Low" onAction="#handleSort"/>
+                            <MenuItem text="Low to High" onAction="#handleSort"/>
+                            <MenuItem text="Custom" onAction="#handleSort"/>
+                        </Menu>
+                        <MenuItem fx:id="findItm" text="Find"/>
+                    </Menu>
+                </MenuBar>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="titleLbl" text="GradeTracker" styleClass="h1"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="buttonHbx" spacing="8" alignment="CENTER">
+                    <padding>
+                        <Insets left="10" right="10"/>
+                    </padding>
+                    <ImageButton fx:id="minBtn" styleClass="title-button" prefWidth="13"/>
+                    <ImageButton fx:id="maxBtn" styleClass="title-button" prefWidth="13"/>
+                    <ImageButton fx:id="closeBtn" styleClass="title-button" prefWidth="13"/>
+                </HBox>
+            </HBox>
+            <TabPane fx:id="tabMenu" tabClosingPolicy="UNAVAILABLE" tabDragPolicy="FIXED">
+                <tabMinWidth>100</tabMinWidth>
+                <tabMinHeight>30</tabMinHeight>
+                <Tab text="Home"/>
+                <Tab text="Data"/>
+                <Tab text="Settings"/>
+            </TabPane>
+        </VBox>
+    </top>
+</BorderPane>
