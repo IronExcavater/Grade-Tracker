@@ -222,8 +222,8 @@ public class DataManager {
                 if (sessionRow.getRowNum() == 0) continue;
                 var session = new SessionData(sessionRow.getCell(0).getStringCellValue());
                 sessions.add(session);
-                session.startListening();
                 student.getChildren().add(session);
+                session.startListening();
             }
 
             List<SubjectData> subjects = new ArrayList<>();
@@ -233,13 +233,13 @@ public class DataManager {
                         (int) subjectRow.getCell(2).getNumericCellValue());
 
                 subjects.add(subject);
-                subject.startListening();
                 for (var session : sessions) {
                     if (session.getName().equals(subjectRow.getCell(0).getStringCellValue())) {
                         session.getChildren().add(subject);
                         break;
                     }
                 }
+                subject.startListening();
             }
 
             for (var assessmentRow : assessmentSheet) {
@@ -249,13 +249,13 @@ public class DataManager {
                         assessmentRow.getCell(4).getNumericCellValue(),
                         (int) assessmentRow.getCell(5).getNumericCellValue());
 
-                assessment.startListening();
                 for (var subject : subjects) {
                     if (subject.getName().equals(assessmentRow.getCell(1).getStringCellValue())) {
                         subject.getChildren().add(assessment);
                         break;
                     }
                 }
+                assessment.startListening();
             }
             ActionManager.executeAction(new ImportAction(App.getStudentData(), student));
         } catch (IOException _) {}
