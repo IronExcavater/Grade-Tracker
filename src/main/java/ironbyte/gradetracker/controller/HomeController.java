@@ -76,7 +76,15 @@ public class HomeController extends Controller {
                 .sorted(Comparator.comparing(AssessmentData::getDate))
                 .collect(Collectors.groupingBy(assessment -> assessment.getDate().format(formatter),
                         LinkedHashMap::new,
-                        Collectors.averagingDouble(assessment -> assessment.getMark() / assessment.getWeight())));
+                        Collectors.collectingAndThen(
+                                Collectors.reducing(
+                                        new double[]{0, 0}, // unweighted total mark, total weight
+                                        assessment -> new double[]{assessment.getMark() / assessment.getWeight(), assessment.getWeight()},
+                                        (a, b) -> new double[]{a[0] + b[0], a[1] + b[1]}
+                                ),
+                                totalMarkAndWeight -> totalMarkAndWeight[0] * Math.max(100, totalMarkAndWeight[1])
+                        ))
+                );
     }
 
     private Map<String, Double> getWamBySubject() {

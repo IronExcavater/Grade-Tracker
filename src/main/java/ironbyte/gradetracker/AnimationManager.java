@@ -1,7 +1,6 @@
 package ironbyte.gradetracker;
 
 import ironbyte.gradetracker.controller.AppController;
-import ironbyte.gradetracker.controller.DataController;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -87,9 +86,7 @@ public class AnimationManager {
             this.finished = false;
 
             this.onFinished = onFinished;
-            transition.setOnFinished(_ -> {
-                finish();
-            });
+            transition.setOnFinished(_ -> finish());
         }
 
         public void play() {

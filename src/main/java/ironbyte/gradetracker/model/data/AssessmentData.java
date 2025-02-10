@@ -57,6 +57,11 @@ public class AssessmentData extends Data<AssessmentData> {
             ActionManager.executeAction(
                     new ChangeAction<>(this, (Integer) oldValue, (Integer) newValue, 0, weightProperty()::set));
         });
+        dateProperty().addListener((_, oldValue, newValue) -> {
+            if (ActionManager.isActive()) return;
+            ActionManager.executeAction(
+                    new ChangeAction<>(this, oldValue, newValue, LocalDate.now(), dateProperty()::set));
+        });
         markProperty().bind(scoreProperty().divide(maxScoreProperty()).multiply(weightProperty()));
     }
 

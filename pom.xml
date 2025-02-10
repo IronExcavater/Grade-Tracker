@@ -16,7 +16,6 @@
         <project.launchClass>ironbyte.gradetracker.Launcher</project.launchClass>
         <junit.version>5.10.0</junit.version>
         <javafx.version>23</javafx.version>
-        <javafx.home>C:\Program Files\JavaFX\javafx-sdk-23</javafx.home>
     </properties>
 
     <dependencies>
